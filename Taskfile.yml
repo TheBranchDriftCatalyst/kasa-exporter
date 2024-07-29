@@ -1,0 +1,72 @@
+version: '3'
+
+tasks:
+  install:
+    desc: "Install dependencies using Poetry"
+    cmds:
+    - poetry install
+
+  install_dev:
+    desc: "Install development dependencies using Poetry"
+    cmds:
+    - poetry install --with dev
+
+  run_tests:
+    desc: "Run unit tests"
+    deps: [install_dev]
+    cmds:
+    - poetry run python -m unittest discover -s tests
+
+  watch:
+    desc: "Run the exporter with livereload"
+    cmds:
+    - python -m kasa_exporter.watcher
+
+  run:
+    desc: "Run the exporter"
+    cmds:
+    - python -m kasa_exporter.exporter
+
+  # Until we fix the network Multicast broadcast issue from the container, we will run 
+  # it like this for now on our docker host
+  install_daemon:
+    desc: "Install systemd service for kasa-exporter"
+    cmds:
+    - |
+      echo "[Unit]
+      Description=Kasa Exporter Service
+      After=network.target
+
+      [Service]
+      Environment=DEBUG=${DEBUG}
+      ExecStart=$(which python) -m kasa_exporter.exporter --debug=${DEBUG}
+      WorkingDirectory=$(pwd)
+      StandardOutput=file:$(pwd)/exporter.log
+      StandardError=file:$(pwd)/exporter.log
+      Restart=always
+      User=$(whoami)
+
+      [Install]
+      WantedBy=multi-user.target" | sudo tee /etc/systemd/system/kasa-exporter.service
+    - sudo systemctl daemon-reload
+    - sudo systemctl enable kasa-exporter
+
+  start_daemon:
+    desc: "Start the kasa-exporter service"
+    cmds:
+    - sudo systemctl start kasa-exporter
+
+  stop_daemon:
+    desc: "Stop the kasa-exporter service"
+    cmds:
+    - sudo systemctl stop kasa-exporter
+
+  restart_daemon:
+    desc: "Restart the kasa-exporter service"
+    cmds:
+    - sudo systemctl restart kasa-exporter
+
+  status_daemon:
+    desc: "Get the status of the kasa-exporter service"
+    cmds:
+    - sudo systemctl status kasa-exporter
