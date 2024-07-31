@@ -30,6 +30,7 @@ class PrometheusDeviceExtractor:
 
     def __init__(
         self,
+        # Extract this typing for better pydantic and mypy support
         registry: CollectorRegistry,
         metrics: Optional[
             Dict[
@@ -110,4 +111,5 @@ class PrometheusDeviceExtractor:
                     f"Updated metric '{metric_key}'",
                     value=metric_value,
                     device_labels=device_labels,
+                    has_getter=bool(getter),
                 )

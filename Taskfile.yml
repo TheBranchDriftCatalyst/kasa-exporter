@@ -32,8 +32,7 @@ tasks:
   run:
     desc: "Run the exporter"
     cmds:
-    - echo "Deploying ONLY the kasa exporter scrape config due to issue with multicast support in docker containers"
-    - echo "run the IOT discover relay in a outpost on the local network to get the devices.  Use daemon install on docker host"
+    - echo "deploying the exporter scrape config to the swarm (kasa running as daemon on node)"
     - docker stack deploy --with-registry-auth -c etc/deployment/kasa-exporter.service.yml {{.STACK_NAME}}
     - python -m kasa_exporter.exporter
 
@@ -44,6 +43,9 @@ tasks:
     - echo "Deploying ONLY the kasa exporter scrape config due to issue with multicast support in docker containers"
     - echo "run the IOT discover relay in a outpost on the local network to get the devices.  Use daemon install on docker host"
     - docker stack deploy --with-registry-auth -c etc/deployment/kasa-exporter.service.yml {{.STACK_NAME}}
+
+  run-as-daemon:
+    cmds:
     - nohup python -m kasa_exporter.exporter & echo $! > kasa-exporter.pid
 
 

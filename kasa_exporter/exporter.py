@@ -22,6 +22,9 @@ logger = structlog.get_logger()
 
 app = FastAPI()
 
+# Note. we need to make this rotatable.  There is a current bug where if you change the alias of a device from the kassa app
+# the old device hangs around with the last metric continuosly being scraped.  We could keep track of a device_id -> alias mapping
+# and when this changes remove metrics with the old alias mapping...
 collector_registry = CollectorRegistry()
 
 KP125M_device_extractor = KP125M(collector_registry)
@@ -50,7 +53,7 @@ async def main():
     #     "kasa_password": os.getenv("KASA_PASSWORD"),
     #     "pushgateway_url": os.getenv("PUSHGATEWAY_URL"),
     #     "pushgateway_job": os.getenv("PUSHGATEWAY_JOB", 'kasa_exporter'),
-    #     "pushgateway_interval": os.getenv("PUSHGATEWAY_INTERVAL", 10),
+    #     "sampling_rate": os.getenv("SAMPLING_RATE", 10),
     # }
 
     for extractor in [KP125M_device_extractor]:
@@ -74,7 +77,8 @@ async def main():
                 "Discovered and scraping device", alias=device.alias, model=device.model, address=addr
             )
             KP125M_device_extractor.update_metrics(device)
-
+            await device.disconnect() # change to a try catch finally block probably... or some better context management
+            # also add if relevant os envs are set then use pushgateway
         # TODO: add the pushgateway here if it is enabled
         await asyncio.sleep(10)
 

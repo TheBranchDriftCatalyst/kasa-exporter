@@ -1,31 +1,31 @@
 services:
 
-  # There is a bit of an issue with running this in a container,
+  # TODO: There is a bit of an issue with running this in a container,
   # kasa discover uses udp broadcasts which are lost at the container network boundary
   # they do not propogate past it without further... more painful
-  # configuration. Host networking is one of those, yet i have yet to get it to work.
-  # macvlan is another option
-  kasa_exporter:
-    build:
-      context: .
-    ports:
-      - "8000:8000"
-    environment:
-      - KASA_USERNAME
-      - KASA_PASSWORD
-    network_mode: host
-    # networks:
-    #   macvlan_net:
-    #     ipv4_address: 192.168.1.3
-    develop:
-      watch:
-        - action: sync
-          path: ./kasa_exporter
-          target: /app/kasa_exporter
-          # ignore:
-            # - node_modules/
-        # - action: rebuild
-          # path: package.json
+  # configuration is going to be requires. Host networking is one of those, yet i have 
+  # yet to get it to work. macvlan is another option
+  # kasa_exporter:
+  #   build:
+  #     context: .
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - KASA_USERNAME
+  #     - KASA_PASSWORD
+  #   network_mode: host
+  #   # networks:
+  #   #   macvlan_net:
+  #   #     ipv4_address: 192.168.1.3
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./kasa_exporter
+  #         target: /app/kasa_exporter
+  #         # ignore:
+  #           # - node_modules/
+  #       # - action: rebuild
+  #         # path: package.json
 
   prometheus:
     image: prom/prometheus:latest
