@@ -1,5 +1,12 @@
 version: '3'
 
+vars:
+  STACK_NAME: kasa-exporter
+
+includes:
+  daemon: ./etc/Taskfile.daemon.yml
+  utils: ../../../common/CatalystStack.AbstractTaskFile.yml
+
 tasks:
   install:
     desc: "Install dependencies using Poetry"
@@ -25,48 +32,18 @@ tasks:
   run:
     desc: "Run the exporter"
     cmds:
+    - echo "Deploying ONLY the kasa exporter scrape config due to issue with multicast support in docker containers"
+    - echo "run the IOT discover relay in a outpost on the local network to get the devices.  Use daemon install on docker host"
+    - docker stack deploy --with-registry-auth -c etc/deployment/kasa-exporter.service.yml {{.STACK_NAME}}
     - python -m kasa_exporter.exporter
 
-  # Until we fix the network Multicast broadcast issue from the container, we will run 
-  # it like this for now on our docker host
-  install_daemon:
-    desc: "Install systemd service for kasa-exporter"
+
+  deploy:
+    desc: "Run the exporter"
     cmds:
-    - |
-      echo "[Unit]
-      Description=Kasa Exporter Service
-      After=network.target
+    - echo "Deploying ONLY the kasa exporter scrape config due to issue with multicast support in docker containers"
+    - echo "run the IOT discover relay in a outpost on the local network to get the devices.  Use daemon install on docker host"
+    - docker stack deploy --with-registry-auth -c etc/deployment/kasa-exporter.service.yml {{.STACK_NAME}}
+    - nohup python -m kasa_exporter.exporter & echo $! > kasa-exporter.pid
 
-      [Service]
-      Environment=DEBUG=${DEBUG}
-      ExecStart=$(which python) -m kasa_exporter.exporter --debug=${DEBUG}
-      WorkingDirectory=$(pwd)
-      StandardOutput=file:$(pwd)/exporter.log
-      StandardError=file:$(pwd)/exporter.log
-      Restart=always
-      User=$(whoami)
 
-      [Install]
-      WantedBy=multi-user.target" | sudo tee /etc/systemd/system/kasa-exporter.service
-    - sudo systemctl daemon-reload
-    - sudo systemctl enable kasa-exporter
-
-  start_daemon:
-    desc: "Start the kasa-exporter service"
-    cmds:
-    - sudo systemctl start kasa-exporter
-
-  stop_daemon:
-    desc: "Stop the kasa-exporter service"
-    cmds:
-    - sudo systemctl stop kasa-exporter
-
-  restart_daemon:
-    desc: "Restart the kasa-exporter service"
-    cmds:
-    - sudo systemctl restart kasa-exporter
-
-  status_daemon:
-    desc: "Get the status of the kasa-exporter service"
-    cmds:
-    - sudo systemctl status kasa-exporter

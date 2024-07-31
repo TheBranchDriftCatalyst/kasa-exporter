@@ -1,10 +1,9 @@
+from datetime import datetime
+from typing import Any
 import structlog
 
 from .prom_device_extractor import PromMetricType, PrometheusDeviceExtractor
-# from devices.prom_device_extractor import (
-#     PromMetricType,
-#     PrometheusDeviceExtractor,
-# )
+from ..utils.time_of_use_calc import TIME_OF_USE_CONFIG, TimeOfUseCalc
 
 logger = structlog.get_logger()
 
@@ -14,15 +13,28 @@ dimensions = {
     "model": None,
 }
 
+calculator = TimeOfUseCalc(TIME_OF_USE_CONFIG)
+
 # NOTE: right now this is coming from state_infomration, lets change this to device.features
 # we have access ot the snesors directly here.
 metrics = {
-    "Current consumption": PromMetricType.GAUGE,
+    "Current consumption": {
+        "type": PromMetricType.GAUGE,
+        # TODO: note that i want to change this a bit and move to the device.features 
+        # (which gives us more direct access to the sensors)
+        "getter": lambda device: device.state_information["Current consumption"],
+        # "derived_labels": lambda device: { }
+    },
     "Today's consumption": PromMetricType.GAUGE,
     "This month's consumption": PromMetricType.GAUGE,
-    "RSSI": PromMetricType.GAUGE,
+    "RSSI": PromMetricType.GAUGE, # This can also be moved onto the signal level as a derived metric
     "Signal Level": PromMetricType.GAUGE,
-    # "State": PromMetricType.BOOLEAN,
+    "consumption_cost": { # this can be moved to a derived label on the current consumption metric
+        "type": PromMetricType.GAUGE,
+        "getter": lambda device: calculator.calculate_rate_for_current_usage(
+            device.state_information["Current consumption"]
+        ),
+    },
 }
 
 
@@ -33,28 +45,3 @@ class KP125M(PrometheusDeviceExtractor):
     def is_device(self, device) -> bool:
         # Implement your device-specific check logic here
         pass
-
-
-# # Example usage
-# if __name__ == "__main__":
-#     registry = CollectorRegistry()
-#     kp125m_extractor = KP125M(registry)
-#     kp125m_extractor.initialize_metrics()
-
-#     # Simulate a device object for testing
-#     class Device:
-#         id = "123"
-#         alias = "Test Device"
-#         ip = "192.168.1.1"
-#         current_consumption = 10.5
-#         rssi = -70
-#         signal_level = 3
-
-#         def get(self, path):
-#             # Simulate the nested dictionary retrieval for device_type
-#             if path == "_.info.device_type":
-#                 return "KP125M"
-#             return None
-
-#     device = Device()
-#     kp125m_extractor.update_metrics(device)

@@ -1,14 +1,8 @@
 from enum import Enum
-from prometheus_client import (
-    Gauge,
-    Counter,
-    Summary,
-    Histogram,
-    CollectorRegistry,
-)
+from prometheus_client import Gauge, Counter, Summary, Histogram, CollectorRegistry
 import re
 import structlog
-from typing import Callable, Dict, Any, Optional
+from typing import Callable, Dict, Any, Optional, Union
 
 logger = structlog.get_logger()
 
@@ -37,7 +31,15 @@ class PrometheusDeviceExtractor:
     def __init__(
         self,
         registry: CollectorRegistry,
-        metrics: Optional[Dict[str, PromMetricType]] = None,
+        metrics: Optional[
+            Dict[
+                str,
+                Union[
+                    PromMetricType,
+                    Dict[str, Union[PromMetricType, Callable[[Any], Any]]],
+                ],
+            ]
+        ] = None,
         dimensions: Optional[
             Dict[str, Optional[Callable[[Any], Any]]]
         ] = None,  # Updated type
@@ -47,16 +49,28 @@ class PrometheusDeviceExtractor:
         self.dimensions = dimensions or {}
         self.metric_objects = {}
 
-    def register_metric(self, metric_key: str, metric_type: PromMetricType) -> None:
+    def register_metric(
+        self, metric_key: str, metric_info: Union[PromMetricType, Dict[str, Any]]
+    ) -> None:
+        if isinstance(metric_info, dict):
+            metric_type = metric_info.get("type")
+            getter = metric_info.get("getter")
+        else:
+            metric_type = metric_info
+            getter = None
+
         if metric_type in PROM_METRIC_TYPES:
             sanitized_name = self.sanitize_metric_name(metric_key)
             metric_class = PROM_METRIC_TYPES[metric_type]
-            self.metric_objects[metric_key] = metric_class(
-                f"{sanitized_name}",
-                f"{metric_key}",
-                self.dimensions.keys(),
-                registry=self.registry,
-            )
+            self.metric_objects[metric_key] = {
+                "metric": metric_class(
+                    f"{sanitized_name}",
+                    f"{metric_key}",
+                    self.dimensions.keys(),
+                    registry=self.registry,
+                ),
+                "getter": getter,
+            }
             logger.info(
                 f"Registered {metric_type.name.lower()} metric for {metric_key}"
             )
@@ -65,8 +79,8 @@ class PrometheusDeviceExtractor:
             raise ValueError(f"Metric type '{metric_type}' not supported.")
 
     def initialize_metrics(self) -> None:
-        for metric_key, metric_type in self.metrics.items():
-            self.register_metric(metric_key, metric_type)
+        for metric_key, metric_info in self.metrics.items():
+            self.register_metric(metric_key, metric_info)
 
     def get_device_labels(self, device: Any) -> Dict[str, Any]:
         labels = {}
@@ -82,8 +96,13 @@ class PrometheusDeviceExtractor:
         return labels
 
     def update_metrics(self, device: Any) -> None:
-        for metric_key, metric_object in self.metric_objects.items():
-            metric_value = device.state_information[metric_key]
+        for metric_key, metric_info in self.metric_objects.items():
+            metric_object = metric_info["metric"]
+            if getter := metric_info["getter"]:
+                metric_value = getter(device)
+            else:
+                metric_value = device.state_information.get(metric_key)
+
             device_labels = self.get_device_labels(device)
             if metric_value is not None:
                 metric_object.labels(**device_labels).set(metric_value)
