@@ -8,7 +8,7 @@ import structlog
 from prometheus_client import generate_latest, push_to_gateway, start_http_server, CollectorRegistry
 from fastapi import FastAPI
 # from kasa_exporter.device_registry import DeviceRegistry
-from .devices.KP125M import KP125M
+from .devices.KP125M import KP125MDeviceExtractor
 
 # Configure structured logging with timestamp
 structlog.configure(
@@ -26,8 +26,6 @@ app = FastAPI()
 # the old device hangs around with the last metric continuosly being scraped.  We could keep track of a device_id -> alias mapping
 # and when this changes remove metrics with the old alias mapping...
 collector_registry = CollectorRegistry()
-
-KP125M_device_extractor = KP125M(collector_registry)
 
 @app.get("/metrics")
 async def get_metrics():
@@ -56,8 +54,8 @@ async def main():
     #     "sampling_rate": os.getenv("SAMPLING_RATE", 10),
     # }
 
-    for extractor in [KP125M_device_extractor]:
-        extractor.initialize_metrics()
+    for extractor in [KP125MDeviceExtractor]:
+        extractor.initialize_metrics(registry=collector_registry)
 
     credentials = Credentials(
         os.getenv("KASA_USERNAME"),
@@ -76,7 +74,7 @@ async def main():
             logger.info(
                 "Discovered and scraping device", alias=device.alias, model=device.model, address=addr
             )
-            KP125M_device_extractor.update_metrics(device)
+            KP125MDeviceExtractor.update_metrics(device)
             await device.disconnect() # change to a try catch finally block probably... or some better context management
             # also add if relevant os envs are set then use pushgateway
         # TODO: add the pushgateway here if it is enabled

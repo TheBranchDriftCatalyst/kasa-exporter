@@ -46,6 +46,17 @@ class TimeOfUseCalc:
         # Default season if not in any range
         return "summer"  # or whatever default season you prefer
 
+    def get_rate_name(self, current_time: datetime, season: str) -> str:
+        """Determine the rate name based on the current time and time ranges."""
+        current_time_str = current_time.strftime("%H:%M")
+        for period, ranges in self.config[season].items():
+            if period == "rate":
+                continue
+            for start, end in ranges:
+                if start <= current_time_str <= end:
+                    return period
+        return "off_peak"
+    
     def get_rate_for_time(self, current_time: datetime, season: str) -> float:
         """Determine the rate based on the current time and time ranges."""
         current_time_str = current_time.strftime("%H:%M")
@@ -59,7 +70,7 @@ class TimeOfUseCalc:
             "off_peak"
         ]  # Default rate if not in any range
 
-    def calculate_rate_for_current_usage(self, current_consumption: float) -> float:
+    def calc_rate(self, current_consumption: float) -> float:
         """Calculate the instantaneous cost of the current consumption."""
         self.current_season = self.get_current_season()
         current_time = datetime.now(pytz.timezone("UTC")).astimezone(

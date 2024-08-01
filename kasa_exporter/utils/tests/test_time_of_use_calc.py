@@ -93,14 +93,14 @@ class TestTimeOfUseCalc(unittest.TestCase):
         self.assertEqual(rate, 0.25)
 
     @patch("kasa_exporter.utils.time_of_use_calc.datetime")
-    def test_calculate_rate_for_current_usage(self, mock_datetime):
+    def test_calc_rate(self, mock_datetime):
         mock_datetime.now.return_value = datetime(
             2024, 6, 15, 5, 0
         )  # June 15, 5:00 AM UTC
         mock_datetime.now.return_value = mock_datetime.now.return_value.replace(
             tzinfo=pytz.UTC
         )
-        cost = self.calculator.calculate_rate_for_current_usage(2000)  # 1000 watts
+        cost = self.calculator.calc_rate(2000)  # 1000 watts
         self.assertAlmostEqual(cost, 0.22, places=6)
 
 
