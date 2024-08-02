@@ -77,4 +77,4 @@ class TimeOfUseCalc:
             pytz.timezone("America/Denver")
         )  # Adjust timezone as needed
         rate = self.get_rate_for_time(current_time, self.current_season)
-        return (current_consumption / 1000) * rate
+        return round((current_consumption / 1000) * rate, 6)

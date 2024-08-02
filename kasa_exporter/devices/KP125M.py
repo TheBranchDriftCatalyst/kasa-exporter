@@ -23,9 +23,11 @@ metrics: MetricsType = {
         # (which gives us more direct access to the sensors)
         "getter": lambda device: device.state_information["Current consumption"],
         "derive_labels": {
-            "cost": lambda device: calculator.calc_rate(
-                device.state_information["Current consumption"]
-            ),
+            #  DOnt do this.... it is naughty creates more metrics....
+            # cost does not have a finite cardinality and is... effectively random (the space is fuckin big)
+            # "cost": lambda device: calculator.calc_rate(
+            #     device.state_information["Current consumption"]
+            # ),
             "season": lambda _d: calculator.get_current_season(),
             "rate": lambda _d: calculator.get_rate_for_time(
                 date.today(), calculator.get_current_season()
@@ -35,8 +37,8 @@ metrics: MetricsType = {
             ),
         },
     },
-    "Today's consumption": PromMetricType.COUNTER,
-    "This month's consumption": PromMetricType.COUNTER,
+    "Today's consumption": PromMetricType.GAUGE,
+    "This month's consumption": PromMetricType.GAUGE,
     "RSSI": PromMetricType.GAUGE,  # This can also be moved onto the signal level as a derived metric
     # "Signal Level": PromMetricType.GAUGE,
     "consumption_cost": {  # this can be moved to a derived label on the current consumption metric
@@ -44,6 +46,15 @@ metrics: MetricsType = {
         "getter": lambda device: calculator.calc_rate(
             device.state_information["Current consumption"]
         ),
+        "derive_labels": {
+            "season": lambda _d: calculator.get_current_season(),
+            "rate": lambda _d: calculator.get_rate_for_time(
+                date.today(), calculator.get_current_season()
+            ),
+            "rate_class": lambda _d: calculator.get_rate_name(
+                date.today(), calculator.get_current_season()
+            ),
+        },
     },
     # "power_state": {
         # type: PromMetricType.ENUM,

@@ -41,8 +41,10 @@ services:
     container_name: grafana
     volumes:
       - ./etc/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./etc/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-      - ./etc/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./etc/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
+      # - ./etc/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./etc/grafana/dashboards:/etc/grafana/provisioning/dashboards
+
     ports:
       - "3000:3000"
     environment:
@@ -59,10 +61,10 @@ services:
       - "9091:9091"
     network_mode: host
 
-networks:
-  macvlan_net:
-    name: macvlan_network
-    external: true
+# networks:
+#   macvlan_net:
+#     name: macvlan_network
+#     external: true
 
 
 # docker network create -d macvlan \

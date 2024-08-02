@@ -24,7 +24,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PED1A9E92842535F5"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -45,7 +45,7 @@
               }
             ]
           },
-          "unit": "kwatth"
+          "unit": "watt"
         },
         "overrides": []
       },
@@ -71,7 +71,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.3",
       "targets": [
         {
           "datasource": {
@@ -95,10 +95,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PED1A9E92842535F5"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -144,7 +141,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.3",
       "targets": [
         {
           "datasource": {
@@ -168,10 +165,7 @@
       "type": "gauge"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PED1A9E92842535F5"
-      },
+      "datasource": {},
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -236,7 +230,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.3",
       "targets": [
         {
           "datasource": {
@@ -261,7 +255,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PED1A9E92842535F5"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -327,7 +321,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.3",
       "targets": [
         {
           "datasource": {
@@ -336,7 +330,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "avg by(alias) (this_months_consumption)",
+          "expr": "max by(alias) (this_months_consumption)",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -352,7 +346,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PED1A9E92842535F5"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -405,7 +399,7 @@
               }
             ]
           },
-          "unit": "kwatth"
+          "unit": "watt"
         },
         "overrides": []
       },
@@ -466,7 +460,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Kasa Exporter Power Dashboard",
+  "title": "Kasa Exporter Power Dashboard !!!xxx",
   "uid": "bdtakdxgn46bkd",
   "version": 6,
   "weekStart": ""

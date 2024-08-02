@@ -5,7 +5,10 @@ vars:
 
 includes:
   daemon: ./etc/Taskfile.daemon.yml
-  utils: ../../../common/CatalystStack.AbstractTaskFile.yml
+  utils: 
+    taskfile: ../../../common/CatalystStack.AbstractTaskFile.yml
+    optional: true
+
 
 tasks:
   install:
@@ -27,14 +30,14 @@ tasks:
   watch:
     desc: "Run the exporter with livereload"
     cmds:
-    - python -m kasa_exporter.watcher
+    - poetry run python -m kasa_exporter.watcher
 
   run:
     desc: "Run the exporter"
     cmds:
-    - echo "deploying the exporter scrape config to the swarm (kasa running as daemon on node)"
-    - docker stack deploy --with-registry-auth -c etc/deployment/kasa-exporter.service.yml {{.STACK_NAME}}
-    - python -m kasa_exporter.exporter
+    # - echo "deploying the exporter scrape config to the swarm (kasa running as daemon on node)"
+    # - docker stack deploy --with-registry-auth -c etc/deployment/kasa-exporter.service.yml {{.STACK_NAME}}
+    - poetry run python -m kasa_exporter.exporter
 
 
   deploy:
@@ -46,6 +49,6 @@ tasks:
 
   run-as-daemon:
     cmds:
-    - nohup python -m kasa_exporter.exporter & echo $! > kasa-exporter.pid
+    - nohup poetry run python -m kasa_exporter.exporter & echo $! > kasa-exporter.pid
 
 
