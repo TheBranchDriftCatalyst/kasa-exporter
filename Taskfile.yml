@@ -5,7 +5,7 @@ vars:
 
 includes:
   daemon: ./etc/Taskfile.daemon.yml
-  utils: 
+  utils:
     taskfile: ../../../common/CatalystStack.AbstractTaskFile.yml
     optional: true
 
@@ -37,7 +37,7 @@ tasks:
     cmds:
     # - echo "deploying the exporter scrape config to the swarm (kasa running as daemon on node)"
     # - docker stack deploy --with-registry-auth -c etc/deployment/kasa-exporter.service.yml {{.STACK_NAME}}
-    - poetry run python -m kasa_exporter.exporter
+    - poetry run python -m kasa_exporter.main
 
 
   deploy:
@@ -49,6 +49,6 @@ tasks:
 
   run-as-daemon:
     cmds:
-    - nohup poetry run python -m kasa_exporter.exporter & echo $! > kasa-exporter.pid
+    - nohup poetry run python -m kasa_exporter.main & echo $! > kasa-exporter.pid
 
 
