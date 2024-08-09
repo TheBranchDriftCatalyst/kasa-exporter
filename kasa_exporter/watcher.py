@@ -25,7 +25,7 @@ class RestartOnChangeHandler(PatternMatchingEventHandler):
 if __name__ == "__main__":
 
     path = "."
-    command = "python -m kasa_exporter.exporter"
+    command = "python -m kasa_exporter.main"
     event_handler = RestartOnChangeHandler(command, patterns=["*.py"])
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)
