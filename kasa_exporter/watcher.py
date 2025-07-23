@@ -4,6 +4,7 @@ from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 import subprocess
 
+# Supe this up with a sweet rich console
 
 class RestartOnChangeHandler(PatternMatchingEventHandler):
     def __init__(self, command, *args, **kwargs):

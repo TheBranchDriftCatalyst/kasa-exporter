@@ -22,7 +22,7 @@ structlog.configure(
 logger = structlog.get_logger()
 
 # Note if you want to push to the gateway as well as scrape, you need to clone the registry, pushing
-# it increments the registry to its next scrape state
+# to it increments the registry to its next scrape state time, which we dont want to do.
 collector_registry = CollectorRegistry()
 device_registry = DeviceRegistry(collector_registry)
 device_exporter = DeviceExporter(device_registry, collector_registry)
