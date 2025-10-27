@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(poetry add:*)",
+      "Bash(git add:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker compose build:*)",
+      "Bash(docker network:*)",
+      "Bash(docker compose:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(poetry run kasa:*)",
+      "Bash(chmod:*)",
+      "Read(//private/tmp/**)",
+      "Bash(kill:*)",
+      "Bash(pkill:*)",
+      "Bash(task dev)",
+      "Bash(git mv:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "linear"
+  ]
+}

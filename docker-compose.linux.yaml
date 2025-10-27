@@ -1,32 +1,20 @@
-# networks:
-#   mdsn_net:
-#     external: true
-#     name: mdsn_net
+networks:
+  mdsn_net:
+    external: true
+    name: mdsn_net
 
 services:
 
   kasa_exporter:
     build:
       context: .
-    ports:
-      - "8000:8000"
     environment:
       - KASA_USERNAME
       - KASA_PASSWORD
-    network_mode: host
-    # cap_add:
-    #   - NET_ADMIN
-    # networks:
-    #  - mdsn_net
-    # develop:
-    #   watch:
-    #     - action: sync
-    #       path: ./kasa_exporter
-    #       target: /app/kasa_exporter
-          # ignore:
-            # - node_modules/
-        # - action: rebuild
-          # path: package.json
+    cap_add:
+      - NET_ADMIN
+    networks:
+     - mdsn_net
 
   prometheus:
     image: prom/prometheus:latest
@@ -35,7 +23,6 @@ services:
       - ./etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
-    network_mode: host
 
   grafana:
     image: grafana/grafana:latest
@@ -43,14 +30,12 @@ services:
     volumes:
       - ./etc/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
       - ./etc/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
-      # - ./etc/grafana/dashboards:/var/lib/grafana/dashboards
       - ./etc/grafana/dashboards:/etc/grafana/provisioning/dashboards
     ports:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-    network_mode: host
     depends_on:
       - prometheus
 
@@ -59,4 +44,3 @@ services:
     container_name: pushgateway
     ports:
       - "9091:9091"
-    network_mode: host

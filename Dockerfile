@@ -1,31 +1,23 @@
 # Use an official Python runtime as a parent image
 FROM python:3.12
 
-# Set the working directory in the container
 WORKDIR /app
 
-RUN apt-get update
-
-RUN apt-get install iputils-* -y
-RUN apt-get install net-tools -y
+RUN apt-get update && apt-get install -y iputils-* net-tools
 
 # Install Poetry
 RUN pip install poetry
 
-# Copy only the pyproject.toml and poetry.lock files to leverage Docker cache
-COPY pyproject.toml poetry.lock readme.md /app/
+# Copy dependency files for layer caching
+COPY pyproject.toml poetry.lock README.md /app/
 
-# Install dependencies
-RUN poetry config virtualenvs.create false && poetry install --no-dev
+# Copy source code
+COPY ./kasa_exporter /app/kasa_exporter
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Install dependencies (including the current project)
+RUN poetry config virtualenvs.create false && poetry install --only main
 
-# Expose the port that the app runs on
+
 EXPOSE 8000
 
-# Set the entry point to run the exporter module
-ENTRYPOINT ["poetry", "run", "python", "-m", "kasa_exporter.exporter"]
-
-# TODO: we need to do somethign about multicast broadcasting accross the container network boundary. 
-# Kasa discover does this to discover iot devices.
+ENTRYPOINT ["poetry", "run", "python", "-m", "kasa_exporter"]

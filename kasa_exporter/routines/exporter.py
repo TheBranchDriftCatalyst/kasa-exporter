@@ -17,6 +17,7 @@ structlog.configure(
 )
 logger = structlog.get_logger()
 
+
 class DeviceExporter:
     def __init__(self, device_registry, collector_registry: CollectorRegistry):
         self.device_registry = device_registry

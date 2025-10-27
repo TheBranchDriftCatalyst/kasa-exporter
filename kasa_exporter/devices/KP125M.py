@@ -1,5 +1,6 @@
-from datetime import date, datetime
+from datetime import datetime
 
+import pytz
 import structlog
 
 from ..utils.time_of_use_calc import TIME_OF_USE_CONFIG, TimeOfUseCalc
@@ -98,7 +99,7 @@ metrics = {
     "available_firmware_version": {
         "type": PromMetricType.INFO,
         "getter": lambda d: {
-            "available_firmware_version": d.features["available_firmware_version"].value
+            "available_firmware_version": d.features["available_firmware_version"].value or "none"
         },
     },
     "led": {
@@ -119,10 +120,10 @@ metrics = {
             # not the best way to do this but works well enough.  (we still need to know these upfront in register)
             "season": lambda _d: calculator.get_current_season(),
             # "rate": lambda _d: calculator.get_rate_for_time(
-            #     date.today(), calculator.get_current_season()
+            #     datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
             # ),
             "rate_class": lambda _d: calculator.get_rate_name(
-                date.today(), calculator.get_current_season()
+                datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
             ),
         },
     },
