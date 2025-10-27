@@ -44,31 +44,65 @@ This gives you the **instantaneous cost rate in $/hour**.
 - Uses **America/Denver** timezone
 - Configured in `time_of_use_calc.py:76-78`
 
-## Issues Found
+## Issues Found & Fixed
 
-### 🔴 CRITICAL: Wrong date type in rate_name calculation (KP125M.py:125)
+### ✅ FIXED: Wrong date type in rate_name calculation
 
-**Problem:**
+**Original Problem (KP125M.py:125):**
 ```python
 "rate_class": lambda _d: calculator.get_rate_name(
     date.today(), calculator.get_current_season()
 ),
 ```
 
-The `get_rate_name()` function expects a `datetime` object but receives `date.today()` which is a `date` object.
-
 **Impact:**
-- `date.today()` doesn't have `.strftime("%H:%M")` in the expected format
-- This will cause the function to always return "off_peak" as default
-- The `rate_class` label in Prometheus is likely always showing "off_peak"
+- `date.today()` doesn't have time component
+- Function always returned "off_peak" as default
+- All cost metrics showed wrong rate_class label
 
-**Fix:**
+**First Fix (Commit 53249e8):**
 ```python
 "rate_class": lambda _d: calculator.get_rate_name(
     datetime.now(pytz.timezone("America/Denver")),
     calculator.get_current_season()
 ),
 ```
+
+**Problem with First Fix:**
+- Caused **metric staleness** when rate_class changed
+- Old label combinations persisted in Prometheus
+- Created visual artifacts in Grafana (flat lines at old values)
+
+**Final Fix (Option 4 - Metric Separation):**
+Split into two metrics to avoid derive_labels cardinality explosion:
+
+```python
+"consumption_cost": {
+    "type": PromMetricType.GAUGE,
+    "getter": lambda device: calculator.calc_rate(
+        device.state_information["Current consumption"]
+    ),
+    # No derive_labels - simple per-device cost rate
+},
+"current_energy_rate": {
+    "type": PromMetricType.GAUGE,
+    "getter": lambda _d: calculator.get_rate_for_time(
+        datetime.now(pytz.timezone("America/Denver")),
+        calculator.get_current_season()
+    ),
+    "derive_labels": {
+        "season": lambda _d: calculator.get_current_season(),
+        "rate_class": lambda _d: calculator.get_rate_name(...)
+    },
+},
+```
+
+**Why This Works:**
+- `consumption_cost` - Simple gauge per device (no stale labels)
+- `current_energy_rate` - Single metric tracks current rate with season/rate_class
+- When rate changes, only ONE metric updates (not per-device)
+- No cardinality explosion (devices × seasons × rate_classes)
+- Grafana can join them if needed: `consumption_cost * on() group_left() current_energy_rate`
 
 ### 🟡 MEDIUM: Season gap coverage (March-May, October-November)
 

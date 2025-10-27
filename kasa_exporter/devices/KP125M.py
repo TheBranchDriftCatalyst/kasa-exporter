@@ -111,19 +111,24 @@ metrics = {
         "type": PromMetricType.COUNTER,
         "getter": lambda d: int(d.features.get("update_attempts", 0)),
     },  # Counter for update attempts
-    "consumption_cost": {  # this can be moved to a derived label on the current consumption metric
+    "consumption_cost": {
         "type": PromMetricType.GAUGE,
         "getter": lambda device: calculator.calc_rate(
             device.state_information["Current consumption"]
         ),
+        # No derive_labels - keeps metric simple and avoids stale label combinations
+    },
+    "current_energy_rate": {
+        "type": PromMetricType.GAUGE,
+        "getter": lambda _d: calculator.get_rate_for_time(
+            datetime.now(pytz.timezone("America/Denver")),
+            calculator.get_current_season()
+        ),
         "derive_labels": {
-            # not the best way to do this but works well enough.  (we still need to know these upfront in register)
             "season": lambda _d: calculator.get_current_season(),
-            # "rate": lambda _d: calculator.get_rate_for_time(
-            #     datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
-            # ),
             "rate_class": lambda _d: calculator.get_rate_name(
-                datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
+                datetime.now(pytz.timezone("America/Denver")),
+                calculator.get_current_season()
             ),
         },
     },

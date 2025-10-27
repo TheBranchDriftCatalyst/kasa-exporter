@@ -15,7 +15,8 @@
       "Bash(kill:*)",
       "Bash(pkill:*)",
       "Bash(task dev)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(git commit:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
