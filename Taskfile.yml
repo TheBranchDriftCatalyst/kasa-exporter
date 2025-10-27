@@ -85,3 +85,9 @@ tasks:
   run-as-daemon:
     cmds:
     - nohup poetry run python -m kasa_exporter & echo $! > kasa-exporter.pid
+
+  screenshot:
+    desc: "Take screenshots of Grafana dashboards"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run python scripts/screenshot_dashboard.py
