@@ -5,10 +5,11 @@ vars:
 
 includes:
   daemon: ./etc/Taskfile.daemon.yml
+  release: ./Taskfile.release.yml
+  service: ./Taskfile.service.yml
   utils:
     taskfile: ../../../common/CatalystStack.AbstractTaskFile.yml
     optional: true
-
 
 tasks:
   install:
@@ -23,7 +24,7 @@ tasks:
 
   run_tests:
     desc: "Run unit tests"
-    deps: [install_dev]
+    deps: [ install_dev ]
     cmds:
     - poetry run python -m unittest discover -s tests
 
@@ -32,13 +33,49 @@ tasks:
     cmds:
     - poetry run python -m kasa_exporter.watcher
 
+  dev:
+    desc: "Run full development stack (exporter natively + Prometheus + Grafana)"
+    deps: [ install ]
+    cmds:
+    - |
+      echo "🚀 Starting backend services (Prometheus, Grafana, Pushgateway)..."
+      docker compose up -d prometheus grafana pushgateway
+      echo "✅ Backend services started:"
+      echo "   - Prometheus: http://localhost:9090"
+      echo "   - Grafana: http://localhost:3000 (admin/admin)"
+      echo "   - Pushgateway: http://localhost:9091"
+      echo ""
+      echo "🔧 Starting Kasa Exporter natively with auto-reload..."
+      echo "   - Dashboard: http://localhost:8000"
+      echo "   - Metrics: http://localhost:8000/metrics"
+      echo "   - Debug: http://localhost:8000/debug"
+      echo ""
+      poetry run uvicorn kasa_exporter.__main__:app --reload --host 0.0.0.0 --port 8000
+
+  dev:stop:
+    desc: "Stop all development services"
+    cmds:
+    - docker compose down
+    - echo "✅ All services stopped"
+
   run:
     desc: "Run the exporter"
     cmds:
     # - echo "deploying the exporter scrape config to the swarm (kasa running as daemon on node)"
     # - docker stack deploy --with-registry-auth -c etc/deployment/kasa-exporter.service.yml {{.STACK_NAME}}
-    - poetry run python -m kasa_exporter.main
+    - poetry run python -m kasa_exporter
 
+  # This will not work on docker desktop, or on a mac docker
+  # use eno1
+  mdns-network:
+    desc: "Run the mDNS network discovery"
+    cmds:
+    - |
+      docker network create -d macvlan \
+      --subnet=192.168.1.0/24 \
+      --gateway=192.168.1.1 \
+      -o parent=${MDNS_INTERFACE} \
+      mdsn_net
 
   deploy:
     desc: "Run the exporter"
@@ -49,6 +86,59 @@ tasks:
 
   run-as-daemon:
     cmds:
-    - nohup poetry run python -m kasa_exporter.main & echo $! > kasa-exporter.pid
+    - nohup poetry run python -m kasa_exporter & echo $! > kasa-exporter.pid
 
+  screenshot:
+    desc: "Take screenshots of Grafana dashboards"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run python scripts/screenshot_dashboard.py
 
+  # Code quality tasks
+  format:
+    desc: "Format code with ruff"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run ruff format .
+
+  lint:
+    desc: "Lint code with ruff"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run ruff check --fix .
+
+  lint:check:
+    desc: "Check linting without fixing"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run ruff check .
+
+  test:
+    desc: "Run tests with pytest"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run pytest -v
+
+  test:cov:
+    desc: "Run tests with coverage report"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run pytest -v --cov=kasa_exporter --cov-report=term-missing --cov-report=html
+
+  check:
+    desc: "Run all checks (format, lint, test)"
+    deps: [ install_dev ]
+    cmds:
+    - task: lint:check
+    - task: test
+
+  # Git hooks
+  hooks:install:
+    desc: "Install lefthook git hooks"
+    cmds:
+    - lefthook install
+
+  hooks:uninstall:
+    desc: "Uninstall lefthook git hooks"
+    cmds:
+    - lefthook uninstall

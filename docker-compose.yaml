@@ -1,31 +1,40 @@
+# networks:
+#   mdsn_net:
+#     external: true
+#     name: mdsn_net
+
 services:
 
-  # TODO: There is a bit of an issue with running this in a container,
-  # kasa discover uses udp broadcasts which are lost at the container network boundary
-  # they do not propogate past it without further... more painful
-  # configuration is going to be requires. Host networking is one of those, yet i have 
-  # yet to get it to work. macvlan is another option
-  # kasa_exporter:
-  #   build:
-  #     context: .
-  #   ports:
-  #     - "8000:8000"
-  #   environment:
-  #     - KASA_USERNAME
-  #     - KASA_PASSWORD
-  #   network_mode: host
-  #   # networks:
-  #   #   macvlan_net:
-  #   #     ipv4_address: 192.168.1.3
-  #   develop:
-  #     watch:
-  #       - action: sync
-  #         path: ./kasa_exporter
-  #         target: /app/kasa_exporter
-  #         # ignore:
-  #           # - node_modules/
-  #       # - action: rebuild
-  #         # path: package.json
+  kasa_exporter:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    environment:
+      - KASA_USERNAME
+      - KASA_PASSWORD
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    network_mode: host
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # cap_add:
+    #   - NET_ADMIN
+    # networks:
+    #  - mdsn_net
+    # develop:
+    #   watch:
+    #     - action: sync
+    #       path: ./kasa_exporter
+    #       target: /app/kasa_exporter
+          # ignore:
+            # - node_modules/
+        # - action: rebuild
+          # path: package.json
 
   prometheus:
     image: prom/prometheus:latest
@@ -44,15 +53,27 @@ services:
       - ./etc/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
       # - ./etc/grafana/dashboards:/var/lib/grafana/dashboards
       - ./etc/grafana/dashboards:/etc/grafana/provisioning/dashboards
-
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=panda
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_RENDERING_SERVER_URL=http://localhost:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://localhost:3000/
+      - GF_LOG_FILTERS=rendering:debug
     network_mode: host
     depends_on:
       - prometheus
+      - renderer
+
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    container_name: grafana-renderer
+    ports:
+      - "8081:8081"
+    environment:
+      - ENABLE_METRICS=true
+    network_mode: host
 
   pushgateway:
     image: prom/pushgateway:latest
@@ -60,14 +81,3 @@ services:
     ports:
       - "9091:9091"
     network_mode: host
-
-# networks:
-#   macvlan_net:
-#     name: macvlan_network
-#     external: true
-
-
-# docker network create -d macvlan \
-#   --subnet=192.168.1.0/24 \
-#   --gateway=192.168.1.1 \
-#   -o parent=en0 macvlan_network

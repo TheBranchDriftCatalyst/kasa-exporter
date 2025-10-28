@@ -1,7 +1,8 @@
-from prometheus_client import CollectorRegistry
 import random
 
-from kasa_exporter.devices.prom_device_extractor import PromMetricType, PrometheusDeviceExtractor
+from prometheus_client import CollectorRegistry
+
+from kasa_exporter.devices.prom_device_extractor import PrometheusDeviceExtractor, PromMetricType
 
 # Initialize registry
 registry = CollectorRegistry()
@@ -38,6 +39,4 @@ metrics = {
 dimensions = {"device_id": lambda d: "DummyTestDevice", "location": lambda d: "server_room"}
 
 # Initialize the PrometheusDeviceExtractor
-Extractor = PrometheusDeviceExtractor(
-    registry=registry, metrics=metrics, dimensions=dimensions
-)
+Extractor = PrometheusDeviceExtractor(registry=registry, metrics=metrics, dimensions=dimensions)
