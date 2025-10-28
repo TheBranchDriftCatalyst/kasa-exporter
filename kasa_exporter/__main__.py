@@ -34,11 +34,15 @@ logger.info("Configuration:")
 logger.info(f"  📊 Metrics Port: {os.getenv('METRICS_PORT', '8000')}")
 logger.info(f"  📝 Log Level: {log_level_name}")
 logger.info(f"  👤 Kasa Username: {os.getenv('KASA_USERNAME', 'NOT SET')}")
-logger.info(f"  🔑 Kasa Password: {'*' * len(os.getenv('KASA_PASSWORD', '')) if os.getenv('KASA_PASSWORD') else 'NOT SET'}")
+logger.info(
+    f"  🔑 Kasa Password: {'*' * len(os.getenv('KASA_PASSWORD', '')) if os.getenv('KASA_PASSWORD') else 'NOT SET'}"
+)
 logger.info(f"  🌐 mDNS Interface: {os.getenv('MDNS_INTERFACE', 'auto-detect')}")
 logger.info(f"  🚀 Push Gateway Host: {os.getenv('PUSH_GATEWAY_HOST', 'localhost')}")
 logger.info(f"  🚀 Push Gateway Port: {os.getenv('PUSH_GATEWAY_PORT', '9091')}")
-logger.info(f"  🚀 Push Gateway Enabled: {os.getenv('PUSH_GATEWAY_DISABLED', 'true').lower() != 'true'}")
+logger.info(
+    f"  🚀 Push Gateway Enabled: {os.getenv('PUSH_GATEWAY_DISABLED', 'true').lower() != 'true'}"
+)
 logger.info("=" * 70)
 
 # Note if you want to push to the gateway as well as scrape, you need to clone the registry, pushing
@@ -157,8 +161,35 @@ async def readiness_check():
 
 @app.get("/", response_class=HTMLResponse)
 async def homepage():
+    import json
+
+    from kasa_exporter.devices.KP125M import calculator
+    from kasa_exporter.utils.time_of_use_calc import TIME_OF_USE_CONFIG
+
     devices_info = device_registry.get_devices_info()
     total_devices = len(devices_info)
+
+    # Get current season and TOU config for both seasons
+    current_season = calculator.get_current_season()
+
+    # Prepare TOU config for JavaScript (include both seasons)
+    tou_config_json = json.dumps(
+        {
+            "current_season": current_season,
+            "summer": {
+                "rates": TIME_OF_USE_CONFIG["summer"]["rate"],
+                "super_off_peak": TIME_OF_USE_CONFIG["summer"]["super_off_peak"],
+                "off_peak": TIME_OF_USE_CONFIG["summer"]["off_peak"],
+                "on_peak": TIME_OF_USE_CONFIG["summer"]["on_peak"],
+            },
+            "winter": {
+                "rates": TIME_OF_USE_CONFIG["winter"]["rate"],
+                "super_off_peak": TIME_OF_USE_CONFIG["winter"]["super_off_peak"],
+                "off_peak": TIME_OF_USE_CONFIG["winter"]["off_peak"],
+                "on_peak": TIME_OF_USE_CONFIG["winter"]["on_peak"],
+            },
+        }
+    )
 
     # Build device cards HTML
     device_cards = ""
@@ -281,8 +312,310 @@ async def homepage():
                 transform: translateY(-2px);
                 box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             }}
+
+            /* TOU Calendar Styles */
+            .tou-calendar-section {{
+                margin: 3rem 0;
+            }}
+            .tou-calendar-card {{
+                background: white;
+                padding: 2rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }}
+            .tou-header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+            }}
+            .tou-title {{
+                color: #333;
+                font-size: 1.5rem;
+                margin: 0;
+            }}
+            .season-toggle {{
+                display: flex;
+                gap: 0.5rem;
+                background: #f3f4f6;
+                padding: 0.25rem;
+                border-radius: 8px;
+            }}
+            .season-btn {{
+                background: transparent;
+                border: none;
+                color: #6b7280;
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                font-weight: 500;
+                text-transform: capitalize;
+                cursor: pointer;
+                transition: all 0.2s;
+            }}
+            .season-btn:hover {{
+                background: rgba(102, 126, 234, 0.1);
+                color: #667eea;
+            }}
+            .season-btn.active {{
+                background: #667eea;
+                color: white;
+            }}
+            .tou-legend {{
+                display: flex;
+                gap: 1.5rem;
+                margin-bottom: 1.5rem;
+                flex-wrap: wrap;
+            }}
+            .legend-item {{
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }}
+            .legend-color {{
+                width: 24px;
+                height: 24px;
+                border-radius: 4px;
+            }}
+            .legend-color.super-off-peak {{
+                background: #10b981;
+            }}
+            .legend-color.off-peak {{
+                background: #fbbf24;
+            }}
+            .legend-color.on-peak {{
+                background: #ef4444;
+            }}
+            .legend-text {{
+                font-size: 0.9rem;
+                color: #666;
+            }}
+            .legend-rate {{
+                font-weight: bold;
+                color: #333;
+            }}
+            .calendar-container {{
+                overflow-x: auto;
+            }}
+            .calendar {{
+                display: grid;
+                grid-template-columns: 60px repeat(7, 1fr);
+                gap: 2px;
+                min-width: 800px;
+            }}
+            .calendar-header {{
+                background: #f3f4f6;
+                padding: 0.75rem;
+                text-align: center;
+                font-weight: 600;
+                color: #333;
+                border-radius: 4px;
+            }}
+            .calendar-header.time {{
+                text-align: right;
+                padding-right: 0.5rem;
+                font-size: 0.75rem;
+                color: #666;
+            }}
+            .calendar-cell {{
+                background: #f9fafb;
+                padding: 0.5rem;
+                text-align: center;
+                border-radius: 4px;
+                position: relative;
+                cursor: pointer;
+                transition: all 0.2s;
+                min-height: 32px;
+            }}
+            .calendar-cell.super-off-peak {{
+                background: #10b981;
+                color: white;
+            }}
+            .calendar-cell.off-peak {{
+                background: #fbbf24;
+                color: #1f2937;
+            }}
+            .calendar-cell.on-peak {{
+                background: #ef4444;
+                color: white;
+            }}
+            .calendar-cell.current {{
+                box-shadow: 0 0 0 3px #667eea;
+                transform: scale(1.05);
+                z-index: 10;
+            }}
+            .calendar-cell:hover {{
+                transform: scale(1.1);
+                z-index: 20;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }}
+            .tooltip {{
+                position: absolute;
+                background: #1f2937;
+                color: white;
+                padding: 0.75rem;
+                border-radius: 6px;
+                font-size: 0.85rem;
+                white-space: nowrap;
+                pointer-events: none;
+                z-index: 1000;
+                opacity: 0;
+                transition: opacity 0.2s;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-bottom: 8px;
+            }}
+            .tooltip::after {{
+                content: '';
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border: 6px solid transparent;
+                border-top-color: #1f2937;
+            }}
+            .calendar-cell:hover .tooltip {{
+                opacity: 1;
+            }}
+            @media (max-width: 768px) {{
+                .tou-header {{
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 1rem;
+                }}
+            }}
         </style>
         <script>
+            // TOU Config from backend
+            const touConfigData = {tou_config_json};
+            let currentSeason = touConfigData.current_season;
+
+            // Get season config
+            function getSeasonConfig(season) {{
+                return touConfigData[season];
+            }}
+
+            // Update legend with current season rates
+            function updateLegend(season) {{
+                const config = getSeasonConfig(season);
+                const legend = document.getElementById('tou-legend');
+                legend.innerHTML = `
+                    <div class="legend-item">
+                        <div class="legend-color super-off-peak"></div>
+                        <span><strong>Super Off-Peak:</strong> $${{config.rates.super_off_peak.toFixed(3)}}/kWh</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color off-peak"></div>
+                        <span><strong>Off-Peak:</strong> $${{config.rates.off_peak.toFixed(3)}}/kWh</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color on-peak"></div>
+                        <span><strong>On-Peak:</strong> $${{config.rates.on_peak.toFixed(3)}}/kWh</span>
+                    </div>
+                `;
+            }}
+
+            // Generate TOU Calendar
+            function generateCalendar(season) {{
+                const config = getSeasonConfig(season);
+                const calendar = document.getElementById('tou-calendar');
+                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+                // Add empty header cell for time column
+                calendar.innerHTML = '<div class="calendar-header time"></div>';
+
+                // Add day headers
+                days.forEach(day => {{
+                    calendar.innerHTML += `<div class="calendar-header">${{day}}</div>`;
+                }});
+
+                // Add hourly rows (24 hours)
+                for (let hour = 0; hour < 24; hour++) {{
+                    // Time label
+                    const timeLabel = hour === 0 ? '12am' : hour < 12 ? `${{hour}}am` : hour === 12 ? '12pm' : `${{hour - 12}}pm`;
+                    calendar.innerHTML += `<div class="calendar-header time">${{timeLabel}}</div>`;
+
+                    // Cells for each day
+                    days.forEach((day, dayIndex) => {{
+                        const rateClass = getRateClass(hour, config);
+                        const rate = config.rates[rateClass];
+                        const cssClass = rateClass.replace(/_/g, '-'); // Convert underscores to hyphens for CSS
+                        const now = new Date();
+                        const currentHour = now.getHours();
+                        const currentDay = (now.getDay() + 6) % 7; // Convert Sunday=0 to Monday=0
+                        const isCurrent = hour === currentHour && dayIndex === currentDay && season === currentSeason;
+
+                        const cell = `
+                            <div class="calendar-cell ${{cssClass}} ${{isCurrent ? 'current' : ''}}">
+                                <div class="tooltip">
+                                    ${{timeLabel}} - ${{rateClass.replace(/_/g, ' ')}}<br>
+                                    <strong>$${{rate.toFixed(3)}}/kWh</strong>
+                                </div>
+                            </div>
+                        `;
+                        calendar.innerHTML += cell;
+                    }});
+                }}
+            }}
+
+            // Determine rate class for a given hour
+            function getRateClass(hour, config) {{
+                const time = `${{hour.toString().padStart(2, '0')}}:00`;
+
+                // Check each rate period
+                for (const [start, end] of config.super_off_peak) {{
+                    if (isInTimeRange(time, start, end)) return 'super_off_peak';
+                }}
+                for (const [start, end] of config.on_peak) {{
+                    if (isInTimeRange(time, start, end)) return 'on_peak';
+                }}
+                for (const [start, end] of config.off_peak) {{
+                    if (isInTimeRange(time, start, end)) return 'off_peak';
+                }}
+
+                return 'off_peak'; // default
+            }}
+
+            // Check if time is in range
+            function isInTimeRange(time, start, end) {{
+                return time >= start && time < end;
+            }}
+
+            // Switch season display
+            function switchSeason(season) {{
+                // Update button states
+                document.querySelectorAll('.season-btn').forEach(btn => {{
+                    btn.classList.remove('active');
+                    if (btn.dataset.season === season) {{
+                        btn.classList.add('active');
+                    }}
+                }});
+
+                // Regenerate calendar and legend for selected season
+                updateLegend(season);
+                generateCalendar(season);
+            }}
+
+            // Initialize on page load
+            window.addEventListener('DOMContentLoaded', () => {{
+                // Set active button for current season
+                document.querySelectorAll('.season-btn').forEach(btn => {{
+                    btn.classList.remove('active');
+                    if (btn.dataset.season === currentSeason) {{
+                        btn.classList.add('active');
+                    }}
+
+                    // Add click handler
+                    btn.addEventListener('click', () => {{
+                        switchSeason(btn.dataset.season);
+                    }});
+                }});
+
+                // Initial render
+                updateLegend(currentSeason);
+                generateCalendar(currentSeason);
+            }});
+
             // Auto-refresh every 10 seconds
             setTimeout(() => location.reload(), 10000);
         </script>
@@ -306,6 +639,24 @@ async def homepage():
             <h2 style="color: white; margin-bottom: 1rem;">Connected Devices</h2>
             <div class="devices-grid">
                 {device_cards}
+            </div>
+
+            <div class="tou-calendar-section">
+                <div class="tou-calendar-card">
+                    <div class="tou-header">
+                        <h2 class="tou-title">⚡ Time of Use Rate Schedule</h2>
+                        <div class="season-toggle">
+                            <button class="season-btn active" data-season="summer">Summer</button>
+                            <button class="season-btn" data-season="winter">Winter</button>
+                        </div>
+                    </div>
+
+                    <div id="tou-legend" class="tou-legend">
+                        <!-- Legend will be populated by JavaScript -->
+                    </div>
+
+                    <div id="tou-calendar" class="calendar"></div>
+                </div>
             </div>
 
             <div class="links">
