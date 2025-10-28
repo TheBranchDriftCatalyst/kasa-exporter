@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime
 from unittest.mock import patch
+
 import pytz
 
 from kasa_exporter.utils.time_of_use_calc import TimeOfUseCalc
@@ -34,6 +35,7 @@ TIME_OF_USE_CONFIG = {
     },
 }
 
+
 class TestTimeOfUseCalc(unittest.TestCase):
     def setUp(self):
         self.calculator = TimeOfUseCalc(TIME_OF_USE_CONFIG)
@@ -51,55 +53,39 @@ class TestTimeOfUseCalc(unittest.TestCase):
         self.assertEqual(season, "winter")
 
     def test_get_rate_for_time_summer_off_peak(self):
-        current_time = datetime(
-            2024, 6, 15, 5, 0, tzinfo=pytz.UTC
-        )  # June 15, 5:00 AM UTC
+        current_time = datetime(2024, 6, 15, 5, 0, tzinfo=pytz.UTC)  # June 15, 5:00 AM UTC
         rate = self.calculator.get_rate_for_time(current_time, "summer")
         self.assertEqual(rate, 0.11)
 
     def test_get_rate_for_time_summer_mid_peak(self):
-        current_time = datetime(
-            2024, 7, 10, 14, 0, tzinfo=pytz.UTC
-        )  # July 10, 2:00 PM UTC
+        current_time = datetime(2024, 7, 10, 14, 0, tzinfo=pytz.UTC)  # July 10, 2:00 PM UTC
         rate = self.calculator.get_rate_for_time(current_time, "summer")
         self.assertEqual(rate, 0.19)
 
     def test_get_rate_for_time_summer_on_peak(self):
-        current_time = datetime(
-            2024, 8, 1, 16, 0, tzinfo=pytz.UTC
-        )  # August 1, 4:00 PM UTC
+        current_time = datetime(2024, 8, 1, 16, 0, tzinfo=pytz.UTC)  # August 1, 4:00 PM UTC
         rate = self.calculator.get_rate_for_time(current_time, "summer")
         self.assertEqual(rate, 0.28)
 
     def test_get_rate_for_time_winter_off_peak(self):
-        current_time = datetime(
-            2024, 12, 20, 5, 0, tzinfo=pytz.UTC
-        )  # December 20, 5:00 AM UTC
+        current_time = datetime(2024, 12, 20, 5, 0, tzinfo=pytz.UTC)  # December 20, 5:00 AM UTC
         rate = self.calculator.get_rate_for_time(current_time, "winter")
         self.assertEqual(rate, 0.10)
 
     def test_get_rate_for_time_winter_mid_peak(self):
-        current_time = datetime(
-            2024, 1, 10, 13, 0, tzinfo=pytz.UTC
-        )  # January 10, 1:00 PM UTC
+        current_time = datetime(2024, 1, 10, 13, 0, tzinfo=pytz.UTC)  # January 10, 1:00 PM UTC
         rate = self.calculator.get_rate_for_time(current_time, "winter")
         self.assertEqual(rate, 0.17)
 
     def test_get_rate_for_time_winter_on_peak(self):
-        current_time = datetime(
-            2024, 1, 15, 15, 0, tzinfo=pytz.UTC
-        )  # January 15, 3:00 PM UTC
+        current_time = datetime(2024, 1, 15, 15, 0, tzinfo=pytz.UTC)  # January 15, 3:00 PM UTC
         rate = self.calculator.get_rate_for_time(current_time, "winter")
         self.assertEqual(rate, 0.25)
 
     @patch("kasa_exporter.utils.time_of_use_calc.datetime")
     def test_calc_rate(self, mock_datetime):
-        mock_datetime.now.return_value = datetime(
-            2024, 6, 15, 5, 0
-        )  # June 15, 5:00 AM UTC
-        mock_datetime.now.return_value = mock_datetime.now.return_value.replace(
-            tzinfo=pytz.UTC
-        )
+        mock_datetime.now.return_value = datetime(2024, 6, 15, 5, 0)  # June 15, 5:00 AM UTC
+        mock_datetime.now.return_value = mock_datetime.now.return_value.replace(tzinfo=pytz.UTC)
         cost = self.calculator.calc_rate(2000)  # 1000 watts
         self.assertAlmostEqual(cost, 0.22, places=6)
 

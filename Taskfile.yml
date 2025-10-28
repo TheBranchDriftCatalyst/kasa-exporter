@@ -5,6 +5,7 @@ vars:
 
 includes:
   daemon: ./etc/Taskfile.daemon.yml
+  release: ./Taskfile.release.yml
   utils:
     taskfile: ../../../common/CatalystStack.AbstractTaskFile.yml
     optional: true
@@ -91,3 +92,52 @@ tasks:
     deps: [ install_dev ]
     cmds:
     - poetry run python scripts/screenshot_dashboard.py
+
+  # Code quality tasks
+  format:
+    desc: "Format code with ruff"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run ruff format .
+
+  lint:
+    desc: "Lint code with ruff"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run ruff check --fix .
+
+  lint:check:
+    desc: "Check linting without fixing"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run ruff check .
+
+  test:
+    desc: "Run tests with pytest"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run pytest -v
+
+  test:cov:
+    desc: "Run tests with coverage report"
+    deps: [ install_dev ]
+    cmds:
+    - poetry run pytest -v --cov=kasa_exporter --cov-report=term-missing --cov-report=html
+
+  check:
+    desc: "Run all checks (format, lint, test)"
+    deps: [ install_dev ]
+    cmds:
+    - task: lint:check
+    - task: test
+
+  # Git hooks
+  hooks:install:
+    desc: "Install lefthook git hooks"
+    cmds:
+    - lefthook install
+
+  hooks:uninstall:
+    desc: "Uninstall lefthook git hooks"
+    cmds:
+    - lefthook uninstall

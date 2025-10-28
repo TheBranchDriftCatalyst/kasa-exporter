@@ -1,0 +1,214 @@
+version: '3'
+
+# Release Management Taskfile
+# Handles semantic versioning, changelog updates, and git tagging
+
+vars:
+  VERSION_FILE: VERSION
+  CHANGELOG_FILE: CHANGELOG.md
+
+tasks:
+  # Get current version
+  version:
+    desc: "Display current version"
+    cmds:
+      - cat {{.VERSION_FILE}}
+    silent: true
+
+  # Validate that working directory is clean
+  validate:clean:
+    desc: "Ensure working directory is clean"
+    internal: true
+    cmds:
+      - |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "❌ Working directory is not clean. Commit or stash changes first."
+          exit 1
+        fi
+    silent: true
+
+  # Validate that we're on main/master branch
+  validate:branch:
+    desc: "Ensure we're on main/master branch"
+    internal: true
+    cmds:
+      - |
+        BRANCH=$(git branch --show-current)
+        if [ "$BRANCH" != "main" ] && [ "$BRANCH" != "master" ]; then
+          echo "❌ Must be on main or master branch for release. Current: $BRANCH"
+          exit 1
+        fi
+    silent: true
+
+  # Update version in VERSION file
+  bump:version:
+    desc: "Bump version in VERSION file"
+    internal: true
+    requires:
+      vars: [NEW_VERSION]
+    cmds:
+      - echo "{{.NEW_VERSION}}" > {{.VERSION_FILE}}
+      - echo "✅ Version bumped to {{.NEW_VERSION}}"
+
+  # Update version in pyproject.toml
+  bump:pyproject:
+    desc: "Bump version in pyproject.toml"
+    internal: true
+    requires:
+      vars: [NEW_VERSION]
+    cmds:
+      - |
+        sed -i.bak 's/^version = ".*"/version = "{{.NEW_VERSION}}"/' pyproject.toml
+        rm pyproject.toml.bak
+        echo "✅ Updated pyproject.toml to {{.NEW_VERSION}}"
+
+  # Update CHANGELOG.md with new version
+  bump:changelog:
+    desc: "Update CHANGELOG.md with new version"
+    internal: true
+    requires:
+      vars: [NEW_VERSION]
+    cmds:
+      - |
+        TODAY=$(date +%Y-%m-%d)
+        sed -i.bak "s/## \[Unreleased\]/## [Unreleased]\n\n## [{{.NEW_VERSION}}] - $TODAY/" {{.CHANGELOG_FILE}}
+        rm {{.CHANGELOG_FILE}}.bak
+        echo "✅ Updated CHANGELOG.md for {{.NEW_VERSION}}"
+
+  # Create git commit for release
+  commit:release:
+    desc: "Create release commit"
+    internal: true
+    requires:
+      vars: [NEW_VERSION]
+    cmds:
+      - git add {{.VERSION_FILE}} pyproject.toml {{.CHANGELOG_FILE}}
+      - git commit -m "chore(release): bump version to {{.NEW_VERSION}}"
+      - echo "✅ Created release commit"
+
+  # Create git tag
+  tag:release:
+    desc: "Create git tag for release"
+    internal: true
+    requires:
+      vars: [NEW_VERSION]
+    cmds:
+      - git tag -a "v{{.NEW_VERSION}}" -m "Release v{{.NEW_VERSION}}"
+      - echo "✅ Created tag v{{.NEW_VERSION}}"
+
+  # Calculate next version (patch)
+  calc:patch:
+    desc: "Calculate next patch version"
+    internal: true
+    cmds:
+      - |
+        CURRENT=$(cat {{.VERSION_FILE}})
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+        NEXT_PATCH=$((PATCH + 1))
+        echo "$MAJOR.$MINOR.$NEXT_PATCH"
+    silent: true
+
+  # Calculate next version (minor)
+  calc:minor:
+    desc: "Calculate next minor version"
+    internal: true
+    cmds:
+      - |
+        CURRENT=$(cat {{.VERSION_FILE}})
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+        NEXT_MINOR=$((MINOR + 1))
+        echo "$MAJOR.$NEXT_MINOR.0"
+    silent: true
+
+  # Calculate next version (major)
+  calc:major:
+    desc: "Calculate next major version"
+    internal: true
+    cmds:
+      - |
+        CURRENT=$(cat {{.VERSION_FILE}})
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+        NEXT_MAJOR=$((MAJOR + 1))
+        echo "$NEXT_MAJOR.0.0"
+    silent: true
+
+  # Patch release (0.1.0 -> 0.1.1)
+  patch:
+    desc: "Create a patch release (bug fixes)"
+    deps: [validate:clean, validate:branch]
+    cmds:
+      - task: _release
+        vars:
+          NEW_VERSION:
+            sh: task calc:patch
+
+  # Minor release (0.1.0 -> 0.2.0)
+  minor:
+    desc: "Create a minor release (new features)"
+    deps: [validate:clean, validate:branch]
+    cmds:
+      - task: _release
+        vars:
+          NEW_VERSION:
+            sh: task calc:minor
+
+  # Major release (0.1.0 -> 1.0.0)
+  major:
+    desc: "Create a major release (breaking changes)"
+    deps: [validate:clean, validate:branch]
+    cmds:
+      - task: _release
+        vars:
+          NEW_VERSION:
+            sh: task calc:major
+
+  # Internal: Execute the full release process
+  _release:
+    internal: true
+    requires:
+      vars: [NEW_VERSION]
+    cmds:
+      - echo "🚀 Creating release v{{.NEW_VERSION}}"
+      - echo ""
+      - task: bump:version
+        vars: {NEW_VERSION: "{{.NEW_VERSION}}"}
+      - task: bump:pyproject
+        vars: {NEW_VERSION: "{{.NEW_VERSION}}"}
+      - task: bump:changelog
+        vars: {NEW_VERSION: "{{.NEW_VERSION}}"}
+      - task: commit:release
+        vars: {NEW_VERSION: "{{.NEW_VERSION}}"}
+      - task: tag:release
+        vars: {NEW_VERSION: "{{.NEW_VERSION}}"}
+      - echo ""
+      - echo "✨ Release v{{.NEW_VERSION}} created!"
+      - echo ""
+      - echo "Next steps:"
+      - echo "  1. Review the changes with: git log --oneline -5"
+      - echo "  2. Push to remote: git push && git push --tags"
+      - echo "  3. GitHub Actions will create the release automatically"
+      - echo ""
+
+  # Run tests before release
+  test:
+    desc: "Run tests before release"
+    cmds:
+      - poetry run pytest -v
+
+  # Format and lint code
+  lint:
+    desc: "Format and lint code"
+    cmds:
+      - poetry run ruff format .
+      - poetry run ruff check --fix .
+
+  # Pre-release checklist
+  check:
+    desc: "Run pre-release checks"
+    cmds:
+      - echo "🔍 Running pre-release checks..."
+      - task: test
+      - task: lint
+      - poetry run ruff check .
+      - poetry run ruff format --check .
+      - echo "✅ All checks passed!"

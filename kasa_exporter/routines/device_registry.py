@@ -1,9 +1,10 @@
 import asyncio
-from datetime import datetime, timedelta
 import logging
-from kasa import Discover
-from prometheus_client import Gauge, Counter, CollectorRegistry
+from datetime import datetime, timedelta
+
 import structlog
+from kasa import Discover
+from prometheus_client import CollectorRegistry, Counter, Gauge
 
 # Configure structured logging with timestamp
 structlog.configure(
@@ -59,17 +60,43 @@ class DeviceRegistry:
         ]
 
     async def update_registry(self):
+        retry_count = 0
+        max_retries = 5
+        base_delay = 1
+
         while True:
-            now = datetime.now()
-            to_prune = [
-                addr
-                for addr, last_seen in self.last_checkin.items()
-                if now - last_seen > timedelta(minutes=1)
-            ]
-            for addr in to_prune:
-                logger.info(f"Pruning device {addr} due to missed check-in")
-                self.devices.pop(addr, None)
-                self.last_checkin.pop(addr, None)
-                self.pruned_devices.inc()  # Increment pruned devices counter
-            self.total_devices.set(len(self.devices))  # Update total devices gauge
-            await asyncio.sleep(10)
+            try:
+                now = datetime.now()
+
+                # Create a snapshot to avoid race conditions during iteration
+                last_checkin_snapshot = dict(self.last_checkin.items())
+
+                to_prune = [
+                    addr
+                    for addr, last_seen in last_checkin_snapshot.items()
+                    if now - last_seen > timedelta(minutes=1)
+                ]
+
+                for addr in to_prune:
+                    logger.info(f"Pruning device {addr} due to missed check-in")
+                    self.devices.pop(addr, None)
+                    self.last_checkin.pop(addr, None)
+                    self.pruned_devices.inc()  # Increment pruned devices counter
+
+                self.total_devices.set(len(self.devices))  # Update total devices gauge
+
+                # Reset retry count on success
+                retry_count = 0
+                await asyncio.sleep(10)
+
+            except Exception as e:
+                retry_count += 1
+                delay = min(base_delay * (2**retry_count), 60)
+                logger.error(
+                    f"Unexpected error in update_registry (attempt {retry_count}/{max_retries}): "
+                    f"{e!s}, retrying in {delay}s"
+                )
+                if retry_count >= max_retries:
+                    logger.critical("Max retries reached in update_registry, resetting retry count")
+                    retry_count = 0
+                await asyncio.sleep(delay)

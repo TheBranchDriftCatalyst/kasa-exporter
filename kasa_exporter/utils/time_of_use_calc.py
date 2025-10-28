@@ -1,5 +1,6 @@
-from datetime import datetime
 import os
+from datetime import datetime
+
 import pytz
 
 TIME_OF_USE_CONFIG = {
@@ -10,8 +11,8 @@ TIME_OF_USE_CONFIG = {
     "summer": {
         "rate": {
             "super_off_peak": 0.314,  # $0.314/kWh - midnight to 6am every day
-            "off_peak": 0.351,        # $0.351/kWh - all other hours except on-peak
-            "on_peak": 0.634,         # $0.634/kWh - 4pm to 9pm every day
+            "off_peak": 0.351,  # $0.351/kWh - all other hours except on-peak
+            "on_peak": 0.634,  # $0.634/kWh - 4pm to 9pm every day
         },
         # Time ranges for the day (SDG&E TOU-ELEC plan)
         "super_off_peak": [("00:00", "06:00")],
@@ -21,8 +22,8 @@ TIME_OF_USE_CONFIG = {
     "winter": {
         "rate": {
             "super_off_peak": 0.314,  # $0.314/kWh - midnight to 6am every day
-            "off_peak": 0.351,        # $0.351/kWh - all other hours except on-peak
-            "on_peak": 0.634,         # $0.634/kWh - 4pm to 9pm every day
+            "off_peak": 0.351,  # $0.351/kWh - all other hours except on-peak
+            "on_peak": 0.634,  # $0.634/kWh - 4pm to 9pm every day
         },
         # Same time ranges year-round for SDG&E TOU-ELEC
         "super_off_peak": [("00:00", "06:00")],
@@ -59,7 +60,7 @@ class TimeOfUseCalc:
                 if start <= current_time_str <= end:
                     return period
         return "off_peak"
-    
+
     def get_rate_for_time(self, current_time: datetime, season: str) -> float:
         """Determine the rate based on the current time and time ranges."""
         current_time_str = current_time.strftime("%H:%M")
@@ -69,15 +70,11 @@ class TimeOfUseCalc:
             for start, end in ranges:
                 if start <= current_time_str <= end:
                     return self.config[season]["rate"][period]
-        return self.config[season]["rate"][
-            "off_peak"
-        ]  # Default rate if not in any range
+        return self.config[season]["rate"]["off_peak"]  # Default rate if not in any range
 
     def calc_rate(self, current_consumption: float) -> float:
         """Calculate the instantaneous cost of the current consumption."""
         self.current_season = self.get_current_season()
-        current_time = datetime.now(pytz.timezone("UTC")).astimezone(
-            pytz.timezone(self.timezone)
-        )
+        current_time = datetime.now(pytz.timezone("UTC")).astimezone(pytz.timezone(self.timezone))
         rate = self.get_rate_for_time(current_time, self.current_season)
         return round((current_consumption / 1000) * rate, 6)

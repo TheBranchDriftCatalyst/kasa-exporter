@@ -4,8 +4,7 @@ import pytz
 import structlog
 
 from ..utils.time_of_use_calc import TIME_OF_USE_CONFIG, TimeOfUseCalc
-from .prom_device_extractor import (DimensionsType,
-                                    PrometheusDeviceExtractor, PromMetricType)
+from .prom_device_extractor import DimensionsType, PrometheusDeviceExtractor, PromMetricType
 
 logger = structlog.get_logger()
 
@@ -44,9 +43,7 @@ metrics = {
     },
     "auto_off_enabled": {
         "type": PromMetricType.ENUM,
-        "getter": lambda d: (
-            "enabled" if d.features["auto_off_enabled"].value else "disabled"
-        ),
+        "getter": lambda d: ("enabled" if d.features["auto_off_enabled"].value else "disabled"),
         "states": ["enabled", "disabled"],
     },
     "auto_off_minutes": {
@@ -78,9 +75,7 @@ metrics = {
     },  # Summary for distribution over the month
     "auto_update_enabled": {
         "type": PromMetricType.ENUM,
-        "getter": lambda d: (
-            "enabled" if d.features["auto_update_enabled"].value else "disabled"
-        ),
+        "getter": lambda d: ("enabled" if d.features["auto_update_enabled"].value else "disabled"),
         "states": ["enabled", "disabled"],
     },
     "update_available": {
@@ -121,21 +116,19 @@ metrics = {
     "current_energy_rate": {
         "type": PromMetricType.GAUGE,
         "getter": lambda _d: calculator.get_rate_for_time(
-            datetime.now(pytz.timezone("America/Denver")),
-            calculator.get_current_season()
+            datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
         ),
         "derive_labels": {
             "season": lambda _d: calculator.get_current_season(),
             "rate_class": lambda _d: calculator.get_rate_name(
-                datetime.now(pytz.timezone("America/Denver")),
-                calculator.get_current_season()
+                datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
             ),
         },
     },
 }
 
 Extractor = PrometheusDeviceExtractor(
-    metrics=metrics, 
+    metrics=metrics,
     dimensions=dimensions,
     # is_device: lambda device: device.model == "KP125M"
 )

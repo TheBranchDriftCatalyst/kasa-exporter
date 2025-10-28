@@ -1,11 +1,12 @@
 import asyncio
-from contextlib import asynccontextmanager
 import logging
 import os
-from fastapi import FastAPI
-from fastapi.responses import PlainTextResponse, HTMLResponse
-from prometheus_client import CollectorRegistry, generate_latest
+from contextlib import asynccontextmanager
+
 import structlog
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse, PlainTextResponse
+from prometheus_client import CollectorRegistry, generate_latest
 
 from kasa_exporter.routines.device_registry import DeviceRegistry
 from kasa_exporter.routines.exporter import DeviceExporter
@@ -29,13 +30,18 @@ device_exporter = DeviceExporter(device_registry, collector_registry)
 push_gateway = PushGateway(collector_registry)
 
 
+# Global task tracking for health checks
+background_tasks = []
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    global background_tasks
     # Start background tasks and store references for cleanup
-    tasks = [
+    background_tasks = [
         asyncio.create_task(device_exporter.scrape_devices(), name="device_scraper"),
         asyncio.create_task(push_gateway.push_to_gateway(), name="push_gateway"),
-        asyncio.create_task(device_registry.update_registry(), name="registry_updater")
+        asyncio.create_task(device_registry.update_registry(), name="registry_updater"),
     ]
 
     try:
@@ -43,12 +49,13 @@ async def lifespan(_app: FastAPI):
     finally:
         # Cancel all tasks and wait for them to finish
         logger.info("Shutting down background tasks")
-        for task in tasks:
+        for task in background_tasks:
             task.cancel()
 
         # Wait for cancellation to complete, ignoring CancelledError
-        await asyncio.gather(*tasks, return_exceptions=True)
+        await asyncio.gather(*background_tasks, return_exceptions=True)
         logger.info("All background tasks stopped")
+
 
 app = FastAPI(lifespan=lifespan, title="Kasa Exporter", version="0.1.0")
 
@@ -65,6 +72,70 @@ async def debug_device():
     return {"devices": devices_info}
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint to verify all background tasks are running"""
+    global background_tasks
+
+    task_statuses = []
+    all_healthy = True
+
+    for task in background_tasks:
+        is_done = task.done()
+        is_cancelled = task.cancelled()
+
+        # Task is unhealthy if it's done but not cancelled (means it crashed)
+        is_healthy = not is_done or is_cancelled
+
+        status = {
+            "name": task.get_name(),
+            "running": not is_done,
+            "cancelled": is_cancelled,
+            "healthy": is_healthy,
+        }
+
+        # If task is done and not cancelled, it crashed - get exception
+        if is_done and not is_cancelled:
+            try:
+                task.exception()
+                status["error"] = str(task.exception())
+            except Exception:
+                pass
+
+        task_statuses.append(status)
+        all_healthy = all_healthy and is_healthy
+
+    response = {
+        "status": "healthy" if all_healthy else "unhealthy",
+        "tasks": task_statuses,
+        "device_count": len(device_registry.devices),
+    }
+
+    # Return 503 if unhealthy for proper health check integration
+    if not all_healthy:
+        from fastapi import Response
+
+        return Response(content=str(response), status_code=503, media_type="application/json")
+
+    return response
+
+
+@app.get("/ready")
+async def readiness_check():
+    """Readiness check to verify the app has discovered at least one device"""
+    device_count = len(device_registry.devices)
+    is_ready = device_count > 0
+
+    response = {"ready": is_ready, "device_count": device_count}
+
+    if not is_ready:
+        from fastapi import Response
+
+        return Response(content=str(response), status_code=503, media_type="application/json")
+
+    return response
+
+
 @app.get("/", response_class=HTMLResponse)
 async def homepage():
     devices_info = device_registry.get_devices_info()
@@ -75,9 +146,9 @@ async def homepage():
     for dev in devices_info:
         device_cards += f"""
         <div class="device-card">
-            <h3>{dev['alias']}</h3>
-            <p class="model">{dev['model']}</p>
-            <p class="address">{dev['address']}</p>
+            <h3>{dev["alias"]}</h3>
+            <p class="model">{dev["model"]}</p>
+            <p class="address">{dev["address"]}</p>
             <p class="status online">● Online</p>
         </div>
         """
@@ -227,6 +298,7 @@ async def homepage():
     </html>
     """
     return HTMLResponse(content=html_content)
+
 
 if __name__ == "__main__":
     import uvicorn

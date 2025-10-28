@@ -27,5 +27,64 @@ build-backend = "poetry.core.masonry.api"
 
 [dependency-groups]
 dev = [
-    "playwright (>=1.55.0,<2.0.0)"
+    "playwright (>=1.55.0,<2.0.0)",
+    "pytest (>=8.4.2,<9.0.0)",
+    "pytest-asyncio (>=1.2.0,<2.0.0)",
+    "pytest-cov (>=7.0.0,<8.0.0)",
+    "ruff (>=0.14.2,<0.15.0)"
 ]
+
+[tool.ruff]
+# Sexy ruff config for clean, fast Python
+line-length = 100
+target-version = "py312"
+fix = true
+
+[tool.ruff.lint]
+# Enable all the good stuff
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "DTZ",    # flake8-datetimez
+    "PIE",    # flake8-pie
+    "PT",     # flake8-pytest-style
+    "RET",    # flake8-return
+    "SIM",    # flake8-simplify
+    "PTH",    # flake8-use-pathlib
+    "PL",     # pylint
+    "RUF",    # ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "PLR0913", # too many arguments
+    "PLR2004", # magic value in comparison
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "PLR2004",  # Magic values are fine in tests
+    "S101",     # Assert is fine in tests
+]
+
+[tool.ruff.format]
+# Use double quotes and trailing commas
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+known-first-party = ["kasa_exporter"]
+
+[tool.pytest.ini_options]
+testpaths = ["kasa_exporter"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short --cov=kasa_exporter --cov-report=term-missing"

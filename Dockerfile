@@ -3,7 +3,7 @@ FROM python:3.12
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y iputils-* net-tools
+RUN apt-get update && apt-get install -y iputils-* net-tools curl
 
 # Install Poetry
 RUN pip install poetry

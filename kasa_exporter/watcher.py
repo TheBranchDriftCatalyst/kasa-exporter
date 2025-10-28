@@ -1,8 +1,8 @@
-import sys
-import time
-from watchdog.observers import Observer
-from watchdog.events import PatternMatchingEventHandler
 import subprocess
+import time
+
+from watchdog.events import PatternMatchingEventHandler
+from watchdog.observers import Observer
 
 
 class RestartOnChangeHandler(PatternMatchingEventHandler):
@@ -23,7 +23,6 @@ class RestartOnChangeHandler(PatternMatchingEventHandler):
 
 
 if __name__ == "__main__":
-
     path = "."
     command = "python -m kasa_exporter.main"
     event_handler = RestartOnChangeHandler(command, patterns=["*.py"])

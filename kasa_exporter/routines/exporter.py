@@ -1,10 +1,12 @@
-from datetime import datetime
-import logging
 import asyncio
+import logging
 import os
+from datetime import datetime
+
+import structlog
 from kasa import Credentials
 from prometheus_client import CollectorRegistry
-import structlog
+
 from ..devices.KP125M import Extractor as KP125MDeviceExtractor
 
 # Configure structured logging with timestamp
@@ -32,23 +34,68 @@ class DeviceExporter:
 
     async def scrape_devices(self):
         interface = {}
+        retry_count = 0
+        max_retries = 5
+        base_delay = 1
 
         while True:
-            await self.device_registry.discover_devices(self.credentials, interface)
-            for addr, device in self.device_registry.devices.items():
-                try:
-                    await device.update()
-                    self.device_registry.last_checkin[addr] = datetime.now()
-                    logger.info(
-                        "Discovered and scraping device",
-                        alias=device.alias,
-                        model=device.model,
-                        address=addr,
-                    )
-                    KP125MDeviceExtractor.update_metrics(device)
-                except Exception as e:
-                    logger.error(f"Error updating device {addr}: {str(e)}")
-                finally:
-                    await device.disconnect()
+            try:
+                # Discover devices with timeout (30 seconds)
+                await asyncio.wait_for(
+                    self.device_registry.discover_devices(self.credentials, interface), timeout=30.0
+                )
 
-            await asyncio.sleep(10)
+                # Create a snapshot of devices to avoid race conditions
+                devices_snapshot = list(self.device_registry.devices.items())
+
+                for addr, device in devices_snapshot:
+                    try:
+                        # Update device with timeout (10 seconds per device)
+                        await asyncio.wait_for(device.update(), timeout=10.0)
+                        self.device_registry.last_checkin[addr] = datetime.now()
+                        logger.info(
+                            "Discovered and scraping device",
+                            alias=device.alias,
+                            model=device.model,
+                            address=addr,
+                        )
+                        KP125MDeviceExtractor.update_metrics(device)
+                    except TimeoutError:
+                        logger.warning(f"Timeout updating device {addr}, will retry next cycle")
+                    except Exception as e:
+                        logger.error(f"Error updating device {addr}: {e!s}")
+                    finally:
+                        try:
+                            await asyncio.wait_for(device.disconnect(), timeout=5.0)
+                        except Exception as e:
+                            logger.warning(f"Error disconnecting from {addr}: {e!s}")
+
+                # Reset retry count on successful scrape
+                retry_count = 0
+                await asyncio.sleep(10)
+
+            except TimeoutError:
+                retry_count += 1
+                delay = min(base_delay * (2**retry_count), 60)
+                logger.error(
+                    f"Device discovery timed out (attempt {retry_count}/{max_retries}), "
+                    f"retrying in {delay}s"
+                )
+                if retry_count >= max_retries:
+                    logger.critical("Max retries reached, resetting interface and retry count")
+                    interface = {}  # Reset interface on repeated failures
+                    retry_count = 0
+                await asyncio.sleep(delay)
+
+            except Exception as e:
+                retry_count += 1
+                delay = min(base_delay * (2**retry_count), 60)
+                logger.error(
+                    f"Unexpected error in scrape_devices (attempt {retry_count}/{max_retries}): "
+                    f"{e!s}, retrying in {delay}s"
+                )
+                if retry_count >= max_retries:
+                    logger.critical("Max retries reached, resetting state")
+                    interface = {}
+                    retry_count = 0
+                await asyncio.sleep(delay)

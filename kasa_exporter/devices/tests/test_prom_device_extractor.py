@@ -1,14 +1,14 @@
 import unittest
-from unittest.mock import MagicMock, patch
-from prometheus_client import CollectorRegistry, Gauge, Counter, Summary, Histogram
+
+from prometheus_client import CollectorRegistry, Gauge
+
 from kasa_exporter.devices.prom_device_extractor import (
-    PromMetricType,
     PrometheusDeviceExtractor,
+    PromMetricType,
 )
 
 
 class TestPrometheusDeviceExtractor(unittest.TestCase):
-
     def setUp(self):
         self.registry = CollectorRegistry()
         self.metrics = {
@@ -17,11 +17,7 @@ class TestPrometheusDeviceExtractor(unittest.TestCase):
             "response_time": PromMetricType.SUMMARY,
             "request_size": PromMetricType.HISTOGRAM,
         }
-        self.device_extractor = PrometheusDeviceExtractor(
-            self.registry, 
-            self.metrics
-        )
-        
+        self.device_extractor = PrometheusDeviceExtractor(self.registry, self.metrics)
 
     def tearDown(self):
         # Ensures that the registry is reset after each test

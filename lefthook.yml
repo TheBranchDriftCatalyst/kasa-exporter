@@ -1,0 +1,114 @@
+# Lefthook Configuration
+# Fast, powerful git hooks manager
+# https://github.com/evilmartians/lefthook
+
+# Global settings
+colors: true
+no_tty: false
+
+# Pre-commit hooks - run fast checks before commit
+pre-commit:
+  parallel: true
+  commands:
+    # Format code with ruff
+    format:
+      glob: "*.py"
+      run: poetry run ruff format {staged_files}
+      stage_fixed: true
+
+    # Lint and auto-fix with ruff
+    lint:
+      glob: "*.py"
+      run: poetry run ruff check --fix {staged_files}
+      stage_fixed: true
+
+    # Check types (if using mypy in future)
+    # typecheck:
+    #   glob: "*.py"
+    #   run: poetry run mypy {staged_files}
+
+# Commit-msg hooks - validate commit message format
+commit-msg:
+  commands:
+    # Validate conventional commits format
+    validate-message:
+      run: |
+        # Read the commit message
+        COMMIT_MSG=$(cat {1})
+
+        # Conventional commit pattern
+        PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9-]+\))?: .{1,100}"
+
+        if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+          echo "❌ Invalid commit message format!"
+          echo ""
+          echo "Commit message must follow Conventional Commits:"
+          echo "  <type>(<scope>): <subject>"
+          echo ""
+          echo "Types:"
+          echo "  feat:     New feature"
+          echo "  fix:      Bug fix"
+          echo "  docs:     Documentation changes"
+          echo "  style:    Code style changes (formatting, etc)"
+          echo "  refactor: Code refactoring"
+          echo "  perf:     Performance improvements"
+          echo "  test:     Adding or updating tests"
+          echo "  build:    Build system changes"
+          echo "  ci:       CI/CD changes"
+          echo "  chore:    Other changes (dependencies, etc)"
+          echo ""
+          echo "Examples:"
+          echo "  feat(api): add new endpoint for device status"
+          echo "  fix(exporter): resolve metric staleness issue"
+          echo "  docs: update README with installation steps"
+          echo ""
+          exit 1
+        fi
+
+# Pre-push hooks - run comprehensive checks before push
+pre-push:
+  parallel: false  # Run sequentially for better output
+  commands:
+    # Run all tests
+    test:
+      run: poetry run pytest -v
+
+    # Check code quality
+    lint-check:
+      run: poetry run ruff check .
+
+    # Format check (don't auto-fix, just check)
+    format-check:
+      run: poetry run ruff format --check .
+
+# Post-checkout hooks - helpful reminders
+post-checkout:
+  commands:
+    # Remind to install dependencies if they changed
+    check-deps:
+      run: |
+        if git diff --name-only HEAD@{1} HEAD | grep -q "^poetry.lock$"; then
+          echo "⚠️  poetry.lock changed - run 'poetry install' to update dependencies"
+        fi
+
+# Post-merge hooks - auto-install deps if needed
+post-merge:
+  commands:
+    # Auto-install dependencies if lock file changed
+    auto-install:
+      run: |
+        if git diff --name-only HEAD@{1} HEAD | grep -q "^poetry.lock$"; then
+          echo "📦 poetry.lock changed - installing dependencies..."
+          poetry install
+        fi
+
+# Skip patterns - files to ignore
+skip_output:
+  - meta
+  - success
+
+# Remote configuration (optional - for team settings)
+# remotes:
+#   - git_url: https://github.com/your-org/your-repo.git
+#     ref: main
+#     config: .lefthook-remote.yml

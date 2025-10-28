@@ -1,17 +1,21 @@
+import re
+from collections.abc import Callable
 from enum import Enum
+from typing import Any, Optional, Union
+
+import structlog
 from prometheus_client import (
-    Gauge,
-    Counter,
-    Summary,
-    Histogram,
     CollectorRegistry,
+    Counter,
+    Gauge,
+    Histogram,
     Info,
+    Summary,
+)
+from prometheus_client import (
     Enum as PromEnum,
 )
-import re
-from pydantic import BaseModel, InstanceOf
-import structlog
-from typing import Callable, Dict, Any, Optional, Union
+from pydantic import InstanceOf
 
 logger = structlog.get_logger()
 
@@ -27,17 +31,14 @@ PromMetricTypeType = Union[
 
 # Define the type for metrics
 MetricsType = Optional[
-    Dict[
+    dict[
         str,  # device metric name (also prom metric name)
-        Union[
-            PromMetricTypeType,
-            Dict[str, Union[PromMetricTypeType, Callable[[Any], Any]]],
-        ],
+        PromMetricTypeType | dict[str, PromMetricTypeType | Callable[[Any], Any]],
     ]
 ]
 
 # Define the type for dimensions
-DimensionsType = Optional[Dict[str, Optional[Callable[[Any], Any]]]]
+DimensionsType = Optional[dict[str, Callable[[Any], Any] | None]]
 
 
 class PromMetricType(Enum):
@@ -58,6 +59,7 @@ PROM_METRIC_TYPES = {
     PromMetricType.INFO: Info,
     PromMetricType.ENUM: PromEnum,
 }
+
 
 class PrometheusDeviceExtractor:
     registry: InstanceOf[CollectorRegistry]
@@ -80,7 +82,7 @@ class PrometheusDeviceExtractor:
         for metric_key, metric_info in self.metrics.items():
             self.register_metric(metric_key, metric_info)
 
-    def get_device_labels(self, device: Any) -> Dict[str, Any]:
+    def get_device_labels(self, device: Any) -> dict[str, Any]:
         labels = {}
         for dimension_key, dimension_getter in self.dimensions.items():
             if dimension_getter is None:
@@ -94,17 +96,13 @@ class PrometheusDeviceExtractor:
         return labels
 
     def register_metric(
-        self, metric_key: str, metric_info: Union[PromMetricTypeType, Dict[str, Any]]
+        self, metric_key: str, metric_info: PromMetricTypeType | dict[str, Any]
     ) -> None:
         if isinstance(metric_info, dict):
             metric_type = metric_info.get("type")
             getter = metric_info.get("getter")
             derive_labels = metric_info.get("derive_labels", {})
-            states = (
-                metric_info.get("states")
-                if metric_type == PromMetricType.ENUM
-                else None
-            )
+            states = metric_info.get("states") if metric_type == PromMetricType.ENUM else None
         else:
             metric_type = metric_info
             getter = None
@@ -140,9 +138,7 @@ class PrometheusDeviceExtractor:
                     "derive_labels": derive_labels,
                 }
 
-            logger.info(
-                f"Registered {metric_type.name.lower()} metric for {metric_key}"
-            )
+            logger.info(f"Registered {metric_type.name.lower()} metric for {metric_key}")
         else:
             logger.error(f"Metric type '{metric_type}' not supported.")
             raise ValueError(f"Metric type '{metric_type}' not supported.")
@@ -152,13 +148,9 @@ class PrometheusDeviceExtractor:
             getter = metric_info["getter"]
             derive_labels = metric_info["derive_labels"]
 
-            metric_value = (
-                getter(device) if getter else device.state_information.get(metric_key)
-            )
+            metric_value = getter(device) if getter else device.state_information.get(metric_key)
             device_labels = self.get_device_labels(device)
-            derived_labels = {
-                label: func(device) for label, func in derive_labels.items()
-            }
+            derived_labels = {label: func(device) for label, func in derive_labels.items()}
 
             all_labels = {**device_labels, **derived_labels}
             if metric_value is not None:
@@ -167,9 +159,7 @@ class PrometheusDeviceExtractor:
                     metric_object.labels(**all_labels).set(metric_value)
                 elif isinstance(metric_object, Counter):
                     metric_object.labels(**all_labels).inc(metric_value)
-                elif isinstance(metric_object, Summary):
-                    metric_object.labels(**all_labels).observe(metric_value)
-                elif isinstance(metric_object, Histogram):
+                elif isinstance(metric_object, Summary) or isinstance(metric_object, Histogram):
                     metric_object.labels(**all_labels).observe(metric_value)
                 elif isinstance(metric_object, Info):
                     metric_object.labels(**all_labels).info(metric_value)
