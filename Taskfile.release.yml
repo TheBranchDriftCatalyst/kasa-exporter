@@ -83,7 +83,7 @@ tasks:
       vars: [NEW_VERSION]
     cmds:
       - git add {{.VERSION_FILE}} pyproject.toml {{.CHANGELOG_FILE}}
-      - git commit -m "chore(release): bump version to {{.NEW_VERSION}}"
+      - 'git commit -m "chore(release): bump version to {{.NEW_VERSION}}"'
       - echo "✅ Created release commit"
 
   # Create git tag
@@ -93,7 +93,7 @@ tasks:
     requires:
       vars: [NEW_VERSION]
     cmds:
-      - git tag -a "v{{.NEW_VERSION}}" -m "Release v{{.NEW_VERSION}}"
+      - 'git tag -a "v{{.NEW_VERSION}}" -m "Release v{{.NEW_VERSION}}"'
       - echo "✅ Created tag v{{.NEW_VERSION}}"
 
   # Calculate next version (patch)
@@ -184,8 +184,8 @@ tasks:
       - echo "✨ Release v{{.NEW_VERSION}} created!"
       - echo ""
       - echo "Next steps:"
-      - echo "  1. Review the changes with: git log --oneline -5"
-      - echo "  2. Push to remote: git push && git push --tags"
+      - 'echo "  1. Review the changes with: git log --oneline -5"'
+      - 'echo "  2. Push to remote: git push && git push --tags"'
       - echo "  3. GitHub Actions will create the release automatically"
       - echo ""
 
