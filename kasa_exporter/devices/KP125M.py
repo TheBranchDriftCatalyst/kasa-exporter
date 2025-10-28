@@ -20,19 +20,23 @@ metrics = {
     "signal_level": {
         "type": PromMetricType.GAUGE,
         "getter": lambda d: d.features["signal_level"].value,
+        # Unit: signal strength level (0-4)
     },
     "state": {
         "type": PromMetricType.ENUM,
         "getter": lambda d: "on" if d.features["state"].value else "off",
         "states": ["on", "off"],
+        # Unit: device state (on/off)
     },
     "rssi": {
         "type": PromMetricType.GAUGE,
         "getter": lambda d: d.features["rssi"].value,
+        # Unit: dBm (WiFi signal strength in decibels-milliwatts)
     },
     "ssid": {
         "type": PromMetricType.INFO,
         "getter": lambda d: {"ssid": d.features["ssid"].value},
+        # Unit: WiFi network name (informational)
     },
     "on_since": {
         "type": PromMetricType.GAUGE,
@@ -40,19 +44,23 @@ metrics = {
             datetime.now() - d.features["on_since"].value.replace(tzinfo=None)
         ).total_seconds()
         / 3600,
+        # Unit: hours - time elapsed since device turned on
     },
     "auto_off_enabled": {
         "type": PromMetricType.ENUM,
         "getter": lambda d: ("enabled" if d.features["auto_off_enabled"].value else "disabled"),
         "states": ["enabled", "disabled"],
+        # Unit: auto-off feature state (enabled/disabled)
     },
     "auto_off_minutes": {
         "type": PromMetricType.GAUGE,
         "getter": lambda d: d.features["auto_off_minutes"].value,
+        # Unit: minutes - auto-off timer duration
     },
     "auto_off_at": {
         "type": PromMetricType.INFO,
         "getter": lambda d: {"auto_off_at": str(d.features["auto_off_at"].value)},
+        # Unit: timestamp - scheduled auto-off time (informational)
     },
     "cloud_connection": {
         "type": PromMetricType.ENUM,
@@ -60,23 +68,28 @@ metrics = {
             "connected" if d.features["cloud_connection"].value else "disconnected"
         ),
         "states": ["connected", "disconnected"],
+        # Unit: connection state (connected/disconnected)
     },
     "current_consumption": {
         "type": PromMetricType.GAUGE,
         "getter": lambda d: d.features["current_consumption"].value,
+        # Unit: watts (W) - instantaneous power consumption
     },
     "consumption_today": {
         "type": PromMetricType.GAUGE,
         "getter": lambda d: d.features["consumption_today"].value,
-    },  # Histogram for distribution over the day
+        # Unit: watt-hours (Wh) - cumulative energy consumed today
+    },
     "consumption_this_month": {
         "type": PromMetricType.HISTOGRAM,
         "getter": lambda d: d.features["consumption_this_month"].value,
-    },  # Summary for distribution over the month
+        # Unit: watt-hours (Wh) - cumulative energy consumed this month
+    },
     "auto_update_enabled": {
         "type": PromMetricType.ENUM,
         "getter": lambda d: ("enabled" if d.features["auto_update_enabled"].value else "disabled"),
         "states": ["enabled", "disabled"],
+        # Unit: auto-update feature state (enabled/disabled)
     },
     "update_available": {
         "type": PromMetricType.ENUM,
@@ -84,33 +97,40 @@ metrics = {
             "available" if d.features["update_available"].value else "not_available"
         ),
         "states": ["available", "not_available"],
+        # Unit: update availability state (available/not_available)
     },
     "current_firmware_version": {
         "type": PromMetricType.INFO,
         "getter": lambda d: {
             "current_firmware_version": d.features["current_firmware_version"].value
         },
+        # Unit: version string (informational)
     },
     "available_firmware_version": {
         "type": PromMetricType.INFO,
         "getter": lambda d: {
             "available_firmware_version": d.features["available_firmware_version"].value or "none"
         },
+        # Unit: version string (informational)
     },
     "led": {
         "type": PromMetricType.ENUM,
         "getter": lambda d: "on" if d.features["led"].value else "off",
         "states": ["on", "off"],
+        # Unit: LED state (on/off)
     },
     "update_attempts": {
         "type": PromMetricType.COUNTER,
         "getter": lambda d: int(d.features.get("update_attempts", 0)),
-    },  # Counter for update attempts
+        # Unit: count - total number of firmware update attempts
+    },
     "consumption_cost": {
         "type": PromMetricType.GAUGE,
         "getter": lambda device: calculator.calc_rate(
             device.state_information["Current consumption"]
         ),
+        # Unit: USD per hour ($/hour) - instantaneous cost rate based on current power draw
+        # Calculation: (watts / 1000) * rate_per_kWh
         # No derive_labels - keeps metric simple and avoids stale label combinations
     },
     "current_energy_rate": {
@@ -118,6 +138,8 @@ metrics = {
         "getter": lambda _d: calculator.get_rate_for_time(
             datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
         ),
+        # Unit: USD per kilowatt-hour ($/kWh) - current electricity rate from utility
+        # Values: 0.314 (super_off_peak), 0.351 (off_peak), 0.634 (on_peak)
         "derive_labels": {
             "season": lambda _d: calculator.get_current_season(),
             "rate_class": lambda _d: calculator.get_rate_name(

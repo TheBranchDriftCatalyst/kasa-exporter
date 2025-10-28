@@ -145,30 +145,61 @@ class PrometheusDeviceExtractor:
 
     def update_metrics(self, device: Any) -> None:
         for metric_key, metric_info in self.metric_objects.items():
-            getter = metric_info["getter"]
-            derive_labels = metric_info["derive_labels"]
+            try:
+                getter = metric_info["getter"]
+                derive_labels = metric_info["derive_labels"]
 
-            metric_value = getter(device) if getter else device.state_information.get(metric_key)
-            device_labels = self.get_device_labels(device)
-            derived_labels = {label: func(device) for label, func in derive_labels.items()}
+                metric_value = getter(device) if getter else device.state_information.get(metric_key)
+                device_labels = self.get_device_labels(device)
 
-            all_labels = {**device_labels, **derived_labels}
-            if metric_value is not None:
-                metric_object = metric_info["metric"]
-                if isinstance(metric_object, Gauge):
-                    metric_object.labels(**all_labels).set(metric_value)
-                elif isinstance(metric_object, Counter):
-                    metric_object.labels(**all_labels).inc(metric_value)
-                elif isinstance(metric_object, Summary) or isinstance(metric_object, Histogram):
-                    metric_object.labels(**all_labels).observe(metric_value)
-                elif isinstance(metric_object, Info):
-                    metric_object.labels(**all_labels).info(metric_value)
-                elif isinstance(metric_object, PromEnum):
-                    metric_object.labels(**all_labels).state(metric_value)
-                logger.debug(
-                    f"Updated metric '{metric_key}'",
-                    value=metric_value,
-                    device_labels=device_labels,
-                    derived_labels=derived_labels,
-                    has_getter=bool(getter),
+                # Compute derived labels with error handling
+                derived_labels = {}
+                for label, func in derive_labels.items():
+                    try:
+                        derived_labels[label] = func(device)
+                    except Exception as e:
+                        logger.error(
+                            f"Error computing derived label '{label}' for metric '{metric_key}' on device {getattr(device, 'alias', 'unknown')}",
+                            error=str(e),
+                        )
+                        derived_labels[label] = None
+
+                all_labels = {**device_labels, **derived_labels}
+
+                # Warn about None values in labels (helpful for debugging label issues)
+                none_labels = [k for k, v in all_labels.items() if v is None]
+                if none_labels:
+                    logger.warning(
+                        f"Metric '{metric_key}' has None labels on device {getattr(device, 'alias', 'unknown')}",
+                        none_labels=none_labels,
+                        all_labels=all_labels,
+                    )
+
+                if metric_value is not None:
+                    metric_object = metric_info["metric"]
+                    if isinstance(metric_object, Gauge):
+                        metric_object.labels(**all_labels).set(metric_value)
+                    elif isinstance(metric_object, Counter):
+                        metric_object.labels(**all_labels).inc(metric_value)
+                    elif isinstance(metric_object, Summary) or isinstance(metric_object, Histogram):
+                        metric_object.labels(**all_labels).observe(metric_value)
+                    elif isinstance(metric_object, Info):
+                        metric_object.labels(**all_labels).info(metric_value)
+                    elif isinstance(metric_object, PromEnum):
+                        metric_object.labels(**all_labels).state(metric_value)
+
+                    logger.debug(
+                        f"Updated metric '{metric_key}'",
+                        value=metric_value,
+                        device_alias=getattr(device, 'alias', 'unknown'),
+                        labels=all_labels,
+                    )
+            except Exception as e:
+                logger.error(
+                    f"Error processing metric '{metric_key}' for device {getattr(device, 'alias', 'unknown')}",
+                    metric_key=metric_key,
+                    error=str(e),
+                    error_type=type(e).__name__,
                 )
+                # Continue to next metric instead of crashing
+                continue

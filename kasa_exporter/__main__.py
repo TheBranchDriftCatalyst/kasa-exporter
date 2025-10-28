@@ -12,8 +12,12 @@ from kasa_exporter.routines.device_registry import DeviceRegistry
 from kasa_exporter.routines.exporter import DeviceExporter
 from kasa_exporter.routines.pushgateway import PushGateway
 
+# Get log level from environment variable (default to INFO)
+log_level_name = os.getenv("LOG_LEVEL", "INFO").upper()
+log_level = getattr(logging, log_level_name, logging.INFO)
+
 structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+    wrapper_class=structlog.make_filtering_bound_logger(log_level),
     processors=[
         structlog.processors.TimeStamper(fmt="iso", utc=True),
         structlog.processors.JSONRenderer(),
@@ -21,6 +25,21 @@ structlog.configure(
 )
 
 logger = structlog.get_logger()
+
+# Startup banner with configuration
+logger.info("=" * 70)
+logger.info("🏠 KASA EXPORTER STARTING UP")
+logger.info("=" * 70)
+logger.info("Configuration:")
+logger.info(f"  📊 Metrics Port: {os.getenv('METRICS_PORT', '8000')}")
+logger.info(f"  📝 Log Level: {log_level_name}")
+logger.info(f"  👤 Kasa Username: {os.getenv('KASA_USERNAME', 'NOT SET')}")
+logger.info(f"  🔑 Kasa Password: {'*' * len(os.getenv('KASA_PASSWORD', '')) if os.getenv('KASA_PASSWORD') else 'NOT SET'}")
+logger.info(f"  🌐 mDNS Interface: {os.getenv('MDNS_INTERFACE', 'auto-detect')}")
+logger.info(f"  🚀 Push Gateway Host: {os.getenv('PUSH_GATEWAY_HOST', 'localhost')}")
+logger.info(f"  🚀 Push Gateway Port: {os.getenv('PUSH_GATEWAY_PORT', '9091')}")
+logger.info(f"  🚀 Push Gateway Enabled: {os.getenv('PUSH_GATEWAY_DISABLED', 'true').lower() != 'true'}")
+logger.info("=" * 70)
 
 # Note if you want to push to the gateway as well as scrape, you need to clone the registry, pushing
 # it increments the registry to its next scrape state
