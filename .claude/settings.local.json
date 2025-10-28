@@ -47,7 +47,12 @@
       "Bash(poetry run pytest:*)",
       "Bash(poetry run ruff:*)",
       "Bash(git -C \"/Users/panda/catalyst-devspace/workspace/@kasa-exporter\" status --short)",
-      "Bash(task --list-all:*)"
+      "Bash(task --list-all:*)",
+      "Bash(task --list:*)",
+      "Bash(tee:*)",
+      "Bash(cat:*)",
+      "Bash(task release:version:*)",
+      "Bash(LEFTHOOK=0 git commit:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
