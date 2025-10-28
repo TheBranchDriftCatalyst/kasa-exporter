@@ -210,9 +210,9 @@ install_application() {
     cd "$INSTALL_DIR"
 
     if [ "$USER_MODE" = true ]; then
-        poetry install --no-dev --no-interaction
+        poetry install --only main --no-interaction
     else
-        sudo -u "$SERVICE_USER" poetry install --no-dev --no-interaction
+        sudo -u "$SERVICE_USER" poetry install --only main --no-interaction
     fi
 
     print_success "Application installed"
