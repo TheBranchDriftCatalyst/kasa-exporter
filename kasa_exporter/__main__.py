@@ -1,16 +1,19 @@
 import asyncio
+import json
 import logging
 import os
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from prometheus_client import CollectorRegistry, generate_latest
 
+from kasa_exporter.devices.KP125M import calculator
 from kasa_exporter.routines.device_registry import DeviceRegistry
 from kasa_exporter.routines.exporter import DeviceExporter
 from kasa_exporter.routines.pushgateway import PushGateway
+from kasa_exporter.utils.time_of_use_calc import TIME_OF_USE_CONFIG
 
 # Get log level from environment variable (default to INFO)
 log_level_name = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -53,15 +56,10 @@ device_exporter = DeviceExporter(device_registry, collector_registry)
 push_gateway = PushGateway(collector_registry)
 
 
-# Global task tracking for health checks
-background_tasks = []
-
-
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    global background_tasks
-    # Start background tasks and store references for cleanup
-    background_tasks = [
+    # Start background tasks and store references for cleanup in app.state
+    _app.state.background_tasks = [
         asyncio.create_task(device_exporter.scrape_devices(), name="device_scraper"),
         asyncio.create_task(push_gateway.push_to_gateway(), name="push_gateway"),
         asyncio.create_task(device_registry.update_registry(), name="registry_updater"),
@@ -72,15 +70,15 @@ async def lifespan(_app: FastAPI):
     finally:
         # Cancel all tasks and wait for them to finish
         logger.info("Shutting down background tasks")
-        for task in background_tasks:
+        for task in _app.state.background_tasks:
             task.cancel()
 
         # Wait for cancellation to complete, ignoring CancelledError
-        await asyncio.gather(*background_tasks, return_exceptions=True)
+        await asyncio.gather(*_app.state.background_tasks, return_exceptions=True)
         logger.info("All background tasks stopped")
 
 
-app = FastAPI(lifespan=lifespan, title="Kasa Exporter", version="0.1.0")
+app = FastAPI(lifespan=lifespan, title="Kasa Exporter", version="0.2.0")
 
 
 @app.get("/metrics")
@@ -98,12 +96,10 @@ async def debug_device():
 @app.get("/health")
 async def health_check():
     """Health check endpoint to verify all background tasks are running"""
-    global background_tasks
-
     task_statuses = []
     all_healthy = True
 
-    for task in background_tasks:
+    for task in app.state.background_tasks:
         is_done = task.done()
         is_cancelled = task.cancelled()
 
@@ -136,8 +132,6 @@ async def health_check():
 
     # Return 503 if unhealthy for proper health check integration
     if not all_healthy:
-        from fastapi import Response
-
         return Response(content=str(response), status_code=503, media_type="application/json")
 
     return response
@@ -152,8 +146,6 @@ async def readiness_check():
     response = {"ready": is_ready, "device_count": device_count}
 
     if not is_ready:
-        from fastapi import Response
-
         return Response(content=str(response), status_code=503, media_type="application/json")
 
     return response
@@ -161,11 +153,6 @@ async def readiness_check():
 
 @app.get("/", response_class=HTMLResponse)
 async def homepage():
-    import json
-
-    from kasa_exporter.devices.KP125M import calculator
-    from kasa_exporter.utils.time_of_use_calc import TIME_OF_USE_CONFIG
-
     devices_info = device_registry.get_devices_info()
     total_devices = len(devices_info)
 
@@ -673,4 +660,4 @@ async def homepage():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("METRICS_PORT", 8000)))
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("METRICS_PORT", "8000")))
