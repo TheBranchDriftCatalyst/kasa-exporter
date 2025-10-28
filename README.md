@@ -45,6 +45,46 @@ This starts:
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment instructions.
 
+## Installation
+
+### Production Installation (System Service)
+
+Install kasa-exporter as a system service that runs automatically on boot:
+
+```bash
+# Linux (systemd) or macOS (launchd)
+cd scripts/install
+sudo ./install.sh
+```
+
+The installer will:
+- Install the application to `/opt/kasa-exporter`
+- Create a systemd/launchd service
+- Prompt for Kasa credentials
+- Start the service automatically
+
+**Manage the service:**
+```bash
+task service:status      # Check status
+task service:logs        # View logs
+task service:restart     # Restart service
+task service:health      # Health check
+```
+
+See [scripts/install/README.md](scripts/install/README.md) for advanced installation options.
+
+### Development Installation
+
+For development with hot-reload:
+
+```bash
+# Clone and install dependencies
+poetry install --with dev
+
+# Run development stack
+task dev
+```
+
 ## Requirements
 
 ### Credentials Required

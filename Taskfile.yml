@@ -6,6 +6,7 @@ vars:
 includes:
   daemon: ./etc/Taskfile.daemon.yml
   release: ./Taskfile.release.yml
+  service: ./Taskfile.service.yml
   utils:
     taskfile: ../../../common/CatalystStack.AbstractTaskFile.yml
     optional: true

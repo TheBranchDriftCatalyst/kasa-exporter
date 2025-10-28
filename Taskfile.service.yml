@@ -1,0 +1,222 @@
+version: '3'
+
+# Service Management Taskfile
+# Commands for installing, managing, and monitoring the kasa-exporter service
+
+tasks:
+  install:
+    desc: "Install kasa-exporter as a system service"
+    cmds:
+      - |
+        echo "🚀 Installing kasa-exporter as a system service..."
+        echo ""
+        cd scripts/install && sudo ./install.sh
+
+  install:user:
+    desc: "Install kasa-exporter as a user service (no sudo)"
+    cmds:
+      - |
+        echo "🚀 Installing kasa-exporter as a user service..."
+        echo ""
+        cd scripts/install && ./install.sh --user
+
+  uninstall:
+    desc: "Uninstall kasa-exporter service"
+    cmds:
+      - |
+        echo "🗑️  Uninstalling kasa-exporter service..."
+        echo ""
+        cd scripts/install && sudo ./uninstall.sh
+
+  uninstall:user:
+    desc: "Uninstall kasa-exporter user service"
+    cmds:
+      - |
+        echo "🗑️  Uninstalling kasa-exporter user service..."
+        echo ""
+        cd scripts/install && ./uninstall.sh --user
+
+  # Systemd commands
+  status:
+    desc: "Check service status"
+    cmds:
+      - |
+        if command -v systemctl &> /dev/null; then
+          if systemctl --user is-active kasa-exporter 2>/dev/null; then
+            systemctl --user status kasa-exporter
+          elif systemctl is-active kasa-exporter 2>/dev/null; then
+            sudo systemctl status kasa-exporter
+          else
+            echo "❌ Service not running (checked both user and system)"
+          fi
+        elif [ "$(uname)" = "Darwin" ]; then
+          launchctl list | grep kasa-exporter || echo "❌ Service not running"
+        fi
+
+  start:
+    desc: "Start the service"
+    cmds:
+      - |
+        if command -v systemctl &> /dev/null; then
+          if systemctl --user list-unit-files | grep -q kasa-exporter; then
+            systemctl --user start kasa-exporter
+            echo "✅ User service started"
+          else
+            sudo systemctl start kasa-exporter
+            echo "✅ System service started"
+          fi
+        elif [ "$(uname)" = "Darwin" ]; then
+          launchctl load ~/Library/LaunchAgents/com.kasa-exporter.plist
+          echo "✅ Service started"
+        fi
+
+  stop:
+    desc: "Stop the service"
+    cmds:
+      - |
+        if command -v systemctl &> /dev/null; then
+          if systemctl --user is-active kasa-exporter 2>/dev/null; then
+            systemctl --user stop kasa-exporter
+            echo "✅ User service stopped"
+          elif systemctl is-active kasa-exporter 2>/dev/null; then
+            sudo systemctl stop kasa-exporter
+            echo "✅ System service stopped"
+          fi
+        elif [ "$(uname)" = "Darwin" ]; then
+          launchctl unload ~/Library/LaunchAgents/com.kasa-exporter.plist
+          echo "✅ Service stopped"
+        fi
+
+  restart:
+    desc: "Restart the service"
+    cmds:
+      - |
+        if command -v systemctl &> /dev/null; then
+          if systemctl --user is-active kasa-exporter 2>/dev/null; then
+            systemctl --user restart kasa-exporter
+            echo "✅ User service restarted"
+          elif systemctl is-active kasa-exporter 2>/dev/null; then
+            sudo systemctl restart kasa-exporter
+            echo "✅ System service restarted"
+          fi
+        elif [ "$(uname)" = "Darwin" ]; then
+          launchctl unload ~/Library/LaunchAgents/com.kasa-exporter.plist
+          launchctl load ~/Library/LaunchAgents/com.kasa-exporter.plist
+          echo "✅ Service restarted"
+        fi
+
+  logs:
+    desc: "View service logs"
+    cmds:
+      - |
+        if command -v journalctl &> /dev/null; then
+          if systemctl --user is-active kasa-exporter 2>/dev/null; then
+            journalctl --user -u kasa-exporter -f
+          elif systemctl is-active kasa-exporter 2>/dev/null; then
+            sudo journalctl -u kasa-exporter -f
+          else
+            echo "❌ Service not running"
+          fi
+        elif [ "$(uname)" = "Darwin" ]; then
+          INSTALL_DIR="${HOME}/.local/share/kasa-exporter"
+          if [ ! -d "$INSTALL_DIR" ]; then
+            INSTALL_DIR="/opt/kasa-exporter"
+          fi
+          tail -f "$INSTALL_DIR/logs/kasa-exporter.log" 2>/dev/null || \
+            echo "❌ Log file not found at $INSTALL_DIR/logs/kasa-exporter.log"
+        fi
+
+  logs:tail:
+    desc: "View last 50 lines of logs"
+    cmds:
+      - |
+        if command -v journalctl &> /dev/null; then
+          if systemctl --user is-active kasa-exporter 2>/dev/null; then
+            journalctl --user -u kasa-exporter -n 50
+          elif systemctl is-active kasa-exporter 2>/dev/null; then
+            sudo journalctl -u kasa-exporter -n 50
+          else
+            echo "❌ Service not running"
+          fi
+        elif [ "$(uname)" = "Darwin" ]; then
+          INSTALL_DIR="${HOME}/.local/share/kasa-exporter"
+          if [ ! -d "$INSTALL_DIR" ]; then
+            INSTALL_DIR="/opt/kasa-exporter"
+          fi
+          tail -50 "$INSTALL_DIR/logs/kasa-exporter.log" 2>/dev/null || \
+            echo "❌ Log file not found"
+        fi
+
+  enable:
+    desc: "Enable service to start on boot"
+    cmds:
+      - |
+        if command -v systemctl &> /dev/null; then
+          if systemctl --user list-unit-files | grep -q kasa-exporter; then
+            systemctl --user enable kasa-exporter
+            echo "✅ User service enabled"
+          else
+            sudo systemctl enable kasa-exporter
+            echo "✅ System service enabled"
+          fi
+        else
+          echo "ℹ️  launchd services auto-enable with RunAtLoad=true"
+        fi
+
+  disable:
+    desc: "Disable service from starting on boot"
+    cmds:
+      - |
+        if command -v systemctl &> /dev/null; then
+          if systemctl --user is-enabled kasa-exporter 2>/dev/null; then
+            systemctl --user disable kasa-exporter
+            echo "✅ User service disabled"
+          elif systemctl is-enabled kasa-exporter 2>/dev/null; then
+            sudo systemctl disable kasa-exporter
+            echo "✅ System service disabled"
+          fi
+        else
+          echo "⚠️  For launchd, remove or modify the plist file"
+        fi
+
+  health:
+    desc: "Check service health"
+    cmds:
+      - |
+        METRICS_PORT=${METRICS_PORT:-8000}
+        echo "🏥 Checking service health..."
+        echo ""
+
+        # Check if service is running
+        if command -v systemctl &> /dev/null; then
+          if systemctl --user is-active kasa-exporter 2>/dev/null; then
+            echo "✅ Service is running (user)"
+          elif systemctl is-active kasa-exporter 2>/dev/null; then
+            echo "✅ Service is running (system)"
+          else
+            echo "❌ Service is not running"
+            exit 1
+          fi
+        elif [ "$(uname)" = "Darwin" ]; then
+          if launchctl list | grep -q kasa-exporter; then
+            echo "✅ Service is running"
+          else
+            echo "❌ Service is not running"
+            exit 1
+          fi
+        fi
+
+        # Check HTTP endpoint
+        if curl -sf "http://localhost:$METRICS_PORT/health" > /dev/null; then
+          echo "✅ HTTP endpoint is responding"
+        else
+          echo "❌ HTTP endpoint is not responding"
+          exit 1
+        fi
+
+        # Get metrics count
+        METRICS_COUNT=$(curl -sf "http://localhost:$METRICS_PORT/metrics" | grep -c "^kasa_" || echo "0")
+        echo "📊 Exporting $METRICS_COUNT metrics"
+
+        echo ""
+        echo "🎉 Service is healthy!"

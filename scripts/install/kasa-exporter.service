@@ -1,0 +1,46 @@
+[Unit]
+Description=Kasa Exporter - Prometheus metrics for TP-Link Kasa devices
+Documentation=https://github.com/TheBranchDriftCatalyst/kasa-exporter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kasa-exporter
+Group=kasa-exporter
+WorkingDirectory=/opt/kasa-exporter
+Environment="PATH=/opt/kasa-exporter/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONUNBUFFERED=1"
+
+# Environment variables - these will be set during installation
+# KASA_USERNAME and KASA_PASSWORD should be set in /etc/kasa-exporter/env
+EnvironmentFile=-/etc/kasa-exporter/env
+
+# Main service command
+ExecStart=/opt/kasa-exporter/.venv/bin/python -m kasa_exporter
+
+# Restart policy
+Restart=always
+RestartSec=10
+StartLimitInterval=5min
+StartLimitBurst=5
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/kasa-exporter
+
+# Resource limits
+LimitNOFILE=65536
+MemoryLimit=512M
+CPUQuota=50%
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kasa-exporter
+
+[Install]
+WantedBy=multi-user.target

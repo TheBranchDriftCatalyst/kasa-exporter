@@ -52,7 +52,8 @@
       "Bash(tee:*)",
       "Bash(cat:*)",
       "Bash(task release:version:*)",
-      "Bash(LEFTHOOK=0 git commit:*)"
+      "Bash(LEFTHOOK=0 git commit:*)",
+      "Bash(git checkout:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
