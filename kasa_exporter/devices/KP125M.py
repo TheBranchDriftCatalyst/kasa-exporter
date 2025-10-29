@@ -87,7 +87,7 @@ metrics = {
         # Unit: watt-hours (Wh) - cumulative energy consumed today
     },
     "consumption_this_month": {
-        "type": PromMetricType.HISTOGRAM,
+        "type": PromMetricType.GAUGE,
         "getter": lambda d: d.features["consumption_this_month"].value,
         # Unit: watt-hours (Wh) - cumulative energy consumed this month
     },

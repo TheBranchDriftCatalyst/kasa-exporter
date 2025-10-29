@@ -63,7 +63,9 @@
       "Bash(lsof:*)",
       "Bash(xargs ps:*)",
       "Bash(xargs kill:*)",
-      "Bash(task release:minor:*)"
+      "Bash(task release:minor:*)",
+      "Bash(git -C \"/Users/panda/catalyst-devspace/workspace/@kasa-exporter\" add tests/test_validate_credentials.py)",
+      "Bash(git -C \"/Users/panda/catalyst-devspace/workspace/@kasa-exporter\" commit -m \"$(cat <<''EOF''\ntest: add pytest tests for credential validation script\n\n- Test successful validation with real credentials (skipped if not set)\n- Test missing username/password error handling\n- Test script existence and executability\n- Test output format and error messages\n- Skip invalid credential test (discovery doesn''t validate cloud creds)\n\nTests utilize KASA_USERNAME and KASA_PASSWORD env vars if available,\notherwise skip tests that require them with informative messages.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ]
   },
   "enableAllProjectMcpServers": true,
