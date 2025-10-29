@@ -36,6 +36,38 @@ tasks:
         echo ""
         cd scripts/install && ./uninstall.sh --user
 
+  update:
+    desc: "Update existing kasa-exporter system service installation"
+    cmds:
+      - |
+        echo "🔄 Updating kasa-exporter system service..."
+        echo ""
+        cd scripts/install && sudo ./update.sh
+
+  update:user:
+    desc: "Update existing kasa-exporter user service installation"
+    cmds:
+      - |
+        echo "🔄 Updating kasa-exporter user service..."
+        echo ""
+        cd scripts/install && ./update.sh --user
+
+  update:no-restart:
+    desc: "Update service without restarting (system)"
+    cmds:
+      - |
+        echo "🔄 Updating kasa-exporter (no restart)..."
+        echo ""
+        cd scripts/install && sudo ./update.sh --no-restart
+
+  update:user:no-restart:
+    desc: "Update user service without restarting"
+    cmds:
+      - |
+        echo "🔄 Updating kasa-exporter user service (no restart)..."
+        echo ""
+        cd scripts/install && ./update.sh --user --no-restart
+
   # Systemd commands
   status:
     desc: "Check service status"
