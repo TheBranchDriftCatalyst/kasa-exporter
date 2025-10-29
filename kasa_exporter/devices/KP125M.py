@@ -1,3 +1,4 @@
+# ruff: noqa: N999
 from datetime import datetime
 
 import pytz
@@ -41,7 +42,7 @@ metrics = {
     "on_since": {
         "type": PromMetricType.GAUGE,
         "getter": lambda d: (
-            datetime.now() - d.features["on_since"].value.replace(tzinfo=None)
+            datetime.now(pytz.UTC) - d.features["on_since"].value.replace(tzinfo=None)
         ).total_seconds()
         / 3600,
         # Unit: hours - time elapsed since device turned on
@@ -131,7 +132,11 @@ metrics = {
         ),
         # Unit: USD per hour ($/hour) - instantaneous cost rate based on current power draw
         # Calculation: (watts / 1000) * rate_per_kWh
-        # No derive_labels - keeps metric simple and avoids stale label combinations
+        "derive_labels": {
+            "rate_class": lambda _d: calculator.get_rate_name(
+                datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
+            ),
+        },
     },
     "current_energy_rate": {
         "type": PromMetricType.GAUGE,
