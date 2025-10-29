@@ -20,7 +20,7 @@ class PushGateway:
     def __init__(self, collector_registry: CollectorRegistry):
         self.collector_registry = collector_registry
         self.pg_host = os.getenv("PUSH_GATEWAY_HOST", "localhost")
-        self.pg_port = int(os.getenv("PUSH_GATEWAY_PORT", 9091))
+        self.pg_port = int(os.getenv("PUSH_GATEWAY_PORT", "9091"))
         self.pg_disabled = os.getenv("PUSH_GATEWAY_DISABLED", "true").lower() == "true"
 
     async def push_to_gateway(self):

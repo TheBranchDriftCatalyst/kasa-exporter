@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import structlog
 from kasa import Discover
@@ -45,7 +45,7 @@ class DeviceRegistry:
         self.discovered_devices.inc(len(found_devices))
         self.total_devices.set(len(self.devices))
         for addr in self.devices:
-            self.last_checkin[addr] = datetime.now()
+            self.last_checkin[addr] = datetime.now(tz=UTC)
         return self.devices
 
     def get_devices_info(self):
@@ -66,7 +66,7 @@ class DeviceRegistry:
 
         while True:
             try:
-                now = datetime.now()
+                now = datetime.now(tz=UTC)
 
                 # Create a snapshot to avoid race conditions during iteration
                 last_checkin_snapshot = dict(self.last_checkin.items())

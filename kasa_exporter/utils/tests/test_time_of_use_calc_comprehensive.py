@@ -27,7 +27,7 @@ class TestSeasonTransitions:
         return TimeOfUseCalc(TIME_OF_USE_CONFIG)
 
     @pytest.mark.parametrize(
-        "test_date,expected_season",
+        ("test_date", "expected_season"),
         [
             # Last day of winter (May 31)
             (datetime(2024, 5, 31, 12, 0), "winter"),
@@ -90,7 +90,7 @@ class TestTimeBlockTransitions:
         return TimeOfUseCalc(TIME_OF_USE_CONFIG, timezone="America/Los_Angeles")
 
     @pytest.mark.parametrize(
-        "time_str,expected_period,expected_rate",
+        ("time_str", "expected_period", "expected_rate"),
         [
             # Super off-peak period (midnight to 6am)
             # Note: 06:00 is included in super_off_peak range, matches first due to config order
@@ -134,7 +134,7 @@ class TestTimeBlockTransitions:
         assert rate == expected_rate, f"Expected rate {expected_rate} at {time_str}, got {rate}"
 
     @pytest.mark.parametrize(
-        "time_str,expected_period,expected_rate",
+        ("time_str", "expected_period", "expected_rate"),
         [
             # Winter uses same time blocks as summer
             ("00:00", "super_off_peak", 0.314),
@@ -351,7 +351,7 @@ class TestRateCalculations:
         return TimeOfUseCalc(TIME_OF_USE_CONFIG, timezone="America/Los_Angeles")
 
     @pytest.mark.parametrize(
-        "consumption,season,hour,expected_rate_kwh,expected_cost",
+        ("consumption", "season", "hour", "expected_rate_kwh", "expected_cost"),
         [
             # Super off-peak (0.314/kWh)
             (1000, "summer", 3, 0.314, 0.314),  # 1000W = 1kW * 0.314
@@ -503,7 +503,7 @@ class TestRateNameRetrieval:
         return TimeOfUseCalc(TIME_OF_USE_CONFIG, timezone="America/Los_Angeles")
 
     @pytest.mark.parametrize(
-        "hour,expected_name",
+        ("hour", "expected_name"),
         [
             (0, "super_off_peak"),
             (5, "super_off_peak"),

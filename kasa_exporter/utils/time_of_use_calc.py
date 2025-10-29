@@ -34,14 +34,14 @@ TIME_OF_USE_CONFIG = {
 
 
 class TimeOfUseCalc:
-    def __init__(self, config: dict, timezone: str = None):
+    def __init__(self, config: dict, timezone: str | None = None):
         self.config = config
         # Allow timezone override via environment variable or constructor
         self.timezone = timezone or os.getenv("TZ", "America/Los_Angeles")
 
     def get_current_season(self) -> str:
         """Determine the current season based on the date."""
-        today = datetime.now().strftime("%m-%d")
+        today = datetime.now(tz=pytz.UTC).strftime("%m-%d")
         for season, date_range in self.config["season"].items():
             start, end = date_range
             # Handle the case where the season spans across the year-end

@@ -70,6 +70,20 @@ ignore = [
 "tests/**/*.py" = [
     "PLR2004",  # Magic values are fine in tests
     "S101",     # Assert is fine in tests
+    "DTZ001",   # datetime without tzinfo is fine in tests (mocked)
+    "DTZ005",   # datetime.now without tz is fine in tests (mocked)
+    "PT009",    # unittest assertions are fine in tests
+    "PT006",    # pytest.mark.parametrize tuple format varies
+    "SIM117",   # Nested with statements are fine in tests
+]
+"**/tests/**/*.py" = [
+    "PLR2004",  # Magic values are fine in tests
+    "S101",     # Assert is fine in tests
+    "DTZ001",   # datetime without tzinfo is fine in tests (mocked)
+    "DTZ005",   # datetime.now without tz is fine in tests (mocked)
+    "PT009",    # unittest assertions are fine in tests
+    "PT006",    # pytest.mark.parametrize tuple format varies
+    "SIM117",   # Nested with statements are fine in tests
 ]
 
 [tool.ruff.format]

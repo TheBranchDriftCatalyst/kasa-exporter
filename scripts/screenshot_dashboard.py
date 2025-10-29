@@ -11,7 +11,7 @@ Usage:
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
@@ -39,7 +39,7 @@ def discover_dashboards():
     # Find all .json files in dashboards directory
     for json_file in DASHBOARDS_DIR.glob("*.json"):
         try:
-            with open(json_file) as f:
+            with json_file.open() as f:
                 data = json.load(f)
 
             uid = data.get("uid")
@@ -173,7 +173,7 @@ def take_dashboard_screenshot(
         response.raise_for_status()
 
         # Save the screenshot
-        with open(output_path, "wb") as f:
+        with output_path.open("wb") as f:
             f.write(response.content)
 
         file_size = len(response.content) / 1024  # KB
@@ -210,7 +210,7 @@ def main():
             sys.exit(1)
 
         custom_uid = sys.argv[2]
-        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        timestamp = datetime.now(tz=UTC).strftime("%Y%m%d-%H%M%S")
         output_file = SCREENSHOT_DIR / f"custom-dashboard-{timestamp}.png"
 
         take_dashboard_screenshot(custom_uid, output_file)
@@ -228,7 +228,7 @@ def main():
     print()
 
     # Screenshot all discovered dashboards
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    timestamp = datetime.now(tz=UTC).strftime("%Y%m%d-%H%M%S")
 
     for dashboard in dashboards:
         name = dashboard["name"]

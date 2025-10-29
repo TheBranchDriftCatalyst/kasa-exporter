@@ -27,7 +27,7 @@ class TestPrometheusDeviceExtractor(unittest.TestCase):
     def test_sanitize_metric_name(self):
         name = "CPU Usage %"
         sanitized_name = self.device_extractor.sanitize_metric_name(name)
-        self.assertEqual(sanitized_name, "cpu_usage_")
+        assert sanitized_name == "cpu_usage_"
 
     def test_register_metric(self):
         metric_key = "cpu_usage"
@@ -36,15 +36,15 @@ class TestPrometheusDeviceExtractor(unittest.TestCase):
         self.device_extractor.register_metric(metric_key, metric_type)
         metric_object = self.device_extractor.metric_objects[metric_key]
 
-        self.assertIsInstance(metric_object, Gauge)
-        self.assertEqual(metric_object._name, "device_cpu_usage")
+        assert isinstance(metric_object, Gauge)
+        assert metric_object._name == "device_cpu_usage"
 
     def test_initialize_metrics(self):
         self.device_extractor.initialize_metrics()
-        self.assertIn("cpu_usage", self.device_extractor.metric_objects)
-        self.assertIn("memory_usage", self.device_extractor.metric_objects)
-        self.assertIn("response_time", self.device_extractor.metric_objects)
-        self.assertIn("request_size", self.device_extractor.metric_objects)
+        assert "cpu_usage" in self.device_extractor.metric_objects
+        assert "memory_usage" in self.device_extractor.metric_objects
+        assert "response_time" in self.device_extractor.metric_objects
+        assert "request_size" in self.device_extractor.metric_objects
 
     # @patch("kasa_exporter.devices.prom_device_extractor.logger")
     # def test_update_metrics(self, mock_logger):

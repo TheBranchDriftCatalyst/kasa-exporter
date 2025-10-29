@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 from kasa import Credentials
@@ -52,7 +52,7 @@ class DeviceExporter:
                     try:
                         # Update device with timeout (10 seconds per device)
                         await asyncio.wait_for(device.update(), timeout=10.0)
-                        self.device_registry.last_checkin[addr] = datetime.now()
+                        self.device_registry.last_checkin[addr] = datetime.now(tz=UTC)
                         logger.info(
                             "Discovered and scraping device",
                             alias=device.alias,

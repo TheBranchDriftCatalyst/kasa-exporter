@@ -1,3 +1,4 @@
+# ruff: noqa: N999
 import random
 
 from prometheus_client import CollectorRegistry
