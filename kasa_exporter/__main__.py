@@ -25,7 +25,10 @@ log_format = os.getenv("LOG_FORMAT", "console").lower()
 if log_format == "json":
     renderer = structlog.processors.JSONRenderer()
 else:
-    renderer = structlog.dev.ConsoleRenderer(colors=True)
+    renderer = structlog.dev.ConsoleRenderer(
+        colors=True,
+        pad_event=0,  # Don't pad the event message
+    )
 
 structlog.configure(
     wrapper_class=structlog.make_filtering_bound_logger(log_level),
