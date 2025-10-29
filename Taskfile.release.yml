@@ -140,7 +140,11 @@ tasks:
       - task: _release
         vars:
           NEW_VERSION:
-            sh: task release:calc:patch
+            sh: |
+              CURRENT=$(cat {{.VERSION_FILE}})
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+              NEXT_PATCH=$((PATCH + 1))
+              echo "$MAJOR.$MINOR.$NEXT_PATCH"
 
   # Minor release (0.1.0 -> 0.2.0)
   minor:
@@ -150,7 +154,11 @@ tasks:
       - task: _release
         vars:
           NEW_VERSION:
-            sh: task release:calc:minor
+            sh: |
+              CURRENT=$(cat {{.VERSION_FILE}})
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+              NEXT_MINOR=$((MINOR + 1))
+              echo "$MAJOR.$NEXT_MINOR.0"
 
   # Major release (0.1.0 -> 1.0.0)
   major:
@@ -160,7 +168,11 @@ tasks:
       - task: _release
         vars:
           NEW_VERSION:
-            sh: task release:calc:major
+            sh: |
+              CURRENT=$(cat {{.VERSION_FILE}})
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+              NEXT_MAJOR=$((MAJOR + 1))
+              echo "$NEXT_MAJOR.0.0"
 
   # Internal: Execute the full release process
   _release:
