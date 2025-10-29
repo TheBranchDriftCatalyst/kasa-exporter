@@ -42,7 +42,12 @@ metrics = {
     "on_since": {
         "type": PromMetricType.GAUGE,
         "getter": lambda d: (
-            datetime.now(pytz.UTC) - d.features["on_since"].value.replace(tzinfo=None)
+            datetime.now(pytz.UTC)
+            - (
+                d.features["on_since"].value
+                if d.features["on_since"].value.tzinfo is not None
+                else d.features["on_since"].value.replace(tzinfo=pytz.UTC)
+            )
         ).total_seconds()
         / 3600,
         # Unit: hours - time elapsed since device turned on

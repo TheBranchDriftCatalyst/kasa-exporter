@@ -120,7 +120,10 @@ class PrometheusDeviceExtractor:
         if metric_type in PROM_METRIC_TYPES:
             sanitized_name = self.sanitize_metric_name(metric_key)
             metric_class = PROM_METRIC_TYPES[metric_type]
-            label_names = list(self.dimensions.keys()) + list(derive_labels.keys())
+            # Include dimensions, derived labels, and global build info labels
+            label_names = (
+                list(self.dimensions.keys()) + list(derive_labels.keys()) + ["version", "git_hash"]
+            )
 
             if metric_type == PromMetricType.ENUM:
                 self.metric_objects[metric_key] = {
