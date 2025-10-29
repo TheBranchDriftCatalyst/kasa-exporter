@@ -77,6 +77,32 @@ Install without sudo for the current user only:
 - Service: `~/Library/LaunchAgents/com.kasa-exporter.plist`
 - Logs: `~/.local/share/kasa-exporter/logs/`
 
+## Updating the Installation
+
+To update an existing installation to the latest version:
+
+```bash
+cd scripts/install
+
+# System-wide installation
+sudo ./update.sh
+
+# User-level installation
+./update.sh --user
+
+# Update without restarting service
+sudo ./update.sh --no-restart
+```
+
+The update script will:
+1. Stop the running service
+2. Backup current configuration
+3. Copy updated application files
+4. Update dependencies with Poetry
+5. Restart the service (unless `--no-restart` specified)
+
+**Note:** Your configuration and credentials are preserved during updates.
+
 ## Managing the Service
 
 ### Using Task Commands (Easiest)
@@ -337,6 +363,7 @@ To run multiple instances (different ports):
 ## Files Reference
 
 - `install.sh` - Installation script
+- `update.sh` - Update script for existing installations
 - `uninstall.sh` - Uninstallation script
 - `kasa-exporter.service` - systemd unit file template
 - `com.kasa-exporter.plist` - launchd plist template
