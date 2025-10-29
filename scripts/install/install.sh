@@ -161,6 +161,37 @@ get_credentials() {
     print_success "Credentials configured"
 }
 
+validate_credentials() {
+    print_step "Validating Kasa credentials"
+
+    # Get the repository root
+    REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+    print_info "Testing connection to Kasa cloud..."
+
+    # Run validation script
+    if cd "$REPO_ROOT" && KASA_USERNAME="$KASA_USERNAME" KASA_PASSWORD="$KASA_PASSWORD" \
+        poetry run python "$SCRIPT_DIR/validate_credentials.py" 2>&1; then
+        print_success "Credentials validated successfully"
+        return 0
+    else
+        print_error "Credential validation failed"
+        echo ""
+        print_info "Please check:"
+        echo "  1. Username and password are correct"
+        echo "  2. Your Kasa account is active"
+        echo "  3. Network connectivity to Kasa cloud services"
+        echo ""
+        read -p "Continue anyway? (y/N) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            exit 1
+        fi
+        print_info "Continuing despite validation failure..."
+    fi
+}
+
 create_user() {
     if [ "$USER_MODE" = true ]; then
         print_info "Skipping user creation (user mode)"
@@ -414,6 +445,7 @@ main() {
     check_requirements
     detect_platform
     get_credentials
+    validate_credentials
     create_user
     install_application
     configure_environment
