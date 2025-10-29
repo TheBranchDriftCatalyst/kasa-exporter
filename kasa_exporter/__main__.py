@@ -20,11 +20,20 @@ from kasa_exporter.utils.time_of_use_calc import TIME_OF_USE_CONFIG
 log_level_name = os.getenv("LOG_LEVEL", "INFO").upper()
 log_level = getattr(logging, log_level_name, logging.INFO)
 
+# Use human-friendly console output in dev, JSON in production
+log_format = os.getenv("LOG_FORMAT", "console").lower()
+if log_format == "json":
+    renderer = structlog.processors.JSONRenderer()
+else:
+    renderer = structlog.dev.ConsoleRenderer(colors=True)
+
 structlog.configure(
     wrapper_class=structlog.make_filtering_bound_logger(log_level),
     processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
         structlog.processors.TimeStamper(fmt="iso", utc=True),
-        structlog.processors.JSONRenderer(),
+        renderer,
     ],
 )
 

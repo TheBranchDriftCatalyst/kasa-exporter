@@ -1,18 +1,9 @@
 import asyncio
-import logging
 import os
 
 import structlog
 from prometheus_client import CollectorRegistry, push_to_gateway
 
-# Configure structured logging with timestamp
-structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
-    processors=[
-        structlog.processors.TimeStamper(fmt="iso", utc=True),
-        structlog.processors.JSONRenderer(),
-    ],
-)
 logger = structlog.get_logger()
 
 

@@ -1,19 +1,10 @@
 import asyncio
-import logging
 from datetime import UTC, datetime, timedelta
 
 import structlog
 from kasa import Discover
 from prometheus_client import CollectorRegistry, Counter, Gauge
 
-# Configure structured logging with timestamp
-structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
-    processors=[
-        structlog.processors.TimeStamper(fmt="iso", utc=True),
-        structlog.processors.JSONRenderer(),
-    ],
-)
 logger = structlog.get_logger()
 
 

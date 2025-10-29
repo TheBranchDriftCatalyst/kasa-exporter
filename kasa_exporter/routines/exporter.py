@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import os
 from datetime import UTC, datetime
 
@@ -9,14 +8,6 @@ from prometheus_client import CollectorRegistry
 
 from ..devices.KP125M import Extractor as KP125MDeviceExtractor
 
-# Configure structured logging with timestamp
-structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
-    processors=[
-        structlog.processors.TimeStamper(fmt="iso", utc=True),
-        structlog.processors.JSONRenderer(),
-    ],
-)
 logger = structlog.get_logger()
 
 

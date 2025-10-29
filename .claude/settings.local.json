@@ -53,7 +53,17 @@
       "Bash(cat:*)",
       "Bash(task release:version:*)",
       "Bash(LEFTHOOK=0 git commit:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git log:*)",
+      "Bash(task service:update:*)",
+      "Bash(systemctl:*)",
+      "Bash(systemctl is-active:*)",
+      "Read(//opt/kasa-exporter/**)",
+      "Read(//Users/panda/.local/share/**)",
+      "Bash(lsof:*)",
+      "Bash(xargs ps:*)",
+      "Bash(xargs kill:*)",
+      "Bash(task release:minor:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
