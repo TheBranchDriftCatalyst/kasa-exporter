@@ -140,7 +140,7 @@ tasks:
       - task: _release
         vars:
           NEW_VERSION:
-            sh: task calc:patch
+            sh: task release:calc:patch
 
   # Minor release (0.1.0 -> 0.2.0)
   minor:
@@ -150,7 +150,7 @@ tasks:
       - task: _release
         vars:
           NEW_VERSION:
-            sh: task calc:minor
+            sh: task release:calc:minor
 
   # Major release (0.1.0 -> 1.0.0)
   major:
@@ -160,7 +160,7 @@ tasks:
       - task: _release
         vars:
           NEW_VERSION:
-            sh: task calc:major
+            sh: task release:calc:major
 
   # Internal: Execute the full release process
   _release:
