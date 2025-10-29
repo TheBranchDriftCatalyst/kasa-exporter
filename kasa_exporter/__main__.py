@@ -13,6 +13,7 @@ from kasa_exporter.devices.KP125M import calculator
 from kasa_exporter.routines.device_registry import DeviceRegistry
 from kasa_exporter.routines.exporter import DeviceExporter
 from kasa_exporter.routines.pushgateway import PushGateway
+from kasa_exporter.utils.build_info import GIT_HASH, VERSION
 from kasa_exporter.utils.time_of_use_calc import TIME_OF_USE_CONFIG
 
 # Get log level from environment variable (default to INFO)
@@ -34,6 +35,8 @@ logger.info("=" * 70)
 logger.info("🏠 KASA EXPORTER STARTING UP")
 logger.info("=" * 70)
 logger.info("Configuration:")
+logger.info(f"  📦 Version: {VERSION}")
+logger.info(f"  🔖 Git Hash: {GIT_HASH}")
 logger.info(f"  📊 Metrics Port: {os.getenv('METRICS_PORT', '8000')}")
 logger.info(f"  📝 Log Level: {log_level_name}")
 logger.info(f"  👤 Kasa Username: {os.getenv('KASA_USERNAME', 'NOT SET')}")

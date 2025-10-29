@@ -1,7 +1,7 @@
 import re
 from collections.abc import Callable
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any
 
 import structlog
 from prometheus_client import (
@@ -17,28 +17,31 @@ from prometheus_client import (
 )
 from pydantic import InstanceOf
 
+from ..utils.build_info import GIT_HASH, VERSION
+
 logger = structlog.get_logger()
 
 # Define the PromMetricType
-PromMetricTypeType = Union[
-    InstanceOf[Counter],
-    InstanceOf[Gauge],
-    InstanceOf[Histogram],
-    InstanceOf[Summary],
-    InstanceOf[PromEnum],
-    InstanceOf[Info],
-]
+PromMetricTypeType = (
+    InstanceOf[Counter]
+    | InstanceOf[Gauge]
+    | InstanceOf[Histogram]
+    | InstanceOf[Summary]
+    | InstanceOf[PromEnum]
+    | InstanceOf[Info]
+)
 
 # Define the type for metrics
-MetricsType = Optional[
+MetricsType = (
     dict[
         str,  # device metric name (also prom metric name)
         PromMetricTypeType | dict[str, PromMetricTypeType | Callable[[Any], Any]],
     ]
-]
+    | None
+)
 
 # Define the type for dimensions
-DimensionsType = Optional[dict[str, Callable[[Any], Any] | None]]
+DimensionsType = dict[str, Callable[[Any], Any] | None] | None
 
 
 class PromMetricType(Enum):
@@ -93,6 +96,11 @@ class PrometheusDeviceExtractor:
                 except Exception as e:
                     logger.error(f"Error retrieving dimension '{dimension_key}': {e}")
                     labels[dimension_key] = None
+
+        # Inject global build info labels to all metrics
+        labels["version"] = VERSION
+        labels["git_hash"] = GIT_HASH
+
         return labels
 
     def register_metric(
@@ -183,7 +191,7 @@ class PrometheusDeviceExtractor:
                         metric_object.labels(**all_labels).set(metric_value)
                     elif isinstance(metric_object, Counter):
                         metric_object.labels(**all_labels).inc(metric_value)
-                    elif isinstance(metric_object, Summary) or isinstance(metric_object, Histogram):
+                    elif isinstance(metric_object, (Summary, Histogram)):
                         metric_object.labels(**all_labels).observe(metric_value)
                     elif isinstance(metric_object, Info):
                         metric_object.labels(**all_labels).info(metric_value)

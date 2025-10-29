@@ -905,7 +905,62 @@
     "analytics"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(consumption_cost, version)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Version",
+        "multi": false,
+        "name": "version",
+        "options": [],
+        "query": {
+          "query": "label_values(consumption_cost, version)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(consumption_cost, git_hash)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Git Hash",
+        "multi": false,
+        "name": "git_hash",
+        "options": [],
+        "query": {
+          "query": "label_values(consumption_cost, git_hash)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-6h",
