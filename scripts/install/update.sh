@@ -210,15 +210,23 @@ update_application() {
         print_info "Current version: unknown"
     fi
 
+    # Detect current ownership before updating
+    if [ "$USER_MODE" = false ] && [ -d "$INSTALL_DIR" ]; then
+        CURRENT_OWNER=$(stat -f "%Su" "$INSTALL_DIR" 2>/dev/null || stat -c "%U" "$INSTALL_DIR" 2>/dev/null)
+        CURRENT_GROUP=$(stat -f "%Sg" "$INSTALL_DIR" 2>/dev/null || stat -c "%G" "$INSTALL_DIR" 2>/dev/null)
+        print_info "Detected ownership: $CURRENT_OWNER:$CURRENT_GROUP"
+    fi
+
     # Copy application files
     print_info "Copying updated files..."
     rsync -av --exclude='.git' --exclude='__pycache__' --exclude='.venv' \
         --exclude='.env' --exclude='logs' \
         "$REPO_ROOT/" "$INSTALL_DIR/"
 
-    # Set ownership
-    if [ "$USER_MODE" = false ]; then
-        chown -R "$SERVICE_USER:$SERVICE_GROUP" "$INSTALL_DIR"
+    # Set ownership to match existing installation
+    if [ "$USER_MODE" = false ] && [ -n "$CURRENT_OWNER" ] && [ -n "$CURRENT_GROUP" ]; then
+        print_info "Restoring ownership to $CURRENT_OWNER:$CURRENT_GROUP"
+        chown -R "$CURRENT_OWNER:$CURRENT_GROUP" "$INSTALL_DIR"
     fi
 
     # Get new version
@@ -239,7 +247,15 @@ update_dependencies() {
     if [ "$USER_MODE" = true ]; then
         poetry install --only main --no-interaction --sync
     else
-        sudo -u "$SERVICE_USER" poetry install --only main --no-interaction --sync
+        # Run as detected owner if not standard service user, otherwise use current user
+        if [ -n "$CURRENT_OWNER" ] && id "$CURRENT_OWNER" &>/dev/null && [ "$CURRENT_OWNER" != "root" ]; then
+            print_info "Running poetry as $CURRENT_OWNER"
+            sudo -u "$CURRENT_OWNER" poetry install --only main --no-interaction --sync
+        else
+            # Fall back to current user if owner is root or doesn't exist
+            print_info "Running poetry as current user"
+            poetry install --only main --no-interaction --sync
+        fi
     fi
 
     print_success "Dependencies updated"
