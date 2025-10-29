@@ -17,7 +17,7 @@ from prometheus_client import (
 )
 from pydantic import InstanceOf
 
-from ..utils.build_info import GIT_HASH, VERSION
+from ..utils.build_info import VERSION
 
 logger = structlog.get_logger()
 
@@ -97,9 +97,8 @@ class PrometheusDeviceExtractor:
                     logger.error(f"Error retrieving dimension '{dimension_key}': {e}")
                     labels[dimension_key] = None
 
-        # Inject global build info labels to all metrics
+        # Inject global version label to all metrics
         labels["version"] = VERSION
-        labels["git_hash"] = GIT_HASH
 
         return labels
 
@@ -120,10 +119,8 @@ class PrometheusDeviceExtractor:
         if metric_type in PROM_METRIC_TYPES:
             sanitized_name = self.sanitize_metric_name(metric_key)
             metric_class = PROM_METRIC_TYPES[metric_type]
-            # Include dimensions, derived labels, and global build info labels
-            label_names = (
-                list(self.dimensions.keys()) + list(derive_labels.keys()) + ["version", "git_hash"]
-            )
+            # Include dimensions, derived labels, and global version label
+            label_names = list(self.dimensions.keys()) + list(derive_labels.keys()) + ["version"]
 
             if metric_type == PromMetricType.ENUM:
                 self.metric_objects[metric_key] = {

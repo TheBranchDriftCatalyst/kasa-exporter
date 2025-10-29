@@ -85,7 +85,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "max(current_energy_rate{version=~\"$version\", git_hash=~\"$git_hash\"}) by (season, rate_class)",
+          "expr": "max(current_energy_rate{version=~\"$version\"}) by (season, rate_class)",
           "legendFormat": "{{season}} - {{rate_class}}",
           "range": true,
           "refId": "A"
@@ -931,33 +931,6 @@
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values(consumption_cost, git_hash)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Git Hash",
-        "multi": false,
-        "name": "git_hash",
-        "options": [],
-        "query": {
-          "query": "label_values(consumption_cost, git_hash)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]
