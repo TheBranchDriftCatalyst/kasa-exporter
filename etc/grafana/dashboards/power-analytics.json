@@ -150,8 +150,8 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(consumption_cost{version=~\"$version\", git_hash=~\"$git_hash\"})",
-          "legendFormat": "Total Cost Rate",
+          "expr": "sum by (alias) (consumption_cost{version=~\"$version\", git_hash=~\"$git_hash\"})",
+          "legendFormat": "{{alias}}",
           "range": true,
           "refId": "A"
         }
@@ -225,7 +225,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "current_consumption{version=~\"$version\", git_hash=~\"$git_hash\"}",
+          "expr": "max by (alias) (current_consumption{version=~\"$version\", git_hash=~\"$git_hash\"})",
           "legendFormat": "{{alias}}",
           "range": true,
           "refId": "A"
@@ -297,7 +297,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "consumption_today{version=~\"$version\", git_hash=~\"$git_hash\"} / 1000",
+          "expr": "max by (alias) (consumption_today{version=~\"$version\", git_hash=~\"$git_hash\"}) / 1000",
           "legendFormat": "{{alias}}",
           "range": true,
           "refId": "A"
@@ -395,7 +395,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "current_consumption{version=~\"$version\", git_hash=~\"$git_hash\"}",
+          "expr": "max by (alias) (current_consumption{version=~\"$version\", git_hash=~\"$git_hash\"})",
           "legendFormat": "{{alias}}",
           "range": true,
           "refId": "A"
@@ -493,7 +493,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "consumption_cost{version=~\"$version\", git_hash=~\"$git_hash\"}",
+          "expr": "max by (alias) (consumption_cost{version=~\"$version\", git_hash=~\"$git_hash\"})",
           "legendFormat": "{{alias}}",
           "range": true,
           "refId": "A"
@@ -567,7 +567,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "current_consumption{version=~\"$version\", git_hash=~\"$git_hash\"}",
+          "expr": "max by (alias) (current_consumption{version=~\"$version\", git_hash=~\"$git_hash\"})",
           "legendFormat": "{{alias}}",
           "range": true,
           "refId": "A"
@@ -664,7 +664,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "on_since{version=~\"$version\", git_hash=~\"$git_hash\"}",
+          "expr": "max by (alias) (on_since{version=~\"$version\", git_hash=~\"$git_hash\"})",
           "legendFormat": "{{alias}}",
           "range": true,
           "refId": "A"
@@ -766,7 +766,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rssi{version=~\"$version\", git_hash=~\"$git_hash\"}",
+          "expr": "max by (alias) (rssi{version=~\"$version\", git_hash=~\"$git_hash\"})",
           "legendFormat": "{{alias}}",
           "range": true,
           "refId": "A"
