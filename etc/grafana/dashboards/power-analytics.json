@@ -22,6 +22,19 @@
   "links": [],
   "panels": [
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "panels": [],
+      "title": "\ud83d\udcca Overview & Real-time Monitoring",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
@@ -57,7 +70,7 @@
         "h": 5,
         "w": 3,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "id": 13,
       "options": {
@@ -91,7 +104,7 @@
           "refId": "A"
         }
       ],
-      "title": "⚡ Current Energy Rate ($/kWh)",
+      "title": "\u26a1 Current Energy Rate ($/kWh)",
       "type": "stat"
     },
     {
@@ -122,7 +135,7 @@
         "h": 5,
         "w": 3,
         "x": 3,
-        "y": 0
+        "y": 1
       },
       "id": 10,
       "options": {
@@ -199,7 +212,7 @@
         "h": 5,
         "w": 18,
         "x": 6,
-        "y": 0
+        "y": 1
       },
       "id": 2,
       "options": {
@@ -262,7 +275,7 @@
         "h": 15,
         "w": 6,
         "x": 0,
-        "y": 5
+        "y": 6
       },
       "id": 6,
       "options": {
@@ -368,7 +381,7 @@
         "h": 13,
         "w": 18,
         "x": 6,
-        "y": 5
+        "y": 6
       },
       "id": 8,
       "options": {
@@ -466,7 +479,7 @@
         "h": 10,
         "w": 18,
         "x": 6,
-        "y": 18
+        "y": 19
       },
       "id": 9,
       "options": {
@@ -528,7 +541,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 20
+        "y": 21
       },
       "id": 7,
       "options": {
@@ -638,7 +651,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 28
+        "y": 29
       },
       "id": 12,
       "options": {
@@ -739,7 +752,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 28
+        "y": 29
       },
       "id": 11,
       "options": {
@@ -774,6 +787,19 @@
       ],
       "title": "WiFi Signal Strength (RSSI)",
       "type": "timeseries"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "id": 101,
+      "panels": [],
+      "title": "\ud83d\udcc8 Analytics & Trends",
+      "type": "row"
     },
     {
       "datasource": {
@@ -847,7 +873,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 36
+        "y": 38
       },
       "id": 14,
       "options": {
@@ -892,8 +918,201 @@
           "instant": true
         }
       ],
-      "title": "💰 Cost by TOU Rate Class",
+      "title": "\ud83d\udcb0 Cost by TOU Rate Class",
       "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "kWh",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 38
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "max by (alias) (consumption_this_month{version=~\"$version\"}) / 1000",
+          "legendFormat": "{{alias}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "\ud83d\udcc8 Monthly Energy Consumption Trend",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "$/hour",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 38
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "max by (alias) (consumption_cost{version=~\"$version\"})",
+          "legendFormat": "{{alias}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "\ud83d\udcb5 Cost Rate History (Stacked)",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -1086,7 +1305,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 46
       },
       "id": 15,
       "options": {
@@ -1094,7 +1313,9 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "show": false
         },
         "showHeader": true,
@@ -1212,7 +1433,7 @@
           "refId": "WiFi"
         }
       ],
-      "title": "📊 Device Status Table",
+      "title": "\ud83d\udcca Device Status Table",
       "transformations": [
         {
           "id": "seriesToColumns",
@@ -1262,190 +1483,17 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "kWh",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "hue",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "kwatth"
-        },
-        "overrides": []
-      },
+      "collapsed": true,
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 6,
-        "y": 36
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 55
       },
-      "id": 16,
-      "options": {
-        "legend": {
-          "calcs": ["mean", "last"],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "max by (alias) (consumption_this_month{version=~\"$version\"}) / 1000",
-          "legendFormat": "{{alias}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "📈 Monthly Energy Consumption Trend",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "$/hour",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "normal"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "currencyUSD"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 36
-      },
-      "id": 17,
-      "options": {
-        "legend": {
-          "calcs": ["mean", "max", "last"],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "max by (alias) (consumption_cost{version=~\"$version\"})",
-          "legendFormat": "{{alias}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "💵 Cost Rate History (Stacked)",
-      "type": "timeseries"
+      "id": 102,
+      "panels": [],
+      "title": "\ud83d\udd27 Device Health & Status",
+      "type": "row"
     },
     {
       "datasource": {
@@ -1495,7 +1543,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 54
+        "y": 56
       },
       "id": 18,
       "options": {
@@ -1503,7 +1551,9 @@
         "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -1525,7 +1575,7 @@
           "refId": "A"
         }
       ],
-      "title": "☁️ Cloud Connection Status",
+      "title": "\u2601\ufe0f Cloud Connection Status",
       "type": "gauge"
     },
     {
@@ -1575,7 +1625,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 54
+        "y": 56
       },
       "id": 19,
       "options": {
@@ -1583,7 +1633,9 @@
         "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -1605,7 +1657,7 @@
           "refId": "A"
         }
       ],
-      "title": "🔄 Firmware Update Status",
+      "title": "\ud83d\udd04 Firmware Update Status",
       "type": "gauge"
     },
     {
@@ -1634,20 +1686,27 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 54
+        "y": 56
       },
       "id": 20,
       "options": {
-        "displayLabels": ["percent"],
+        "displayLabels": [
+          "percent"
+        ],
         "legend": {
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "values": ["value", "percent"]
+          "values": [
+            "value",
+            "percent"
+          ]
         },
         "pieType": "pie",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -1670,8 +1729,21 @@
           "refId": "A"
         }
       ],
-      "title": "🥧 Monthly Energy Distribution",
+      "title": "\ud83e\udd67 Monthly Energy Distribution",
       "type": "piechart"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 64
+      },
+      "id": 103,
+      "panels": [],
+      "title": "\ud83d\udd0b Battery Runtime Analysis",
+      "type": "row"
     },
     {
       "datasource": {
@@ -1746,12 +1818,16 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 65
       },
       "id": 21,
       "options": {
         "legend": {
-          "calcs": ["mean", "lastNotNull", "min"],
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "min"
+          ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
@@ -1945,7 +2021,7 @@
           "refId": "48V_1600"
         }
       ],
-      "title": "🔋 Total System Battery Runtime (All Voltages)",
+      "title": "\ud83d\udd0b Total System Battery Runtime (All Voltages)",
       "type": "timeseries"
     },
     {
@@ -2009,12 +2085,15 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 72
+        "y": 75
       },
       "id": 22,
       "options": {
         "legend": {
-          "calcs": ["mean", "lastNotNull"],
+          "calcs": [
+            "mean",
+            "lastNotNull"
+          ],
           "displayMode": "table",
           "placement": "right",
           "showLegend": true
@@ -2086,7 +2165,7 @@
           "refId": "1600Ah"
         }
       ],
-      "title": "🔌 Per-Device Battery Runtime (12V)",
+      "title": "\ud83d\udd0c Per-Device Battery Runtime (12V)",
       "type": "timeseries"
     },
     {
@@ -2125,7 +2204,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 72
+        "y": 75
       },
       "id": 23,
       "options": {
@@ -2136,7 +2215,9 @@
         "namePlacement": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
           "values": false
         },
@@ -2356,7 +2437,7 @@
           "refId": "48V_1600"
         }
       ],
-      "title": "⚡ Battery Capacity Comparison (Current Runtime)",
+      "title": "\u26a1 Battery Capacity Comparison (Current Runtime)",
       "type": "bargauge"
     },
     {
@@ -2413,7 +2494,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Voltage"
+              "options": "Capacity"
             },
             "properties": [
               {
@@ -2424,7 +2505,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 80
+                "value": 100
               }
             ]
           }
@@ -2434,7 +2515,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 82
+        "y": 85
       },
       "id": 24,
       "options": {
@@ -2442,7 +2523,9 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "show": false
         },
         "showHeader": true
@@ -2456,7 +2539,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(100 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((100 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"12V\", \"\", \"\") * 0 + label_replace((100 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"100Ah\", \"\", \"\")",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -2470,7 +2553,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(200 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((200 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"12V\", \"\", \"\") * 0 + label_replace((200 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"200Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2485,7 +2568,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(400 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((400 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"12V\", \"\", \"\") * 0 + label_replace((400 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"400Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2500,7 +2583,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(800 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((800 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"12V\", \"\", \"\") * 0 + label_replace((800 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"800Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2515,7 +2598,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(1600 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((1600 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"12V\", \"\", \"\") * 0 + label_replace((1600 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"1600Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2530,7 +2613,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(100 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((100 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"24V\", \"\", \"\") * 0 + label_replace((100 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"100Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2545,7 +2628,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(200 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((200 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"24V\", \"\", \"\") * 0 + label_replace((200 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"200Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2560,7 +2643,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(400 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((400 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"24V\", \"\", \"\") * 0 + label_replace((400 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"400Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2575,7 +2658,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(800 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((800 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"24V\", \"\", \"\") * 0 + label_replace((800 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"800Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2590,7 +2673,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(1600 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((1600 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"24V\", \"\", \"\") * 0 + label_replace((1600 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"1600Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2605,7 +2688,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(100 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((100 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"48V\", \"\", \"\") * 0 + label_replace((100 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"100Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2620,7 +2703,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(200 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((200 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"48V\", \"\", \"\") * 0 + label_replace((200 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"200Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2635,7 +2718,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(400 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((400 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"48V\", \"\", \"\") * 0 + label_replace((400 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"400Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2650,7 +2733,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(800 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((800 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"48V\", \"\", \"\") * 0 + label_replace((800 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"800Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2665,7 +2748,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(1600 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "expr": "label_replace((1600 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"voltage\", \"48V\", \"\", \"\") * 0 + label_replace((1600 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"})), \"capacity\", \"1600Ah\", \"\", \"\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2674,11 +2757,14 @@
           "refId": "48V_1600"
         }
       ],
-      "title": "🔋 Battery Runtime Matrix (Voltage × Capacity)",
+      "title": "\ud83d\udd0b Battery Runtime Matrix (Voltage \u00d7 Capacity)",
       "transformations": [
         {
-          "id": "merge",
-          "options": {}
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns",
+            "valueLabel": "voltage"
+          }
         },
         {
           "id": "organize",
@@ -2687,53 +2773,15 @@
               "Time": true
             },
             "includeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "Value #12V_100": "100Ah",
-              "Value #12V_1600": "1600Ah",
-              "Value #12V_200": "200Ah",
-              "Value #12V_400": "400Ah",
-              "Value #12V_800": "800Ah",
-              "Value #24V_100": "100Ah",
-              "Value #24V_1600": "1600Ah",
-              "Value #24V_200": "200Ah",
-              "Value #24V_400": "400Ah",
-              "Value #24V_800": "800Ah",
-              "Value #48V_100": "100Ah",
-              "Value #48V_1600": "1600Ah",
-              "Value #48V_200": "200Ah",
-              "Value #48V_400": "400Ah",
-              "Value #48V_800": "800Ah"
-            }
-          }
-        },
-        {
-          "id": "reduce",
-          "options": {
-            "includeTimeField": false,
-            "mode": "seriesToRows",
-            "reducers": ["last"]
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "includeByName": {},
             "indexByName": {
-              "Field": 0,
-              "Last": 1
+              "capacity": 0,
+              "12V": 1,
+              "24V": 2,
+              "48V": 3
             },
             "renameByName": {
-              "Field": "Capacity",
-              "Last": "12V"
+              "capacity": "Capacity"
             }
-          }
-        },
-        {
-          "id": "groupToNestedTable",
-          "options": {
-            "showSubframePath": false
           }
         }
       ],
