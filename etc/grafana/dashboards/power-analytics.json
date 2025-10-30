@@ -1672,6 +1672,692 @@
       ],
       "title": "🥧 Monthly Energy Distribution",
       "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Runtime (hours)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              },
+              {
+                "color": "yellow",
+                "value": 4
+              },
+              {
+                "color": "green",
+                "value": 8
+              }
+            ]
+          },
+          "unit": "h"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 62
+      },
+      "id": 21,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "lastNotNull", "min"],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(100 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "legendFormat": "12V 100Ah",
+          "range": true,
+          "refId": "12V_100"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(200 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "12V 200Ah",
+          "range": true,
+          "refId": "12V_200"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(400 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "12V 400Ah",
+          "range": true,
+          "refId": "12V_400"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(800 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "12V 800Ah",
+          "range": true,
+          "refId": "12V_800"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(1600 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "12V 1600Ah",
+          "range": true,
+          "refId": "12V_1600"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(100 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "24V 100Ah",
+          "range": true,
+          "refId": "24V_100"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(200 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "24V 200Ah",
+          "range": true,
+          "refId": "24V_200"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(400 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "24V 400Ah",
+          "range": true,
+          "refId": "24V_400"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(800 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "24V 800Ah",
+          "range": true,
+          "refId": "24V_800"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(1600 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "24V 1600Ah",
+          "range": true,
+          "refId": "24V_1600"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(100 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "48V 100Ah",
+          "range": true,
+          "refId": "48V_100"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(200 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "48V 200Ah",
+          "range": true,
+          "refId": "48V_200"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(400 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "48V 400Ah",
+          "range": true,
+          "refId": "48V_400"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(800 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "48V 800Ah",
+          "range": true,
+          "refId": "48V_800"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(1600 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "legendFormat": "48V 1600Ah",
+          "range": true,
+          "refId": "48V_1600"
+        }
+      ],
+      "title": "🔋 Total System Battery Runtime (All Voltages)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Runtime (hours)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 5,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "h"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 72
+      },
+      "id": 22,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "lastNotNull"],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(100 * 12 * 0.8 * 0.9) / max by (alias) (current_consumption{version=~\"$version\"})",
+          "legendFormat": "{{alias}} - 100Ah",
+          "range": true,
+          "refId": "100Ah"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(200 * 12 * 0.8 * 0.9) / max by (alias) (current_consumption{version=~\"$version\"})",
+          "hide": false,
+          "legendFormat": "{{alias}} - 200Ah",
+          "range": true,
+          "refId": "200Ah"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(400 * 12 * 0.8 * 0.9) / max by (alias) (current_consumption{version=~\"$version\"})",
+          "hide": false,
+          "legendFormat": "{{alias}} - 400Ah",
+          "range": true,
+          "refId": "400Ah"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(800 * 12 * 0.8 * 0.9) / max by (alias) (current_consumption{version=~\"$version\"})",
+          "hide": false,
+          "legendFormat": "{{alias}} - 800Ah",
+          "range": true,
+          "refId": "800Ah"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "(1600 * 12 * 0.8 * 0.9) / max by (alias) (current_consumption{version=~\"$version\"})",
+          "hide": false,
+          "legendFormat": "{{alias}} - 1600Ah",
+          "range": true,
+          "refId": "1600Ah"
+        }
+      ],
+      "title": "🔌 Per-Device Battery Runtime (12V)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 4
+              },
+              {
+                "color": "green",
+                "value": 12
+              }
+            ]
+          },
+          "unit": "h"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 72
+      },
+      "id": 23,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(100 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "instant": true,
+          "legendFormat": "12V 100Ah",
+          "range": false,
+          "refId": "12V_100"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(200 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "12V 200Ah",
+          "range": false,
+          "refId": "12V_200"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(400 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "12V 400Ah",
+          "range": false,
+          "refId": "12V_400"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(800 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "12V 800Ah",
+          "range": false,
+          "refId": "12V_800"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(1600 * 12 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "12V 1600Ah",
+          "range": false,
+          "refId": "12V_1600"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(100 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "24V 100Ah",
+          "range": false,
+          "refId": "24V_100"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(200 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "24V 200Ah",
+          "range": false,
+          "refId": "24V_200"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(400 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "24V 400Ah",
+          "range": false,
+          "refId": "24V_400"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(800 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "24V 800Ah",
+          "range": false,
+          "refId": "24V_800"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(1600 * 24 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "24V 1600Ah",
+          "range": false,
+          "refId": "24V_1600"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(100 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "48V 100Ah",
+          "range": false,
+          "refId": "48V_100"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(200 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "48V 200Ah",
+          "range": false,
+          "refId": "48V_200"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(400 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "48V 400Ah",
+          "range": false,
+          "refId": "48V_400"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(800 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "48V 800Ah",
+          "range": false,
+          "refId": "48V_800"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(1600 * 48 * 0.8 * 0.9) / sum(max by (alias) (current_consumption{version=~\"$version\"}))",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "48V 1600Ah",
+          "range": false,
+          "refId": "48V_1600"
+        }
+      ],
+      "title": "⚡ Battery Capacity Comparison (Current Runtime)",
+      "type": "bargauge"
     }
   ],
   "preload": false,
