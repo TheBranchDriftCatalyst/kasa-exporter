@@ -10,7 +10,7 @@ tasks:
       - |
         echo "🚀 Installing kasa-exporter as a system service..."
         echo ""
-        cd scripts/install && sudo ./install.sh
+        cd scripts/install && sudo REPO_ROOT="{{.ROOT_DIR}}" ./install.sh
 
   install:user:
     desc: "Install kasa-exporter as a user service (no sudo)"
@@ -18,7 +18,7 @@ tasks:
       - |
         echo "🚀 Installing kasa-exporter as a user service..."
         echo ""
-        cd scripts/install && ./install.sh --user
+        cd scripts/install && REPO_ROOT="{{.ROOT_DIR}}" ./install.sh --user
 
   uninstall:
     desc: "Uninstall kasa-exporter service"
@@ -42,7 +42,7 @@ tasks:
       - |
         echo "🔄 Updating kasa-exporter system service..."
         echo ""
-        cd scripts/install && sudo ./update.sh
+        cd scripts/install && sudo REPO_ROOT="{{.ROOT_DIR}}" ./update.sh
 
   update:user:
     desc: "Update existing kasa-exporter user service installation"
@@ -50,7 +50,7 @@ tasks:
       - |
         echo "🔄 Updating kasa-exporter user service..."
         echo ""
-        cd scripts/install && ./update.sh --user
+        cd scripts/install && REPO_ROOT="{{.ROOT_DIR}}" ./update.sh --user
 
   update:no-restart:
     desc: "Update service without restarting (system)"
@@ -58,7 +58,7 @@ tasks:
       - |
         echo "🔄 Updating kasa-exporter (no restart)..."
         echo ""
-        cd scripts/install && sudo ./update.sh --no-restart
+        cd scripts/install && sudo REPO_ROOT="{{.ROOT_DIR}}" ./update.sh --no-restart
 
   update:user:no-restart:
     desc: "Update user service without restarting"
@@ -66,7 +66,7 @@ tasks:
       - |
         echo "🔄 Updating kasa-exporter user service (no restart)..."
         echo ""
-        cd scripts/install && ./update.sh --user --no-restart
+        cd scripts/install && REPO_ROOT="{{.ROOT_DIR}}" ./update.sh --user --no-restart
 
   # Systemd commands
   status:

@@ -199,8 +199,10 @@ backup_config() {
 update_application() {
     print_step "Updating application"
 
-    # Get the repository root (two levels up from scripts/install)
-    REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+    # Get the repository root (prefer env var, fallback to path calculation)
+    if [ -z "$REPO_ROOT" ]; then
+        REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+    fi
 
     # Validate we're in the right directory
     if [ ! -f "$REPO_ROOT/pyproject.toml" ] || [ ! -d "$REPO_ROOT/kasa_exporter" ]; then
