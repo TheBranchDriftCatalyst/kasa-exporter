@@ -21,7 +21,7 @@ This will:
 - Discover devices on your local network
 
 **Access Points:**
-- Kasa Exporter: http://localhost:8000
+- Kasa Exporter: http://localhost:9200
 - Prometheus: http://localhost:9090
 - Grafana: http://localhost:3000
 - Pushgateway: http://localhost:9091
@@ -46,9 +46,9 @@ This will:
 - Watch for file changes and restart automatically
 
 **Access Points:**
-- Kasa Exporter Dashboard: http://localhost:8000
-- Metrics Endpoint: http://localhost:8000/metrics
-- Debug API: http://localhost:8000/debug
+- Kasa Exporter Dashboard: http://localhost:9200
+- Metrics Endpoint: http://localhost:9200/metrics
+- Debug API: http://localhost:9200/debug
 - Prometheus: http://localhost:9090
 - Grafana: http://localhost:3000 (admin/admin)
 - Pushgateway: http://localhost:9091
@@ -104,7 +104,7 @@ KASA_USERNAME=your_email@example.com
 KASA_PASSWORD=your_password
 
 # Metrics Port
-METRICS_PORT=8000
+METRICS_PORT=9200
 
 # Push Gateway (optional)
 PUSH_GATEWAY_HOST=pushgateway
@@ -156,7 +156,7 @@ The exporter provides Prometheus metrics for:
 
 ```bash
 # Find and kill the process
-lsof -ti:8000 | xargs kill
+lsof -ti:9200 | xargs kill
 # Or
 pkill -f "python -m kasa_exporter"
 ```

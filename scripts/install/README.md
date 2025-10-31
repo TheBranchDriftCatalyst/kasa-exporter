@@ -185,7 +185,7 @@ KASA_PASSWORD=yourpassword
 # Optional settings
 TZ=America/Los_Angeles
 LOG_LEVEL=INFO
-METRICS_PORT=8000
+METRICS_PORT=9200
 ```
 
 After editing, restart the service:
@@ -205,10 +205,10 @@ nano ~/Library/LaunchAgents/com.kasa-exporter.plist
 
 Once installed, access the exporter at:
 
-- **Dashboard:** http://localhost:8000
-- **Metrics:** http://localhost:8000/metrics
-- **Health:** http://localhost:8000/health
-- **Debug:** http://localhost:8000/debug
+- **Dashboard:** http://localhost:9200
+- **Metrics:** http://localhost:9200/metrics
+- **Health:** http://localhost:9200/health
+- **Debug:** http://localhost:9200/debug
 
 ## Uninstallation
 
@@ -314,13 +314,13 @@ Add to your `prometheus.yml`:
 scrape_configs:
   - job_name: 'kasa-exporter'
     static_configs:
-      - targets: ['localhost:8000']
+      - targets: ['localhost:9200']
 ```
 
 ### Grafana
 
 1. Import the included dashboard from `etc/grafana/dashboards/`
-2. Or access the built-in dashboard at `http://localhost:8000`
+2. Or access the built-in dashboard at `http://localhost:9200`
 
 ## Advanced Configuration
 
