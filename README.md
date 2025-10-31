@@ -320,7 +320,7 @@ TIME_OF_USE_CONFIG = {
 }
 ```
 
-See [docs/COST_CALCULATION_AUDIT.md](docs/COST_CALCULATION_AUDIT.md) for implementation details.
+See [docs/COST_CALCULATION_AUDIT.md](docs/audits/COST_CALCULATION_AUDIT.md) for implementation details.
 
 ## Grafana Dashboards
 
@@ -500,7 +500,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for platform-specific setup.
 ## Links
 
 - [Code Audit](docs/audits/2025-10-27-code-review.md) - Comprehensive security & code review
-- [Cost Calculation Audit](docs/COST_CALCULATION_AUDIT.md) - TOU implementation details
+- [Cost Calculation Audit](docs/audits/COST_CALCULATION_AUDIT.md) - TOU implementation details
 - [Deployment Guide](docs/DEPLOYMENT.md) - Platform-specific deployment instructions
 - [Python-Kasa Library](https://github.com/python-kasa/python-kasa) - Device communication library
 - [Prometheus](https://prometheus.io/) - Metrics database
