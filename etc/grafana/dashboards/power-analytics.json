@@ -463,7 +463,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (rate_class) (avg_over_time(current_consumption{version=~\"$version\"}[$__range]) * avg_over_time(current_energy_rate[$__range]) * ($__range_s / 3600) / 1000)",
+                        "expr": "sum by (rate_class) (avg_over_time(consumption_cost{version=~\"$version\"}[$__range]))",
                         "instant": true,
                         "legendFormat": "{{rate_class}}",
                         "range": true
