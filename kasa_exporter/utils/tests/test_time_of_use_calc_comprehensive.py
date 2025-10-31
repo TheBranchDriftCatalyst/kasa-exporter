@@ -16,7 +16,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 import pytz
 
-from kasa_exporter.utils.time_of_use_calc import TIME_OF_USE_CONFIG, TimeOfUseCalc
+from kasa_exporter.utils.time_of_use_calc import DEFAULT_TIME_OF_USE_CONFIG, TimeOfUseCalc
+
+# Alias for backward compatibility with existing tests
+TIME_OF_USE_CONFIG = DEFAULT_TIME_OF_USE_CONFIG
 
 
 class TestSeasonTransitions:
@@ -24,7 +27,7 @@ class TestSeasonTransitions:
 
     @pytest.fixture
     def calculator(self):
-        return TimeOfUseCalc(TIME_OF_USE_CONFIG)
+        return TimeOfUseCalc(DEFAULT_TIME_OF_USE_CONFIG)
 
     @pytest.mark.parametrize(
         ("test_date", "expected_season"),

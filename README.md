@@ -1,5 +1,37 @@
 # Kasa Exporter
 
+<!-- Version & Release -->
+[![Version](https://img.shields.io/badge/version-0.3.0-blue?style=flat-square)](https://github.com/TheBranchDriftCatalyst/kasa-exporter/releases)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+
+<!-- Build & Quality -->
+[![Tests](https://img.shields.io/badge/tests-99%20passed-brightgreen?style=flat-square&logo=pytest&logoColor=white)](https://github.com/TheBranchDriftCatalyst/kasa-exporter)
+[![Coverage](https://img.shields.io/badge/coverage-52%25-yellow?style=flat-square&logo=pytest&logoColor=white)](https://github.com/TheBranchDriftCatalyst/kasa-exporter)
+[![Code Style](https://img.shields.io/badge/code%20style-ruff-000000?style=flat-square&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
+
+<!-- GitHub Stats -->
+[![GitHub Stars](https://img.shields.io/github/stars/TheBranchDriftCatalyst/kasa-exporter?style=flat-square&logo=github)](https://github.com/TheBranchDriftCatalyst/kasa-exporter/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/TheBranchDriftCatalyst/kasa-exporter?style=flat-square&logo=github)](https://github.com/TheBranchDriftCatalyst/kasa-exporter/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/TheBranchDriftCatalyst/kasa-exporter?style=flat-square&logo=github)](https://github.com/TheBranchDriftCatalyst/kasa-exporter/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/TheBranchDriftCatalyst/kasa-exporter?style=flat-square&logo=github)](https://github.com/TheBranchDriftCatalyst/kasa-exporter/pulls)
+[![Last Commit](https://img.shields.io/github/last-commit/TheBranchDriftCatalyst/kasa-exporter?style=flat-square&logo=github)](https://github.com/TheBranchDriftCatalyst/kasa-exporter/commits)
+
+<!-- Tech Stack -->
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Prometheus](https://img.shields.io/badge/Prometheus-metrics-E6522C?style=flat-square&logo=prometheus&logoColor=white)](https://prometheus.io/)
+[![Grafana](https://img.shields.io/badge/Grafana-dashboards-F46800?style=flat-square&logo=grafana&logoColor=white)](https://grafana.com/)
+[![Docker](https://img.shields.io/badge/Docker-compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Poetry](https://img.shields.io/badge/Poetry-dependency%20management-60A5FA?style=flat-square&logo=poetry&logoColor=white)](https://python-poetry.org/)
+
+<!-- Platform Support -->
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey?style=flat-square)](https://github.com/TheBranchDriftCatalyst/kasa-exporter)
+[![Architecture](https://img.shields.io/badge/arch-amd64%20%7C%20arm64-blue?style=flat-square)](https://github.com/TheBranchDriftCatalyst/kasa-exporter)
+
+<!-- Dependencies -->
+[![python-kasa](https://img.shields.io/badge/python--kasa-0.7+-4B8BBE?style=flat-square)](https://github.com/python-kasa/python-kasa)
+[![Task](https://img.shields.io/badge/Task-automation-29BEB0?style=flat-square&logo=task&logoColor=white)](https://taskfile.dev/)
+
 Prometheus exporter for TP-Link Kasa smart plugs with real-time power monitoring and time-of-use cost tracking.
 
 ## Features
@@ -37,7 +69,7 @@ task dev
 ```
 
 This starts:
-- **Kasa Exporter** (http://localhost:8000) - FastAPI app with metric endpoints
+- **Kasa Exporter** (http://localhost:9201) - FastAPI app with metric endpoints (dev port)
 - **Prometheus** (http://localhost:9090) - Metrics database
 - **Grafana** (http://localhost:3000) - Dashboards (default login: admin/turbopookipanda)
 - **Grafana Image Renderer** (http://localhost:8081) - Screenshot service
@@ -382,7 +414,7 @@ KASA_PASSWORD=your_password
 
 ```bash
 # Exporter Configuration
-METRICS_PORT=8000                    # Default: 8000
+METRICS_PORT=9200                    # Default: 9200 (production), 9201 (development)
 
 # Time-of-Use Cost Calculation
 TZ=America/Los_Angeles               # Timezone for TOU calculations (default: America/Los_Angeles)
@@ -423,8 +455,8 @@ task dev
 # Exporter only
 poetry run python -m kasa_exporter
 
-# With uvicorn directly (auto-reload)
-poetry run uvicorn kasa_exporter.__main__:app --reload --host 0.0.0.0 --port 8000
+# With uvicorn directly (auto-reload on dev port)
+poetry run uvicorn kasa_exporter.__main__:app --reload --host 0.0.0.0 --port 9201
 ```
 
 ### Utilities

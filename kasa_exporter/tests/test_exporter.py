@@ -1,10 +1,3 @@
-import unittest
-
-
-class TestExporter(unittest.TestCase):
-    def test_collect_metrics(self):
-        assert True  # Replace with actual tests
-
-
-if __name__ == "__main__":
-    unittest.main()
+def test_collect_metrics():
+    """Placeholder test for exporter metrics collection."""
+    assert True  # Replace with actual tests

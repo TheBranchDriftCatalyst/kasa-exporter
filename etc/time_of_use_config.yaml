@@ -1,0 +1,40 @@
+# Time of Use (TOU) Configuration for SDG&E TOU-ELEC Plan
+# Reference: https://www.sdge.com/residential/pricing-plans/about-our-pricing-plans/time-use-plans
+
+season:
+  summer: ["06-01", "10-31"]  # June 1 - October 31
+  winter: ["11-01", "05-31"]  # November 1 - May 31
+
+summer:
+  rate:
+    super_off_peak: 0.314  # $0.314/kWh - midnight to 6am
+    off_peak: 0.351        # $0.351/kWh - all other hours except on-peak
+    on_peak: 0.634         # $0.634/kWh - 4pm to 9pm every day
+
+  # Time ranges for the day (HH:MM format, 24-hour)
+  super_off_peak:
+    - ["00:00", "06:00"]
+
+  off_peak:
+    - ["06:00", "16:00"]  # 6am to 4pm
+    - ["21:00", "23:59"]  # 9pm to midnight
+
+  on_peak:
+    - ["16:00", "21:00"]  # 4pm to 9pm
+
+winter:
+  rate:
+    super_off_peak: 0.314  # $0.314/kWh - midnight to 6am
+    off_peak: 0.351        # $0.351/kWh - all other hours except on-peak
+    on_peak: 0.634         # $0.634/kWh - 4pm to 9pm every day
+
+  # Same time ranges year-round for SDG&E TOU-ELEC
+  super_off_peak:
+    - ["00:00", "06:00"]
+
+  off_peak:
+    - ["06:00", "16:00"]  # 6am to 4pm
+    - ["21:00", "23:59"]  # 9pm to midnight
+
+  on_peak:
+    - ["16:00", "21:00"]  # 4pm to 9pm
