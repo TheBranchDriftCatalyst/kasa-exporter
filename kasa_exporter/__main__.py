@@ -14,7 +14,8 @@ from kasa_exporter.routines.device_registry import DeviceRegistry
 from kasa_exporter.routines.exporter import DeviceExporter
 from kasa_exporter.routines.pushgateway import PushGateway
 from kasa_exporter.utils.build_info import GIT_HASH, VERSION
-from kasa_exporter.utils.time_of_use_calc import DEFAULT_TIME_OF_USE_CONFIG
+
+# Removed: DEFAULT_TIME_OF_USE_CONFIG import - now using calculator.config
 
 # Get log level from environment variable (default to INFO)
 log_level_name = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -179,16 +180,16 @@ async def homepage():
         {
             "current_season": current_season,
             "summer": {
-                "rates": DEFAULT_TIME_OF_USE_CONFIG["summer"]["rate"],
-                "super_off_peak": DEFAULT_TIME_OF_USE_CONFIG["summer"]["super_off_peak"],
-                "off_peak": DEFAULT_TIME_OF_USE_CONFIG["summer"]["off_peak"],
-                "on_peak": DEFAULT_TIME_OF_USE_CONFIG["summer"]["on_peak"],
+                "rates": calculator.config["summer"]["rate"],
+                "super_off_peak": calculator.config["summer"]["super_off_peak"],
+                "off_peak": calculator.config["summer"]["off_peak"],
+                "on_peak": calculator.config["summer"]["on_peak"],
             },
             "winter": {
-                "rates": DEFAULT_TIME_OF_USE_CONFIG["winter"]["rate"],
-                "super_off_peak": DEFAULT_TIME_OF_USE_CONFIG["winter"]["super_off_peak"],
-                "off_peak": DEFAULT_TIME_OF_USE_CONFIG["winter"]["off_peak"],
-                "on_peak": DEFAULT_TIME_OF_USE_CONFIG["winter"]["on_peak"],
+                "rates": calculator.config["winter"]["rate"],
+                "super_off_peak": calculator.config["winter"]["super_off_peak"],
+                "off_peak": calculator.config["winter"]["off_peak"],
+                "on_peak": calculator.config["winter"]["on_peak"],
             },
         }
     )

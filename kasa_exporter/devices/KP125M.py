@@ -4,7 +4,7 @@ from datetime import datetime
 import pytz
 import structlog
 
-from ..utils.time_of_use_calc import DEFAULT_TIME_OF_USE_CONFIG, TimeOfUseCalc
+from ..utils.time_of_use_calc import TimeOfUseCalc
 from .prom_device_extractor import DimensionsType, PrometheusDeviceExtractor, PromMetricType
 
 logger = structlog.get_logger()
@@ -15,7 +15,8 @@ dimensions: DimensionsType = {
     "model": None,
 }
 
-calculator = TimeOfUseCalc(DEFAULT_TIME_OF_USE_CONFIG)
+# Load TOU config from YAML (or use default if file doesn't exist)
+calculator = TimeOfUseCalc()
 
 metrics = {
     "signal_level": {
