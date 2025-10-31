@@ -8,7 +8,7 @@ logs/*
 .coverage
 htmlcov/
 .pytest_cache/
-
+.venv/
 .grafana/
 .promdb/
 .claude/settings.local.json

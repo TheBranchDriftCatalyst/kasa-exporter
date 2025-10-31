@@ -41,6 +41,7 @@ services:
     container_name: prometheus
     volumes:
       - ./etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./.promdb:/prometheus
     ports:
       - "9090:9090"
     network_mode: host
