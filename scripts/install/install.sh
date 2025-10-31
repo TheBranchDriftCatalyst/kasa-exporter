@@ -351,12 +351,15 @@ install_service() {
             -e "s|INSTALL_PATH|$INSTALL_DIR|g" \
             "$REPO_ROOT/scripts/install/com.kasa-exporter.plist" > "$PLIST_FILE"
 
-        # Add credentials to plist
+        # Add environment variables to plist
         /usr/libexec/PlistBuddy -c "Add :EnvironmentVariables:KASA_USERNAME string $KASA_USERNAME" "$PLIST_FILE" 2>/dev/null || \
         /usr/libexec/PlistBuddy -c "Set :EnvironmentVariables:KASA_USERNAME $KASA_USERNAME" "$PLIST_FILE"
 
         /usr/libexec/PlistBuddy -c "Add :EnvironmentVariables:KASA_PASSWORD string $KASA_PASSWORD" "$PLIST_FILE" 2>/dev/null || \
         /usr/libexec/PlistBuddy -c "Set :EnvironmentVariables:KASA_PASSWORD $KASA_PASSWORD" "$PLIST_FILE"
+
+        /usr/libexec/PlistBuddy -c "Add :EnvironmentVariables:METRICS_PORT string ${METRICS_PORT:-9200}" "$PLIST_FILE" 2>/dev/null || \
+        /usr/libexec/PlistBuddy -c "Set :EnvironmentVariables:METRICS_PORT ${METRICS_PORT:-9200}" "$PLIST_FILE"
 
         print_success "Installed launchd service"
     fi
