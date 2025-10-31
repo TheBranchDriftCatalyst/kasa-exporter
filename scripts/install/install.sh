@@ -228,7 +228,11 @@ install_application() {
 
     # Copy application files
     print_info "Copying application files..."
-    rsync -av --exclude='.git' --exclude='__pycache__' --exclude='.venv' \
+    rsync -a --exclude='.git' --exclude='__pycache__' --exclude='.venv' \
+        --exclude='.pytest_cache' --exclude='.ruff_cache' --exclude='.promdb' \
+        --exclude='htmlcov' --exclude='.coverage' --exclude='coverage.json' \
+        --exclude='.claude' --exclude='.scratch' --exclude='.vscode' \
+        --exclude='tests' --exclude='docs' --exclude='.github' \
         "$REPO_ROOT/" "$INSTALL_DIR/"
 
     # Set ownership
@@ -264,7 +268,7 @@ KASA_USERNAME=$KASA_USERNAME
 KASA_PASSWORD=$KASA_PASSWORD
 TZ=${TZ:-America/Los_Angeles}
 LOG_LEVEL=${LOG_LEVEL:-INFO}
-METRICS_PORT=${METRICS_PORT:-8000}
+METRICS_PORT=${METRICS_PORT:-9200}
 EOF
             chmod 600 "$ENV_FILE"
             print_success "Created environment file: $ENV_FILE"
@@ -278,7 +282,7 @@ KASA_USERNAME=$KASA_USERNAME
 KASA_PASSWORD=$KASA_PASSWORD
 TZ=${TZ:-America/Los_Angeles}
 LOG_LEVEL=${LOG_LEVEL:-INFO}
-METRICS_PORT=${METRICS_PORT:-8000}
+METRICS_PORT=${METRICS_PORT:-9200}
 EOF
             chmod 600 "$ENV_FILE"
             print_success "Created environment file: $ENV_FILE"
@@ -425,8 +429,8 @@ print_completion_message() {
 
     echo ""
     print_info "Access the exporter:"
-    echo "  Dashboard: http://localhost:${METRICS_PORT:-8000}"
-    echo "  Metrics:   http://localhost:${METRICS_PORT:-8000}/metrics"
+    echo "  Dashboard: http://localhost:${METRICS_PORT:-9200}"
+    echo "  Metrics:   http://localhost:${METRICS_PORT:-9200}/metrics"
     echo ""
 
     print_info "To uninstall:"
