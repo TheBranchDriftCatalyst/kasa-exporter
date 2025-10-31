@@ -4,7 +4,6 @@ vars:
   STACK_NAME: kasa-exporter
 
 includes:
-  daemon: ./etc/Taskfile.daemon.yml
   release: ./Taskfile.release.yml
   service: ./Taskfile.service.yml
   utils:
