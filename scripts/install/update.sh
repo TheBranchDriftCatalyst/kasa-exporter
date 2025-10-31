@@ -202,6 +202,15 @@ update_application() {
     # Get the repository root (two levels up from scripts/install)
     REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
+    # Validate we're in the right directory
+    if [ ! -f "$REPO_ROOT/pyproject.toml" ] || [ ! -d "$REPO_ROOT/kasa_exporter" ]; then
+        print_error "Invalid repository root: $REPO_ROOT"
+        print_error "Expected to find pyproject.toml and kasa_exporter/ directory"
+        exit 1
+    fi
+
+    print_info "Repository root: $REPO_ROOT"
+
     # Get current version
     if [ -f "$INSTALL_DIR/VERSION" ]; then
         OLD_VERSION=$(cat "$INSTALL_DIR/VERSION")
@@ -218,8 +227,13 @@ update_application() {
     fi
 
     # Copy application files
-    print_info "Copying updated files..."
-    rsync -av --exclude='.git' --exclude='__pycache__' --exclude='.venv' \
+    print_info "Copying updated files from $REPO_ROOT to $INSTALL_DIR..."
+    rsync -a --exclude='.git' --exclude='__pycache__' --exclude='.venv' \
+        --exclude='.pytest_cache' --exclude='.ruff_cache' --exclude='.promdb' \
+        --exclude='htmlcov' --exclude='.coverage' --exclude='coverage.json' \
+        --exclude='.claude' --exclude='.scratch' --exclude='.vscode' \
+        --exclude='tests' --exclude='docs' --exclude='.github' \
+        --exclude='archive' --exclude='node_modules' \
         --exclude='.env' --exclude='logs' \
         "$REPO_ROOT/" "$INSTALL_DIR/"
 
