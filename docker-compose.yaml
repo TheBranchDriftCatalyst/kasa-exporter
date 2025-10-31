@@ -50,14 +50,13 @@ services:
     container_name: grafana
     volumes:
       - ./etc/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./etc/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
-      # - ./etc/grafana/dashboards:/var/lib/grafana/dashboards
-      - ./etc/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./etc/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
+      - ./etc/grafana/dashboards:/etc/grafana/provisioning/dashboards/dashboards
+      - grafana-storage:/var/lib/grafana
     ports:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
-      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_RENDERING_SERVER_URL=http://localhost:8081/render
       - GF_RENDERING_CALLBACK_URL=http://localhost:3000/
       - GF_LOG_FILTERS=rendering:debug
@@ -81,3 +80,6 @@ services:
     ports:
       - "9091:9091"
     network_mode: host
+
+volumes:
+  grafana-storage:
