@@ -12,3 +12,4 @@ htmlcov/
 .grafana/
 .promdb/
 .claude/settings.local.json
+coverage.json
