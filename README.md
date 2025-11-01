@@ -84,7 +84,13 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment instruction
 Install kasa-exporter as a system service that runs automatically on boot:
 
 ```bash
-# Linux (systemd) or macOS (launchd)
+# Install via curl
+curl -fsSL https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/install/install.sh | sudo bash
+
+# Or via wget
+wget -qO- https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/install/install.sh | sudo bash
+
+# Or clone and run locally
 cd scripts/install
 sudo ./install.sh
 ```
@@ -464,9 +470,6 @@ poetry run uvicorn kasa_exporter.__main__:app --reload --host 0.0.0.0 --port 920
 ```bash
 # View Prometheus database statistics
 ./scripts/prom_stats.sh
-
-# Or install directly from GitHub
-curl -fsSL https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/prom_stats.sh | bash
 
 # Generate dashboard screenshots
 task screenshot
