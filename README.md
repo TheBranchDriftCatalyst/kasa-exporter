@@ -84,14 +84,25 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment instruction
 Install kasa-exporter as a system service that runs automatically on boot:
 
 ```bash
-# Clone and install
+# Quick install via curl (recommended)
+curl -fsSL https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/install/pre-install.sh | bash
+
+# Or via wget
+wget -qO- https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/install/pre-install.sh | bash
+
+# Or clone and install manually
 git clone https://github.com/TheBranchDriftCatalyst/kasa-exporter.git
 cd kasa-exporter/scripts/install
 sudo ./install.sh
+```
 
-# Or one-liner
-git clone https://github.com/TheBranchDriftCatalyst/kasa-exporter.git && \
-  cd kasa-exporter/scripts/install && sudo ./install.sh
+**Advanced options:**
+```bash
+# Install from a different branch
+curl -fsSL https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/install/pre-install.sh | BRANCH=dev bash
+
+# Keep the cloned repository after installation
+curl -fsSL https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/install/pre-install.sh | NO_CLEANUP=true bash
 ```
 
 The installer will:

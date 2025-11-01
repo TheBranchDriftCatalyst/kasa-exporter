@@ -4,7 +4,30 @@ This directory contains scripts for installing kasa-exporter as a system service
 
 ## Quick Start
 
-### Linux (systemd)
+### One-Liner Installation (Easiest)
+
+The pre-install script handles cloning the repository and running the installer:
+
+```bash
+# Via curl (recommended)
+curl -fsSL https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/install/pre-install.sh | bash
+
+# Or via wget
+wget -qO- https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/install/pre-install.sh | bash
+```
+
+**Advanced options:**
+```bash
+# Install from a different branch
+BRANCH=dev curl -fsSL https://raw.githubusercontent.com/.../pre-install.sh | bash
+
+# Keep cloned repository after installation
+NO_CLEANUP=true curl -fsSL https://raw.githubusercontent.com/.../pre-install.sh | bash
+```
+
+### Manual Installation
+
+#### Linux (systemd)
 
 ```bash
 # System-wide installation (recommended)
@@ -15,7 +38,7 @@ sudo ./install.sh
 ./install.sh --user
 ```
 
-### macOS (launchd)
+#### macOS (launchd)
 
 ```bash
 cd scripts/install
