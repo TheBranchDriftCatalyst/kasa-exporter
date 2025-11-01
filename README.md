@@ -462,6 +462,12 @@ poetry run uvicorn kasa_exporter.__main__:app --reload --host 0.0.0.0 --port 920
 ### Utilities
 
 ```bash
+# View Prometheus database statistics
+./scripts/prom_stats.sh
+
+# Or install directly from GitHub
+curl -fsSL https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/prom_stats.sh | bash
+
 # Generate dashboard screenshots
 task screenshot
 
