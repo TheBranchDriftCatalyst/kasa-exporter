@@ -84,15 +84,14 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment instruction
 Install kasa-exporter as a system service that runs automatically on boot:
 
 ```bash
-# Install via curl
-curl -fsSL https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/install/install.sh | sudo bash
-
-# Or via wget
-wget -qO- https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/scripts/install/install.sh | sudo bash
-
-# Or clone and run locally
-cd scripts/install
+# Clone and install
+git clone https://github.com/TheBranchDriftCatalyst/kasa-exporter.git
+cd kasa-exporter/scripts/install
 sudo ./install.sh
+
+# Or one-liner
+git clone https://github.com/TheBranchDriftCatalyst/kasa-exporter.git && \
+  cd kasa-exporter/scripts/install && sudo ./install.sh
 ```
 
 The installer will:
