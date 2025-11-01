@@ -22,6 +22,12 @@ pre-commit:
       run: poetry run ruff check --fix {staged_files}
       stage_fixed: true
 
+    # Backup power-analytics dashboard with modified name
+    backup-dashboard:
+      glob: "etc/grafana/dashboards/power-analytics.json"
+      run: ./scripts/backup_dashboard.sh
+      stage_fixed: true
+
     # Check types (if using mypy in future)
     # typecheck:
     #   glob: "*.py"

@@ -3148,7 +3148,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Kasa Power Analytics (Backup)",
-  "uid": "admmdt5_backup",
+  "title": "Kasa Power Analytics",
+  "uid": "admmdt5",
   "version": 8
 }
