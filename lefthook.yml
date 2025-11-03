@@ -22,16 +22,35 @@ pre-commit:
       run: poetry run ruff check --fix {staged_files}
       stage_fixed: true
 
-    # Backup power-analytics dashboard with modified name
-    backup-dashboard:
-      glob: "etc/grafana/dashboards/power-analytics.json"
-      run: ./scripts/backup_dashboard.sh
+    # Python type checking with mypy
+    typecheck:
+      glob: "*.py"
+      run: poetry run mypy {staged_files} --ignore-missing-imports --no-strict-optional
+
+    # Markdown linting
+    markdown-lint:
+      glob: "*.md"
+      run: npx markdownlint-cli2 {staged_files}
+
+    # JSON formatting
+    json-format:
+      glob: "*.json"
+      run: npx prettier --write {staged_files}
       stage_fixed: true
 
-    # Check types (if using mypy in future)
-    # typecheck:
-    #   glob: "*.py"
-    #   run: poetry run mypy {staged_files}
+    # YAML linting
+    yaml-lint:
+      glob: "*.{yml,yaml}"
+      run: npx prettier --write {staged_files}
+      stage_fixed: true
+
+
+    # Backup power-analytics dashboard with modified name
+    # backup-dashboard:
+    #   glob: "etc/grafana/dashboards/power-analytics.json"
+    #   run: ./scripts/backup_dashboard.sh
+    #   stage_fixed: true
+
 
 # Commit-msg hooks - validate commit message format
 commit-msg:
@@ -86,6 +105,10 @@ pre-push:
     # Format check (don't auto-fix, just check)
     format-check:
       run: poetry run ruff format --check .
+
+    # Type check all Python files
+    typecheck-all:
+      run: poetry run mypy . --ignore-missing-imports --no-strict-optional
 
 # Post-checkout hooks - helpful reminders
 post-checkout:
