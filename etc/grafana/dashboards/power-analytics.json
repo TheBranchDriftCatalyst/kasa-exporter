@@ -916,16 +916,16 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (rate_class) (avg_over_time(consumption_cost{version=~\"$version\"}[$__range]) * ($__range_s / 3600))",
+          "expr": "sum(avg_over_time(consumption_cost{version=~\"$version\"}[$__range]) * ($__range_s / 3600))",
           "format": "time_series",
           "instant": true,
-          "legendFormat": "{{rate_class}}",
+          "legendFormat": "Total Cost",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "\ud83d\udcb0 Cost by TOU Rate Class",
-      "type": "piechart"
+      "title": "\ud83d\udcb0 Total Cost (Time Range)",
+      "type": "stat"
     },
     {
       "datasource": {

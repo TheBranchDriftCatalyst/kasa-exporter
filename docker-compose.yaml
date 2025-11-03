@@ -10,6 +10,8 @@ services:
       context: .
     ports:
       - "9201:9201"
+    volumes:
+      - ./etc:/app/etc
     environment:
       - KASA_USERNAME
       - KASA_PASSWORD

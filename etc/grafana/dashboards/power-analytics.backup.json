@@ -164,7 +164,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum by (alias) (consumption_cost{version=~\"$version\"})",
+          "expr": "sum(consumption_cost{version=~\"$version\"})",
           "legendFormat": "{{alias}}",
           "range": true,
           "refId": "A"
@@ -584,7 +584,8 @@
           "expr": "max by (alias) (current_consumption{version=~\"$version\"})",
           "legendFormat": "{{alias}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "title": "Power Distribution (Current)",
@@ -915,16 +916,16 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (rate_class) (avg_over_time(consumption_cost{version=~\"$version\"}[$__range]) * ($__range_s / 3600))",
+          "expr": "sum(avg_over_time(consumption_cost{version=~\"$version\"}[$__range]) * ($__range_s / 3600))",
           "format": "time_series",
           "instant": true,
-          "legendFormat": "{{rate_class}}",
+          "legendFormat": "Total Cost",
           "range": false,
           "refId": "A"
         }
       ],
-      "title": "💰 Cost by TOU Rate Class",
-      "type": "piechart"
+      "title": "💰 Total Cost (Time Range)",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -2854,7 +2855,8 @@
           "expr": "max by (alias) (consumption_this_month{version=~\"$version\"}) / 1000",
           "legendFormat": "{{alias}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "title": "🥧 Monthly Energy Distribution",
@@ -2937,7 +2939,8 @@
           "expr": "max by (alias) (cloud_connection{cloud_connection=\"connected\", version=~\"$version\"})",
           "legendFormat": "{{alias}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "title": "☁️ Cloud Connection Status",
@@ -3019,7 +3022,8 @@
           "expr": "max by (alias) (update_available{update_available=\"yes\", version=~\"$version\"})",
           "legendFormat": "{{alias}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "instant": true
         }
       ],
       "title": "🔄 Firmware Update Status",

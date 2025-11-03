@@ -24,7 +24,15 @@ class DeviceExporter:
             extractor.initialize_metrics(registry=self.collector_registry)
 
     async def scrape_devices(self):
+        # Configure interface for mDNS discovery
         interface = {}
+        mdns_interface = os.getenv("MDNS_INTERFACE")
+        if mdns_interface:
+            interface = {"interface": mdns_interface}
+            logger.info(f"Using mDNS interface: {mdns_interface}")
+        else:
+            logger.info("Using auto-detect for mDNS interface")
+
         retry_count = 0
         max_retries = 5
         base_delay = 1
@@ -53,6 +61,14 @@ class DeviceExporter:
                         KP125MDeviceExtractor.update_metrics(device)
                     except TimeoutError:
                         logger.warning(f"Timeout updating device {addr}, will retry next cycle")
+                    except OSError as e:
+                        if e.errno == 65:  # EHOSTUNREACH - No route to host
+                            logger.warning(
+                                f"Device {addr} ({device.alias}) unreachable (No route to host). "
+                                f"Check network connectivity or device may be offline."
+                            )
+                        else:
+                            logger.error(f"OS error updating device {addr}: {e!s}")
                     except Exception as e:
                         logger.error(f"Error updating device {addr}: {e!s}")
                     finally:

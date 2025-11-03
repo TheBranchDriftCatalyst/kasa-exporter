@@ -1,0 +1,18 @@
+version: '3'
+
+vars:
+  STACK_NAME: kasa-exporter
+
+includes:
+  utils:
+    taskfile: ../../../common/CatalystStack.AbstractTaskFile.yml
+    optional: true
+
+tasks:
+  cleanup:
+    desc: "Cleanup database files"
+    cmds:
+    - |
+      echo "🧹 Cleaning up database files..."
+      rm -rf ./.promdb/*
+      echo "✅ Database files cleaned up."

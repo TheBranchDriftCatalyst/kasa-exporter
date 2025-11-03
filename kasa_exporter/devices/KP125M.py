@@ -138,11 +138,8 @@ metrics = {
         ),
         # Unit: USD per hour ($/hour) - instantaneous cost rate based on current power draw
         # Calculation: (watts / 1000) * rate_per_kWh
-        "derive_labels": {
-            "rate_class": lambda _d: calculator.get_rate_name(
-                datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
-            ),
-        },
+        # Note: rate_class label removed to prevent label cardinality explosion
+        # Rate class info available via current_energy_rate metric
     },
     "current_energy_rate": {
         "type": PromMetricType.GAUGE,
