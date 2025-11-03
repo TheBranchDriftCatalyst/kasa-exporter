@@ -57,11 +57,7 @@ async def validate():
         return False
     except Exception as e:
         error_msg = str(e).lower()
-        if (
-            "authentication" in error_msg
-            or "invalid" in error_msg
-            or "credentials" in error_msg
-        ):
+        if "authentication" in error_msg or "invalid" in error_msg or "credentials" in error_msg:
             print(f"ERROR: Invalid credentials - {e}", file=sys.stderr)
         else:
             print(f"ERROR: {e}", file=sys.stderr)

@@ -2,32 +2,32 @@
 # This file defines metadata for each repository to be used by the profile page generator
 
 # Repository Information
-name: "kasa-exporter"
-description: "Prometheus exporter for TP-Link Kasa smart home devices"
-repo_url: ""  # Git remote needs to be fixed
+name: 'kasa-exporter'
+description: 'Prometheus exporter for TP-Link Kasa smart home devices'
+repo_url: '' # Git remote needs to be fixed
 
 # Visibility
 private: true
 
 # Repository Status (active, archived, wip, experimental)
-status: "active"
+status: 'active'
 
 # Tech Stack
 tech_stack:
   languages:
-    - "python"
+    - 'python'
   frameworks:
-    - "fastapi"
+    - 'fastapi'
   tools:
-    - "prometheus"
-    - "docker"
-    - "poetry"
+    - 'prometheus'
+    - 'docker'
+    - 'poetry'
 
 # Grouping/Categories (for organizing on profile page)
 groups:
-  - "monitoring"
-  - "smart-home"
-  - "tools"
+  - 'monitoring'
+  - 'smart-home'
+  - 'tools'
 
 # Badge Configuration (optional - will use defaults if not specified)
 badges:
@@ -38,5 +38,5 @@ badges:
 
 # Custom highlights (optional - used for non-AI manual highlights)
 highlights:
-  - "Real-time energy monitoring"
-  - "Prometheus metrics export"
+  - 'Real-time energy monitoring'
+  - 'Prometheus metrics export'

@@ -23,7 +23,7 @@ class DeviceExporter:
         for extractor in [KP125MDeviceExtractor]:
             extractor.initialize_metrics(registry=self.collector_registry)
 
-    async def scrape_devices(self):
+    async def scrape_devices(self):  # noqa: PLR0912, PLR0915
         # Configure interface for mDNS discovery
         interface = {}
         mdns_interface = os.getenv("MDNS_INTERFACE")

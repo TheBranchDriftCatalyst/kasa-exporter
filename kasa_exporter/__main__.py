@@ -24,7 +24,7 @@ log_level = getattr(logging, log_level_name, logging.INFO)
 # Use human-friendly console output in dev, JSON in production
 log_format = os.getenv("LOG_FORMAT", "console").lower()
 if log_format == "json":
-    renderer = structlog.processors.JSONRenderer()
+    renderer: structlog.types.Processor = structlog.processors.JSONRenderer()
 else:
     renderer = structlog.dev.ConsoleRenderer(
         colors=True,

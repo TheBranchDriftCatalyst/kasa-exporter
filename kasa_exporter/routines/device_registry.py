@@ -5,14 +5,16 @@ import structlog
 from kasa import Discover
 from prometheus_client import CollectorRegistry, Counter, Gauge
 
+from ..types import DeviceDict, LastCheckinDict, SeenDevicesSet
+
 logger = structlog.get_logger()
 
 
 class DeviceRegistry:
     def __init__(self, collector_registry: CollectorRegistry):
-        self.devices = {}
-        self.last_checkin = {}
-        self.seen_devices = set()  # Track devices that have been discovered at least once
+        self.devices: DeviceDict = {}
+        self.last_checkin: LastCheckinDict = {}
+        self.seen_devices: SeenDevicesSet = set()  # Track devices that have been discovered at least once
 
         # Prometheus metrics with the provided registry
         self.total_devices = Gauge(

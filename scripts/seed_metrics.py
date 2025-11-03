@@ -13,9 +13,11 @@ Usage patterns:
 - Late evening (10pm-12am): Wind down period
 """
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import numpy as np
+from scipy.signal.windows import gaussian
 
 # Device definitions based on current metrics
 DEVICES = [
@@ -136,8 +138,7 @@ def get_daily_curve(hour_fraction: float, pattern: str) -> float:
         # Random on/off periods with smooth transitions
         # Use low frequency sine to create occasional bursts
         on_probability = (np.sin(t * 0.7) + 1) / 2  # 0 to 1
-        on_state = 1.0 if on_probability > 0.7 else 0.3
-        return on_state
+        return 1.0 if on_probability > 0.7 else 0.3
 
     return 1.0
 
@@ -199,7 +200,7 @@ def create_timeseries(metric_name: str, labels: dict[str, str], samples: list[tu
 
 def write_to_prometheus(
     timeseries_list: list[dict], prometheus_url: str = "http://localhost:9090"
-) -> bool:
+) -> str:
     """
     Write timeseries data directly to Prometheus using remote write API.
 
@@ -237,7 +238,7 @@ def write_to_prometheus(
     return metrics_text
 
 
-def seed_day_direct(
+def seed_day_direct(  # noqa: PLR0915
     hours: int = 24, interval_seconds: int = 10, prometheus_url: str = "http://localhost:9090"
 ):
     """
@@ -248,7 +249,7 @@ def seed_day_direct(
     for loading it.
     """
     # Avoid the last 3 hours as per Prometheus docs (current head block)
-    start_time = datetime.now() - timedelta(hours=hours + 3)
+    start_time = datetime.now(tz=UTC) - timedelta(hours=hours + 3)
     num_points = int(hours * 3600 / interval_seconds)
 
     print("🌱 Generating seed data for Prometheus")
@@ -293,8 +294,6 @@ def seed_day_direct(
         # Second pass: Apply aggressive moving average smoothing
         window_size = 180  # 30 minutes of smoothing (180 samples * 10 seconds)
         # Use Gaussian window for smoother edges
-        from scipy.signal.windows import gaussian
-
         window = gaussian(window_size, std=window_size / 6)
         window = window / window.sum()  # Normalize
 
@@ -333,7 +332,7 @@ def seed_day_direct(
                 "season": "winter",
             }
             # Just use current timestamp for rate info (in seconds)
-            current_ts = datetime.now().timestamp()
+            current_ts = datetime.now(tz=UTC).timestamp()
             all_timeseries.append(
                 create_timeseries("current_energy_rate", labels, [(current_ts, rate_value)])
             )
@@ -343,8 +342,8 @@ def seed_day_direct(
     metrics_text = write_to_prometheus(all_timeseries, prometheus_url)
 
     # Write to file (OpenMetrics format requires # EOF at the end)
-    output_file = "seed_data.txt"
-    with open(output_file, "w") as f:
+    output_file = Path("seed_data.txt")
+    with output_file.open("w") as f:
         f.write(metrics_text)
         f.write("# EOF\n")
 
@@ -395,8 +394,6 @@ def preview_daily_pattern():
 
         # Apply aggressive Gaussian smoothing
         window_size = 180
-        from scipy.signal.windows import gaussian
-
         window = gaussian(window_size, std=window_size / 6)
         window = window / window.sum()
 

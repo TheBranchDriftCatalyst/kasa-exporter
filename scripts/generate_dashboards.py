@@ -6,7 +6,7 @@ Creates 5 specialized dashboards with synthwave color scheme.
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Synthwave Cyberpunk Color Scheme
 COLORS = {
@@ -29,8 +29,8 @@ THRESHOLDS = {
 
 
 def create_base_dashboard(
-    title: str, uid: str, description: str, tags: List[str]
-) -> Dict[str, Any]:
+    title: str, uid: str, description: str, tags: list[str]
+) -> dict[str, Any]:
     """Create base dashboard structure."""
     return {
         "annotations": {
@@ -62,7 +62,7 @@ def create_base_dashboard(
                     "allValue": ".*",
                     "current": {"selected": False, "text": "All", "value": "$__all"},
                     "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
-                    "definition": 'label_values(current_consumption, version)',
+                    "definition": "label_values(current_consumption, version)",
                     "hide": 0,
                     "includeAll": True,
                     "label": "Version",
@@ -101,8 +101,8 @@ def create_stat_panel(
     h: int,
     unit: str = "short",
     color_mode: str = "background",
-    thresholds: List[Dict] = None,
-) -> Dict[str, Any]:
+    thresholds: list[dict] | None = None,
+) -> dict[str, Any]:
     """Create a stat panel with cyberpunk styling."""
     if thresholds is None:
         thresholds = [
@@ -157,7 +157,7 @@ def create_timeseries_panel(
     legend_format: str = "{{alias}}",
     stacking: bool = False,
     fill_opacity: int = 10,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a timeseries panel with cyberpunk gradient."""
     return {
         "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
@@ -236,21 +236,26 @@ def generate_real_time_monitoring():
     panel_id = 1
 
     # Row: Overview
-    panels.append({
-        "collapsed": False,
-        "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
-        "id": panel_id,
-        "panels": [],
-        "title": "⚡ SYSTEM OVERVIEW",
-        "type": "row",
-    })
+    panels.append(
+        {
+            "collapsed": False,
+            "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+            "id": panel_id,
+            "panels": [],
+            "title": "⚡ SYSTEM OVERVIEW",
+            "type": "row",
+        }
+    )
     panel_id += 1
 
     # Total Power
     panel = create_stat_panel(
         title="⚡ Total Power Draw",
         expr="current_consumption:total",
-        x=0, y=1, w=6, h=4,
+        x=0,
+        y=1,
+        w=6,
+        h=4,
         unit="watt",
         color_mode="background",
         thresholds=[
@@ -269,7 +274,10 @@ def generate_real_time_monitoring():
     panel = create_stat_panel(
         title="💰 Current Cost Rate",
         expr="consumption_cost:total",
-        x=6, y=1, w=6, h=4,
+        x=6,
+        y=1,
+        w=6,
+        h=4,
         unit="currencyUSD",
         color_mode="background",
         thresholds=[
@@ -286,8 +294,11 @@ def generate_real_time_monitoring():
     # Current Energy Rate
     panel = create_stat_panel(
         title="⚡ Energy Rate ($/kWh)",
-        expr='max(current_energy_rate) by (season, rate_class)',
-        x=12, y=1, w=6, h=4,
+        expr="max(current_energy_rate) by (season, rate_class)",
+        x=12,
+        y=1,
+        w=6,
+        h=4,
         unit="currencyUSD",
         color_mode="value",
     )
@@ -300,7 +311,10 @@ def generate_real_time_monitoring():
     panel = create_stat_panel(
         title="📊 Projected Daily Cost",
         expr="consumption_cost:projected_day",
-        x=18, y=1, w=6, h=4,
+        x=18,
+        y=1,
+        w=6,
+        h=4,
         unit="currencyUSD",
         color_mode="background",
         thresholds=[
@@ -315,21 +329,26 @@ def generate_real_time_monitoring():
     panel_id += 1
 
     # Row: Power Consumption
-    panels.append({
-        "collapsed": False,
-        "gridPos": {"h": 1, "w": 24, "x": 0, "y": 5},
-        "id": panel_id,
-        "panels": [],
-        "title": "⚡ POWER CONSUMPTION",
-        "type": "row",
-    })
+    panels.append(
+        {
+            "collapsed": False,
+            "gridPos": {"h": 1, "w": 24, "x": 0, "y": 5},
+            "id": panel_id,
+            "panels": [],
+            "title": "⚡ POWER CONSUMPTION",
+            "type": "row",
+        }
+    )
     panel_id += 1
 
     # Stacked Power Consumption
     panel = create_timeseries_panel(
         title="🌊 Power Consumption Over Time (Stacked)",
         expr='current_consumption:by_device{version=~"$version"}',
-        x=0, y=6, w=24, h=8,
+        x=0,
+        y=6,
+        w=24,
+        h=8,
         stacking=True,
         fill_opacity=40,
     )
@@ -349,7 +368,7 @@ def main():
     # Generate Real-Time Monitoring dashboard
     dashboard = generate_real_time_monitoring()
     output_file = output_dir / "real-time-monitoring.json"
-    with open(output_file, "w") as f:
+    with output_file.open("w") as f:
         json.dump(dashboard, f, indent=2)
     print(f"✅ Created: {output_file}")
 

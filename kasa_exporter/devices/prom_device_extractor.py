@@ -17,6 +17,7 @@ from prometheus_client import (
 )
 from pydantic import InstanceOf
 
+from ..types import MetricObjectsDict
 from ..utils.build_info import VERSION
 
 logger = structlog.get_logger()
@@ -78,7 +79,7 @@ class PrometheusDeviceExtractor:
         self.registry = registry
         self.metrics = metrics or {}
         self.dimensions = dimensions or {}
-        self.metric_objects = {}
+        self.metric_objects: MetricObjectsDict = {}
 
     def initialize_metrics(self, registry=None) -> None:
         self.registry = registry
