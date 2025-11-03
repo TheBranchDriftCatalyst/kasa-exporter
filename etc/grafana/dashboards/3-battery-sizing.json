@@ -1143,7 +1143,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum by(alias) (increase(current_consumption{alias=~\"$device\", version=~\"$version\"}[1h]) / 3600)",
+          "expr": "sum by(alias) (avg_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[1h])) * $__range_s / 3600",
           "legendFormat": "{{alias}} - Cumulative Wh",
           "refId": "A"
         }
@@ -1727,7 +1727,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "(($battery_voltage * $battery_capacity_ah * 1.5) / (sum(increase(consumption_cost{alias=~\"$device\", version=~\"$version\"}[24h])) * 0.3 * 365))",
+          "expr": "(($battery_voltage * $battery_capacity_ah * 0.50) / (sum(consumption_cost{alias=~\"$device\", version=~\"$version\"}) * 8760))",
           "refId": "A"
         }
       ],
@@ -1888,7 +1888,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum(current_consumption{alias=~\"$device\", version=~\"$version\"}) / ($battery_voltage * $battery_capacity_ah * $inverter_efficiency)",
+          "expr": "($battery_voltage * $battery_capacity_ah * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"})",
           "refId": "A"
         }
       ],
@@ -2492,7 +2492,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / (sum(current_consumption{alias=~\"$device\", version=~\"$version\"}) - ($solar_panel_watts * $inverter_efficiency * 0.5))",
+          "expr": "($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / clamp_min(sum(current_consumption{alias=~\"$device\", version=~\"$version\"}) - ($solar_panel_watts * $inverter_efficiency * 0.5), 1)",
           "refId": "A"
         }
       ],

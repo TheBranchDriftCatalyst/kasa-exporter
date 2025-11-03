@@ -88,14 +88,17 @@ groups:
       - record: current_energy_rate:current
         expr: max(current_energy_rate)
 
-      # Rate class as numeric (for threshold comparisons)
+      # Rate class as numeric (for threshold comparisons and timeline viz)
       # super_off_peak=1, off_peak=2, on_peak=3
+      # Uses label-based matching to convert rate_class to numeric values
       - record: rate_class:numeric
         expr: |
           (
-            (current_energy_rate == 0.314) * 1 +
-            (current_energy_rate == 0.351) * 2 +
-            (current_energy_rate == 0.634) * 3
+            (max(current_energy_rate{rate_class="super_off_peak"}) by (rate_class, season) * 0 + 1)
+            or
+            (max(current_energy_rate{rate_class="off_peak"}) by (rate_class, season) * 0 + 2)
+            or
+            (max(current_energy_rate{rate_class="on_peak"}) by (rate_class, season) * 0 + 3)
           )
 
       # =============================================================================
@@ -118,16 +121,18 @@ groups:
       # =============================================================================
       # Potential savings if all consumption was at super_off_peak rate
       # Formula: (current_cost_rate - super_off_peak_rate * current_power/1000)
+      # Dynamically retrieves super_off_peak rate from current_energy_rate metric
       - record: consumption_cost:potential_savings_super_off_peak
         expr: |
           consumption_cost:total -
-          (current_consumption:total / 1000 * 0.314)
+          (current_consumption:total / 1000 * max(current_energy_rate{rate_class="super_off_peak"}))
 
       # Potential savings if all consumption was at off_peak rate
+      # Dynamically retrieves off_peak rate from current_energy_rate metric
       - record: consumption_cost:potential_savings_off_peak
         expr: |
           consumption_cost:total -
-          (current_consumption:total / 1000 * 0.351)
+          (current_consumption:total / 1000 * max(current_energy_rate{rate_class="off_peak"}))
 
       # =============================================================================
       # Anomaly Detection Helpers
