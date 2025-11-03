@@ -32,7 +32,7 @@
       },
       "id": 100,
       "panels": [],
-      "title": "👑 Device Rankings",
+      "title": "\ud83d\udc51 Device Rankings",
       "type": "row"
     },
     {
@@ -103,7 +103,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "👑 Highest Power Consumer",
+      "title": "\ud83d\udc51 Highest Power Consumer",
       "type": "stat"
     },
     {
@@ -174,7 +174,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "💰 Most Expensive Device",
+      "title": "\ud83d\udcb0 Most Expensive Device",
       "type": "stat"
     },
     {
@@ -246,7 +246,7 @@
           "legendFormat": "{{alias}} ($/W)"
         }
       ],
-      "title": "⚡ Most Efficient",
+      "title": "\u26a1 Most Efficient",
       "type": "stat"
     },
     {
@@ -316,7 +316,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Device Count",
+      "title": "\ud83d\udcca Device Count",
       "type": "stat"
     },
     {
@@ -329,7 +329,7 @@
       },
       "id": 200,
       "panels": [],
-      "title": "📊 Power Comparison",
+      "title": "\ud83d\udcca Power Comparison",
       "type": "row"
     },
     {
@@ -425,7 +425,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "📊 Power by Device",
+      "title": "\ud83d\udcca Power by Device",
       "type": "barchart"
     },
     {
@@ -496,7 +496,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "🥧 Power Share %",
+      "title": "\ud83e\udd67 Power Share %",
       "type": "piechart"
     },
     {
@@ -591,7 +591,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "📈 Power Comparison Timeline",
+      "title": "\ud83d\udcc8 Power Comparison Timeline",
       "type": "timeseries"
     },
     {
@@ -741,7 +741,7 @@
           "refId": "B"
         }
       ],
-      "title": "📊 Power Ranking Table",
+      "title": "\ud83d\udcca Power Ranking Table",
       "transformations": [
         {
           "id": "merge",
@@ -792,7 +792,7 @@
       },
       "id": 300,
       "panels": [],
-      "title": "💰 Cost Comparison",
+      "title": "\ud83d\udcb0 Cost Comparison",
       "type": "row"
     },
     {
@@ -888,7 +888,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "💰 Cost by Device",
+      "title": "\ud83d\udcb0 Cost by Device",
       "type": "barchart"
     },
     {
@@ -959,7 +959,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "🥧 Cost Share %",
+      "title": "\ud83e\udd67 Cost Share %",
       "type": "piechart"
     },
     {
@@ -1054,7 +1054,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "📈 Cost Comparison Timeline",
+      "title": "\ud83d\udcc8 Cost Comparison Timeline",
       "type": "timeseries"
     },
     {
@@ -1206,7 +1206,7 @@
           "refId": "C"
         }
       ],
-      "title": "💵 Cost Efficiency Ranking",
+      "title": "\ud83d\udcb5 Cost Efficiency Ranking",
       "transformations": [
         {
           "id": "merge",
@@ -1257,7 +1257,7 @@
       },
       "id": 400,
       "panels": [],
-      "title": "⚡ Efficiency Metrics",
+      "title": "\u26a1 Efficiency Metrics",
       "type": "row"
     },
     {
@@ -1358,7 +1358,7 @@
           "legendFormat": "{{alias}} ($/W)"
         }
       ],
-      "title": "⚡ Cost Efficiency ($/W) - Lower is Better",
+      "title": "\u26a1 Cost Efficiency ($/W) - Lower is Better",
       "type": "barchart"
     },
     {
@@ -1445,7 +1445,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "📊 Efficiency Heatmap",
+      "title": "\ud83d\udcca Efficiency Heatmap",
       "type": "status-history"
     },
     {
@@ -1705,7 +1705,7 @@
           "refId": "F"
         }
       ],
-      "title": "🎯 Baseline Comparison (vs $baseline_device)",
+      "title": "\ud83c\udfaf Baseline Comparison (vs $baseline_device)",
       "transformations": [
         {
           "id": "merge",
@@ -1889,7 +1889,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "📈 Efficiency Trend ($/W over time)",
+      "title": "\ud83d\udcc8 Efficiency Trend ($/W over time)",
       "type": "timeseries"
     },
     {
@@ -1902,7 +1902,7 @@
       },
       "id": 500,
       "panels": [],
-      "title": "📅 Period Comparisons",
+      "title": "\ud83d\udcc5 Period Comparisons",
       "type": "row"
     },
     {
@@ -1985,12 +1985,12 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[24h]) / 1000",
+          "expr": "increase(consumption_today{version=~\"$version\", alias=~\"$device\"}[24h])",
           "refId": "A",
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "📅 Daily Energy Comparison (kWh)",
+      "title": "\ud83d\udcc5 Daily Energy Comparison (kWh)",
       "type": "barchart"
     },
     {
@@ -2073,12 +2073,12 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[30d]) / 1000",
+          "expr": "increase(consumption_today{version=~\"$version\", alias=~\"$device\"}[30d])",
           "refId": "A",
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "📅 Monthly Energy Comparison (kWh)",
+      "title": "\ud83d\udcc5 Monthly Energy Comparison (kWh)",
       "type": "barchart"
     },
     {
@@ -2176,7 +2176,7 @@
           "legendFormat": "{{alias}}"
         }
       ],
-      "title": "📊 Cost Over Time (Stacked)",
+      "title": "\ud83d\udcca Cost Over Time (Stacked)",
       "type": "timeseries"
     },
     {
@@ -2344,7 +2344,7 @@
           "refId": "A"
         }
       ],
-      "title": "💰 Period Cost Table",
+      "title": "\ud83d\udcb0 Period Cost Table",
       "transformations": [
         {
           "id": "organize",
@@ -2423,7 +2423,7 @@
       },
       "id": 600,
       "panels": [],
-      "title": "📊 Normalized Metrics",
+      "title": "\ud83d\udcca Normalized Metrics",
       "type": "row"
     },
     {
@@ -2525,7 +2525,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[24h]) / 1000",
+          "expr": "increase(consumption_today{version=~\"$version\", alias=~\"$device\"}[24h])",
           "format": "table",
           "instant": true,
           "refId": "A"
@@ -2535,13 +2535,13 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum_over_time(consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}[24h])",
+          "expr": "avg_over_time(consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}[24h]) * 24",
           "format": "table",
           "instant": true,
           "refId": "B"
         }
       ],
-      "title": "📊 Cost per kWh Today",
+      "title": "\ud83d\udcca \ud83d\udcb5 Total Cost Today ($)",
       "transformations": [
         {
           "id": "merge",
@@ -2678,7 +2678,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Average Power",
+      "title": "\ud83d\udcca Average Power",
       "transformations": [
         {
           "id": "organize",
@@ -2795,7 +2795,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Peak Power",
+      "title": "\ud83d\udcca Peak Power",
       "transformations": [
         {
           "id": "organize",
@@ -2912,7 +2912,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Utilization %",
+      "title": "\ud83d\udcca Utilization %",
       "transformations": [
         {
           "id": "organize",
@@ -2946,7 +2946,7 @@
       },
       "id": 700,
       "panels": [],
-      "title": "📈 Statistical Comparison",
+      "title": "\ud83d\udcc8 Statistical Comparison",
       "type": "row"
     },
     {
@@ -3136,7 +3136,7 @@
           "refId": "E"
         }
       ],
-      "title": "📈 Power Statistics",
+      "title": "\ud83d\udcc8 Power Statistics",
       "transformations": [
         {
           "id": "merge",
@@ -3355,7 +3355,7 @@
           "refId": "E"
         }
       ],
-      "title": "💰 Cost Statistics",
+      "title": "\ud83d\udcb0 Cost Statistics",
       "transformations": [
         {
           "id": "merge",
@@ -3457,7 +3457,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Correlation Matrix (Devices with Similar Usage Patterns)",
+      "title": "\ud83d\udcca Correlation Matrix (Devices with Similar Usage Patterns)",
       "type": "table"
     },
     {
@@ -3527,7 +3527,7 @@
           "legendFormat": "High Variance Devices"
         }
       ],
-      "title": "🎯 Outlier Devices (High Variance)",
+      "title": "\ud83c\udfaf Outlier Devices (High Variance)",
       "type": "stat"
     }
   ],
@@ -3620,7 +3620,7 @@
   },
   "timepicker": {},
   "timezone": "America/Denver",
-  "title": "📊 Comparative Analytics",
+  "title": "\ud83d\udcca Comparative Analytics",
   "uid": "kasa-compare-v2",
   "version": 1,
   "weekStart": ""

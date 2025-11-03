@@ -1262,7 +1262,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "avg by (rate_class) (\n  current_consumption{version=~\"$version\"}\n  * on(device_id) group_left(rate_class)\n  current_energy_rate\n)",
+          "expr": "avg by (rate_class) (\n  current_consumption{version=~\"$version\"}\n  * on(device_id) group_left(rate_class, season)\n  current_energy_rate{version=~\"$version\"}\n)",
           "legendFormat": "{{rate_class}}",
           "range": true,
           "refId": "A",

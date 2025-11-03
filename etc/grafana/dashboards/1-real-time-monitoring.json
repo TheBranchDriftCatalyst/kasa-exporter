@@ -1123,7 +1123,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "device_state{version=\"$version\"}",
+          "expr": "state{version=\"$version\"}",
           "format": "table",
           "instant": true,
           "refId": "State"
@@ -1153,7 +1153,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "energy_usage_today{version=\"$version\"}",
+          "expr": "consumption_today{version=\"$version\"}",
           "format": "table",
           "instant": true,
           "refId": "EnergyToday"
@@ -1163,7 +1163,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "energy_usage_month{version=\"$version\"}",
+          "expr": "consumption_this_month{version=\"$version\"}",
           "format": "table",
           "instant": true,
           "refId": "EnergyMonth"
@@ -1173,7 +1173,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "device_uptime{version=\"$version\"}",
+          "expr": "on_since{version=\"$version\"}",
           "format": "table",
           "instant": true,
           "refId": "Uptime"
@@ -1183,7 +1183,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "device_rssi{version=\"$version\"}",
+          "expr": "rssi{version=\"$version\"}",
           "format": "table",
           "instant": true,
           "refId": "RSSI"

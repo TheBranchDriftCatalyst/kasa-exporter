@@ -12,6 +12,7 @@ class DeviceRegistry:
     def __init__(self, collector_registry: CollectorRegistry):
         self.devices = {}
         self.last_checkin = {}
+        self.seen_devices = set()  # Track devices that have been discovered at least once
 
         # Prometheus metrics with the provided registry
         self.total_devices = Gauge(
@@ -33,10 +34,19 @@ class DeviceRegistry:
     async def discover_devices(self, credentials, interface):
         found_devices = await Discover.discover(credentials=credentials, **interface)
         self.devices = dict(found_devices.items())
-        self.discovered_devices.inc(len(found_devices))
-        self.total_devices.set(len(self.devices))
+
+        # Only increment counter for NEW devices (not previously seen)
+        new_devices_count = 0
         for addr in self.devices:
+            if addr not in self.seen_devices:
+                self.seen_devices.add(addr)
+                new_devices_count += 1
             self.last_checkin[addr] = datetime.now(tz=UTC)
+
+        if new_devices_count > 0:
+            self.discovered_devices.inc(new_devices_count)
+
+        self.total_devices.set(len(self.devices))
         return self.devices
 
     def get_devices_info(self):
@@ -72,6 +82,7 @@ class DeviceRegistry:
                     logger.info(f"Pruning device {addr} due to missed check-in")
                     self.devices.pop(addr, None)
                     self.last_checkin.pop(addr, None)
+                    # Keep addr in seen_devices so if it returns it won't be counted as "newly discovered"
                     self.pruned_devices.inc()  # Increment pruned devices counter
 
                 self.total_devices.set(len(self.devices))  # Update total devices gauge
