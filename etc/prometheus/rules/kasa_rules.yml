@@ -1,0 +1,148 @@
+groups:
+  - name: kasa_tou_metrics
+    interval: 15s
+    rules:
+      # =============================================================================
+      # Cost with Rate Class (for TOU analysis)
+      # =============================================================================
+      # Join consumption_cost with current_energy_rate to add rate_class label
+      # This enables historical TOU analysis since rate_class was removed in Phase 1
+      - record: consumption_cost_with_rate_class
+        expr: |
+          consumption_cost
+          * on(device_id) group_left(rate_class, season)
+          current_energy_rate
+
+      # =============================================================================
+      # Aggregated Cost Metrics
+      # =============================================================================
+      # Total system cost (all devices)
+      - record: consumption_cost:total
+        expr: sum(consumption_cost)
+
+      # Cost by rate class (sum across all devices)
+      - record: consumption_cost:by_rate_class
+        expr: sum by (rate_class) (consumption_cost_with_rate_class)
+
+      # Cost by device
+      - record: consumption_cost:by_device
+        expr: sum by (alias) (consumption_cost)
+
+      # Cost by rate class and device
+      - record: consumption_cost:by_device_and_rate_class
+        expr: sum by (alias, rate_class) (consumption_cost_with_rate_class)
+
+      # =============================================================================
+      # Power Consumption Metrics
+      # =============================================================================
+      # Total system power consumption
+      - record: current_consumption:total
+        expr: sum(current_consumption)
+
+      # Power by device (max to handle any duplicates)
+      - record: current_consumption:by_device
+        expr: max by (alias) (current_consumption)
+
+      # =============================================================================
+      # Efficiency & Ratio Metrics
+      # =============================================================================
+      # Cost efficiency ($/W) - lower is better during expensive periods
+      - record: cost_efficiency:by_device
+        expr: |
+          (consumption_cost / current_consumption)
+          * 1000
+
+      # Power utilization percentage (device power / total power)
+      - record: power_utilization:by_device
+        expr: |
+          (current_consumption:by_device / consumption_cost:total)
+          * 100
+
+      # =============================================================================
+      # Time-Based Aggregations (for forecasting)
+      # =============================================================================
+      # 5-minute average cost rate
+      - record: consumption_cost:avg_5m
+        expr: avg_over_time(consumption_cost:total[5m])
+
+      # 1-hour average cost rate
+      - record: consumption_cost:avg_1h
+        expr: avg_over_time(consumption_cost:total[1h])
+
+      # 24-hour average cost rate
+      - record: consumption_cost:avg_24h
+        expr: avg_over_time(consumption_cost:total[24h])
+
+      # 5-minute average power
+      - record: current_consumption:avg_5m
+        expr: avg_over_time(current_consumption:total[5m])
+
+      # 1-hour average power
+      - record: current_consumption:avg_1h
+        expr: avg_over_time(current_consumption:total[1h])
+
+      # =============================================================================
+      # Rate Class Metrics
+      # =============================================================================
+      # Current energy rate (max since it's the same for all devices)
+      - record: current_energy_rate:current
+        expr: max(current_energy_rate)
+
+      # Rate class as numeric (for threshold comparisons)
+      # super_off_peak=1, off_peak=2, on_peak=3
+      - record: rate_class:numeric
+        expr: |
+          (
+            (current_energy_rate == 0.314) * 1 +
+            (current_energy_rate == 0.351) * 2 +
+            (current_energy_rate == 0.634) * 3
+          )
+
+      # =============================================================================
+      # Cost Projections & Budgets
+      # =============================================================================
+      # Projected cost for current hour (cost rate * 1 hour)
+      - record: consumption_cost:projected_hour
+        expr: consumption_cost:total * 1
+
+      # Projected daily cost (current rate * 24h)
+      - record: consumption_cost:projected_day
+        expr: consumption_cost:total * 24
+
+      # Projected monthly cost (current rate * 730h average month)
+      - record: consumption_cost:projected_month
+        expr: consumption_cost:total * 730
+
+      # =============================================================================
+      # Savings Calculations
+      # =============================================================================
+      # Potential savings if all consumption was at super_off_peak rate
+      # Formula: (current_cost_rate - super_off_peak_rate * current_power/1000)
+      - record: consumption_cost:potential_savings_super_off_peak
+        expr: |
+          consumption_cost:total -
+          (current_consumption:total / 1000 * 0.314)
+
+      # Potential savings if all consumption was at off_peak rate
+      - record: consumption_cost:potential_savings_off_peak
+        expr: |
+          consumption_cost:total -
+          (current_consumption:total / 1000 * 0.351)
+
+      # =============================================================================
+      # Anomaly Detection Helpers
+      # =============================================================================
+      # Standard deviation of cost over 1 hour
+      - record: consumption_cost:stddev_1h
+        expr: stddev_over_time(consumption_cost:total[1h])
+
+      # Z-score for anomaly detection (current - avg) / stddev
+      - record: consumption_cost:zscore
+        expr: |
+          (
+            consumption_cost:total - consumption_cost:avg_1h
+          ) / consumption_cost:stddev_1h
+
+      # Consumption spike indicator (>2 standard deviations)
+      - record: consumption_cost:anomaly
+        expr: abs(consumption_cost:zscore) > 2
