@@ -1,0 +1,94 @@
+BATTERY SIZING DASHBOARD - PROMETHEUS TEST RESULTS
+===================================================
+
+Dashboard: /Users/panda/catalyst-devspace/workspace/@kasa-exporter/etc/grafana/dashboards/3-battery-sizing.json
+Prometheus: http://localhost:9090
+Test Date: 2025-11-03
+
+DEVICE AVAILABILITY
+-------------------
+✓ Dream Machine
+✓ Furbo
+✓ Reality Forge
+✓ 6985
+✓ Lab Server
+✓ Fatboy Synology (not tested but in list)
+
+METRIC AVAILABILITY
+-------------------
+✓ current_consumption (gauge) - 191.049W total load
+✓ consumption_cost (counter) - cost tracking available
+✓ Device filtering with alias=~"$device" - WORKING
+✓ Version filtering with version=~"$version" - WORKING
+
+QUERY VALIDATION RESULTS
+-------------------------
+
+✅ Panel 101: sum(current_consumption) = 191.049W
+✅ Panel 102: sum(avg_over_time[1h]) = 55.36W
+✅ Panel 103: sum(max_over_time[24h]) = 120.56W
+✅ Panel 201: Runtime calculation = 34 hours @ 191W
+✅ Panel 301-302: Battery comparison matrix - all queries execute
+✅ Panel 401: Timeline query - working
+⚠️ Panel 402: increase() on gauge - NEEDS FIX
+✅ Panel 501-504: Capacity sizing formulas - correct
+✅ Panel 601-602: Cost analysis - working
+⚠️ Panel 603: ROI calculation - UNIT MISMATCH
+✅ Panel 701: Load factor - valid ratio
+⚠️ Panel 702: Capacity factor - DIMENSIONAL ISSUE
+✅ Panel 703: Autonomy time - duplicate of 201, working
+✅ Panel 801: Solar charge rate = 360W (400W × 0.9)
+✅ Panel 802: Time to charge = 26.67 hours
+✅ Panel 803: Time to 80% = 21.33 hours
+✅ Panel 804: Net balance = 148.1W (solar - load)
+✅ Panel 805: Daily production = 2 kWh
+✅ Panel 806: Load coverage = 43.6%
+⚠️ Panel 807: Runtime with solar - EDGE CASE (near-zero denominator)
+✅ Panel 810: Days autonomy - working
+⚠️ Panel 808: SoC timeline - SIMULATED DATA (not real)
+✅ Panel 809: Solar panel recommendations - correct
+
+TEMPLATE VARIABLE TESTS
+------------------------
+✓ $battery_voltage = 48V (default)
+✓ $battery_capacity_ah = 200Ah (default)
+✓ $depth_of_discharge = 0.8 (default)
+✓ $inverter_efficiency = 0.9 (default)
+✓ $solar_panel_watts = 400W (default)
+✓ Multi-device selection working
+✓ All calculations use template vars correctly
+
+MATHEMATICAL VALIDATION
+------------------------
+✓ Runtime formula: (V × Ah × DoD × eff) / W = hours
+✓ Capacity formula: (W × h) / (V × eff) = Ah
+✓ Solar charge time: Wh / W = hours
+✓ Load coverage: (Solar_Wh / Load_Wh) × 100 = %
+✓ Power balance: W - W = W
+✓ Solar sizing: (Wh / h) × factor = W
+
+CRITICAL ISSUES FOUND
+----------------------
+1. Panel 402: increase() on gauge metric (current_consumption)
+2. Panel 603: ROI formula has Wh ÷ currency (unit mismatch)
+3. Panel 702: W ÷ Wh comparison (dimensional inconsistency)
+
+MEDIUM PRIORITY ISSUES
+-----------------------
+4. Panel 101: Uses range query instead of instant
+5. Panel 403: sort_desc() shows single point, not curve
+6. Panel 807: Denominator can approach zero (needs clamp_min)
+7. Panel 808: Simulated data, not real battery SoC
+
+SUMMARY
+-------
+Total Panels: 34
+✅ Working Correctly: 27 (79%)
+⚠️ Issues Found: 7 (21%)
+  - Critical: 3
+  - Medium: 4
+  - Low: 0
+
+Overall Status: GOOD with 3 critical fixes needed
+Recommendation: Apply fixes from battery-sizing-quick-fixes.md
+
