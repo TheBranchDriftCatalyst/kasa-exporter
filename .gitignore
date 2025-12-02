@@ -13,7 +13,9 @@ htmlcov/
 .promdb/
 .claude/settings.local.json
 coverage.json
-etc/grafana
+# Ignore Grafana provisioning data but track dashboard JSON files
+etc/grafana/provisioning/datasources/
+!etc/grafana/provisioning/dashboards/dashboards/*.json
 
 # Node.js
 node_modules/
