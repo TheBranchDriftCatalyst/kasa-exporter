@@ -1,7 +1,7 @@
 ---
 # GrafanaDashboard CRs for kasa-exporter
-# These reference ConfigMaps containing the dashboard JSON
-# The ConfigMaps are generated from etc/grafana/provisioning/dashboards/dashboards/
+# These fetch dashboard JSON from raw GitHub URLs
+# This approach avoids path issues with ArgoCD and keeps dashboards in their source location
 
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -11,15 +11,10 @@ metadata:
   labels:
     app: kasa-exporter
 spec:
-  # Reference the Grafana instance
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  # Reference dashboard from ConfigMap
-  configMapRef:
-    name: kasa-dashboard-real-time-monitoring
-    key: dashboard.json
-  # Folder to organize dashboards
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/1-real-time-monitoring.json"
   folder: "Kasa"
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -33,9 +28,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  configMapRef:
-    name: kasa-dashboard-tou-cost-optimization
-    key: dashboard.json
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/2-tou-cost-optimization.json"
   folder: "Kasa"
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -49,9 +42,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  configMapRef:
-    name: kasa-dashboard-battery-sizing
-    key: dashboard.json
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/3-battery-sizing.json"
   folder: "Kasa"
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -65,9 +56,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  configMapRef:
-    name: kasa-dashboard-forecasting-analytics
-    key: dashboard.json
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/4-forecasting-analytics.json"
   folder: "Kasa"
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -81,9 +70,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  configMapRef:
-    name: kasa-dashboard-comparative-analytics
-    key: dashboard.json
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/5-comparative-analytics.json"
   folder: "Kasa"
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -97,7 +84,5 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  configMapRef:
-    name: kasa-dashboard-alerts-monitoring
-    key: dashboard.json
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/6-alerts-monitoring.json"
   folder: "Kasa"

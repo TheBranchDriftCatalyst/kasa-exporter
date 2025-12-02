@@ -12,35 +12,6 @@ resources:
   - prometheusrule.yaml
   - grafana-dashboards.yaml
 
-# Generate ConfigMaps from dashboard JSON files
-configMapGenerator:
-  - name: kasa-dashboard-real-time-monitoring
-    files:
-      - dashboard.json=../etc/grafana/provisioning/dashboards/dashboards/1-real-time-monitoring.json
-    options:
-      disableNameSuffixHash: true
-  - name: kasa-dashboard-tou-cost-optimization
-    files:
-      - dashboard.json=../etc/grafana/provisioning/dashboards/dashboards/2-tou-cost-optimization.json
-    options:
-      disableNameSuffixHash: true
-  - name: kasa-dashboard-battery-sizing
-    files:
-      - dashboard.json=../etc/grafana/provisioning/dashboards/dashboards/3-battery-sizing.json
-    options:
-      disableNameSuffixHash: true
-  - name: kasa-dashboard-forecasting-analytics
-    files:
-      - dashboard.json=../etc/grafana/provisioning/dashboards/dashboards/4-forecasting-analytics.json
-    options:
-      disableNameSuffixHash: true
-  - name: kasa-dashboard-comparative-analytics
-    files:
-      - dashboard.json=../etc/grafana/provisioning/dashboards/dashboards/5-comparative-analytics.json
-    options:
-      disableNameSuffixHash: true
-  - name: kasa-dashboard-alerts-monitoring
-    files:
-      - dashboard.json=../etc/grafana/provisioning/dashboards/dashboards/6-alerts-monitoring.json
-    options:
-      disableNameSuffixHash: true
+# Note: GrafanaDashboard CRs now use 'url' to fetch dashboard JSON directly
+# from raw GitHub URLs, avoiding path issues with ArgoCD and eliminating
+# the need for configMapGenerator
