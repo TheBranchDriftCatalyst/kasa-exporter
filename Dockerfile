@@ -12,13 +12,13 @@ COPY pyproject.toml poetry.lock README.md /app/
 # Configure Poetry to not create venv (use system python from catalyst-images)
 RUN poetry config virtualenvs.create false
 
-# Install dependencies only (no dev deps)
-RUN poetry install --only main --no-interaction --no-ansi
+# Install dependencies only (no dev deps, no root package yet)
+RUN poetry install --only main --no-root --no-interaction --no-ansi
 
 # Copy source code
 COPY ./kasa_exporter /app/kasa_exporter
 
-# Install the project itself
+# Now install the root package
 RUN poetry install --only main --no-interaction --no-ansi
 
 # Default port for metrics
