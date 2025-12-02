@@ -1,0 +1,103 @@
+---
+# GrafanaDashboard CRs for kasa-exporter
+# These reference ConfigMaps containing the dashboard JSON
+# The ConfigMaps are generated from etc/grafana/provisioning/dashboards/dashboards/
+
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kasa-real-time-monitoring
+  namespace: monitoring
+  labels:
+    app: kasa-exporter
+spec:
+  # Reference the Grafana instance
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  # Reference dashboard from ConfigMap
+  configMapRef:
+    name: kasa-dashboard-real-time-monitoring
+    key: dashboard.json
+  # Folder to organize dashboards
+  folder: "Kasa"
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kasa-tou-cost-optimization
+  namespace: monitoring
+  labels:
+    app: kasa-exporter
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: kasa-dashboard-tou-cost-optimization
+    key: dashboard.json
+  folder: "Kasa"
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kasa-battery-sizing
+  namespace: monitoring
+  labels:
+    app: kasa-exporter
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: kasa-dashboard-battery-sizing
+    key: dashboard.json
+  folder: "Kasa"
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kasa-forecasting-analytics
+  namespace: monitoring
+  labels:
+    app: kasa-exporter
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: kasa-dashboard-forecasting-analytics
+    key: dashboard.json
+  folder: "Kasa"
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kasa-comparative-analytics
+  namespace: monitoring
+  labels:
+    app: kasa-exporter
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: kasa-dashboard-comparative-analytics
+    key: dashboard.json
+  folder: "Kasa"
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kasa-alerts-monitoring
+  namespace: monitoring
+  labels:
+    app: kasa-exporter
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: kasa-dashboard-alerts-monitoring
+    key: dashboard.json
+  folder: "Kasa"
