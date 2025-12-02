@@ -11,6 +11,7 @@ resources:
   - externalsecret.yaml
   - prometheusrule.yaml
   - grafana-dashboards.yaml
+  - ingressroute.yaml
 
 # Note: GrafanaDashboard CRs now use 'url' to fetch dashboard JSON directly
 # from raw GitHub URLs, avoiding path issues with ArgoCD and eliminating

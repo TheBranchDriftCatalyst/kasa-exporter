@@ -1,0 +1,21 @@
+---
+# Traefik IngressRoute for kasa-exporter metrics endpoint
+# Access at: http://kasa-exporter.talos00/metrics
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kasa-exporter
+  namespace: monitoring
+  labels:
+    app: kasa-exporter
+    app.kubernetes.io/name: kasa-exporter
+    app.kubernetes.io/component: ingress
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`kasa-exporter.talos00`)
+      kind: Rule
+      services:
+        - name: kasa-exporter
+          port: 9200
