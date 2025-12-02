@@ -1,24 +1,31 @@
-# Use an official Python runtime as a parent image
-# TODO lets bump this up dawg, bring all deps up along with it
-FROM python:3.12
+# Multi-arch Dockerfile for kasa-exporter
+# Uses catalyst-images:python as base (includes Python 3.12, Poetry, dev tools)
+# Supports: linux/amd64, linux/arm64
+
+FROM ghcr.io/thebranchdriftcatalyst/catalyst-images:python AS base
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y iputils-* net-tools curl
-
-# Install Poetry
-RUN pip install poetry
-
-# Copy dependency files for layer caching
+# Copy dependency files first for layer caching
 COPY pyproject.toml poetry.lock README.md /app/
+
+# Configure Poetry to not create venv (use system python from catalyst-images)
+RUN poetry config virtualenvs.create false
+
+# Install dependencies only (no dev deps)
+RUN poetry install --only main --no-interaction --no-ansi
 
 # Copy source code
 COPY ./kasa_exporter /app/kasa_exporter
 
-# Install dependencies (including the current project)
-RUN poetry config virtualenvs.create false && poetry install --only main
+# Install the project itself
+RUN poetry install --only main --no-interaction --no-ansi
 
+# Default port for metrics
+EXPOSE 9200
 
-EXPOSE 8000
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:9200/health || exit 1
 
-ENTRYPOINT ["poetry", "run", "python", "-m", "kasa_exporter"]
+ENTRYPOINT ["python", "-m", "kasa_exporter"]
