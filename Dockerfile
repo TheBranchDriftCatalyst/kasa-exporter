@@ -9,8 +9,8 @@ WORKDIR /app
 # Copy dependency files first for layer caching
 COPY pyproject.toml poetry.lock README.md /app/
 
-# Configure Poetry to not create venv (use system python from catalyst-images)
-RUN poetry config virtualenvs.create false
+# Configure Poetry to create venv in-project
+RUN poetry config virtualenvs.in-project true
 
 # Install dependencies only (no dev deps, no root package yet)
 RUN poetry install --only main --no-root --no-interaction --no-ansi
@@ -28,4 +28,5 @@ EXPOSE 9200
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:9200/health || exit 1
 
-ENTRYPOINT ["python", "-m", "kasa_exporter"]
+# Run using poetry to ensure correct venv
+ENTRYPOINT ["poetry", "run", "python", "-m", "kasa_exporter"]
