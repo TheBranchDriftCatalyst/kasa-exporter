@@ -1,0 +1,158 @@
+version: '3'
+
+# Dashboard utilities for Grafana dashboard development
+# Supports exploding dashboards into individual panel files for easier editing,
+# building them back into complete dashboards, and watching for live reload.
+
+vars:
+  DASHBOARDS_SRC: etc/grafana/dashboards-src
+  DASHBOARDS_DEST: etc/grafana/provisioning/dashboards
+  PANELS_DATA: ./dashboard_panels.json
+
+tasks:
+  # Explosion/Build workflow
+  explode:
+    desc: "Explode dashboards into individual panel files for editing, useful to get a big ole file into smaller ones"
+    cmds:
+    - poetry run python scripts/utils/explode_dashboards.py --source {{.DASHBOARDS_DEST}} --dest {{.DASHBOARDS_SRC}}
+
+  explode:force:
+    desc: "Explode dashboards (overwrite existing files)"
+    cmds:
+    - poetry run python scripts/utils/explode_dashboards.py --source {{.DASHBOARDS_DEST}} --dest {{.DASHBOARDS_SRC}} --overwrite
+
+  build:
+    desc: "Build dashboards with individual panel dashboards (for debugging)"
+    cmds:
+    - poetry run python scripts/utils/build_dashboards.py --source {{.DASHBOARDS_SRC}} --dest {{.DASHBOARDS_DEST}} --with-panels
+
+  build:consolidated:
+    desc: "Build only consolidated dashboards (no individual panels)"
+    cmds:
+    - poetry run python scripts/utils/build_dashboards.py --source {{.DASHBOARDS_SRC}} --dest {{.DASHBOARDS_DEST}}
+
+  watch:
+    desc: "Watch panel files and auto-rebuild dashboards on changes (Vite)"
+    cmds:
+    - |
+      echo "👀 Starting Vite dashboard watcher..."
+      yarn watch
+
+  watch:reload:
+    desc: "Watch panel files and auto-rebuild + restart Grafana on changes"
+    cmds:
+    - |
+      echo "👀 Starting dashboard watcher with Grafana restart..."
+      poetry run python -u scripts/utils/watch_dashboards.py --source {{.DASHBOARDS_SRC}} --dest {{.DASHBOARDS_DEST}} --restart-grafana
+
+  # Panel analysis tools
+  extract:
+    desc: "Extract panel metadata from dashboards to JSON"
+    cmds:
+    - poetry run python scripts/utils/extract_panels.py --output {{.PANELS_DATA}}
+
+  stats:
+    desc: "Generate statistics about dashboard panels"
+    cmds:
+    - poetry run python scripts/utils/panel_stats.py --input {{.PANELS_DATA}}
+
+  query:
+    desc: "Query panels (use -- to pass arguments, e.g., task dashboards:query -- --type piechart)"
+    cmds:
+    - poetry run python scripts/utils/query_panels.py --input {{.PANELS_DATA}} {{.CLI_ARGS}}
+
+  # Specific panel queries
+  query:pie:
+    desc: "Find all pie chart panels"
+    cmds:
+    - poetry run python scripts/utils/query_panels.py --input {{.PANELS_DATA}} --type piechart
+
+  query:table:
+    desc: "Find all table panels"
+    cmds:
+    - poetry run python scripts/utils/query_panels.py --input {{.PANELS_DATA}} --type table
+
+  query:broken:
+    desc: "Find panels without queries"
+    cmds:
+    - poetry run python scripts/utils/panel_stats.py --input {{.PANELS_DATA}} | grep -A 100 "PANELS WITHOUT QUERIES"
+
+  # Development workflow
+  dev:setup:
+    desc: "Initial setup - explode dashboards for development"
+    cmds:
+    - task: explode
+    - |
+      echo "✅ Dashboards exploded to {{.DASHBOARDS_SRC}}"
+      echo "💡 Edit panel files in {{.DASHBOARDS_SRC}}/<dashboard>/"
+      echo "💡 Run 'task dashboards:watch' for live reload"
+
+  dev:init:
+    desc: "Initialize from scratch - explode + extract metadata"
+    cmds:
+    - task: explode:force
+    - task: extract
+    - |
+      echo ""
+      echo "✅ Development environment initialized"
+      echo "📂 Panel source files: {{.DASHBOARDS_SRC}}"
+      echo "📊 Panel metadata: {{.PANELS_DATA}}"
+      echo ""
+      echo "Next steps:"
+      echo "  1. Edit panels in {{.DASHBOARDS_SRC}}/<dashboard>/"
+      echo "  2. Run 'task dashboards:watch' for auto-rebuild"
+      echo "  3. Or run 'task dashboards:build' manually"
+
+  # Cleanup
+  clean:src:
+    desc: "Remove exploded source files"
+    cmds:
+    - rm -rf {{.DASHBOARDS_SRC}}
+    - echo "✅ Removed {{.DASHBOARDS_SRC}}"
+
+  clean:metadata:
+    desc: "Remove extracted panel metadata"
+    cmds:
+    - rm -f {{.PANELS_DATA}}
+    - echo "✅ Removed {{.PANELS_DATA}}"
+
+  # Documentation
+  help:
+    desc: "Show dashboard utilities help"
+    cmds:
+    - |
+      echo "========================================================================"
+      echo "DASHBOARD UTILITIES"
+      echo "========================================================================"
+      echo ""
+      echo "Development Workflow:"
+      echo "  1. task dashboards:dev:init     - Initialize dev environment"
+      echo "  2. task dashboards:watch        - Watch for changes (auto-rebuild)"
+      echo "  3. Edit panels in etc/grafana/dashboards/src/<dashboard>/"
+      echo "  4. Dashboards auto-rebuild to etc/grafana/dashboards/"
+      echo ""
+      echo "Manual Build:"
+      echo "  task dashboards:explode         - Split dashboards into panel files"
+      echo "  task dashboards:build           - Combine panel files back"
+      echo ""
+      echo "Panel Analysis:"
+      echo "  task dashboards:extract         - Extract panel metadata"
+      echo "  task dashboards:stats           - Show statistics"
+      echo "  task dashboards:query           - Query panels (use -- --type <type>)"
+      echo "  task dashboards:query:pie       - Find pie charts"
+      echo "  task dashboards:query:table     - Find tables"
+      echo ""
+      echo "Live Reload:"
+      echo "  task dashboards:watch           - Watch + rebuild"
+      echo "  task dashboards:watch:reload    - Watch + rebuild + restart Grafana"
+      echo ""
+      echo "Cleanup:"
+      echo "  task dashboards:clean:src       - Remove source files"
+      echo "  task dashboards:clean:metadata  - Remove metadata cache"
+      echo ""
+      echo "========================================================================"
+      echo ""
+      echo "Documentation:"
+      echo "  scripts/utils/README.md         - Utilities documentation"
+      echo "  docs/dashboard-panels-canon.md  - Canonical panel reference"
+      echo "========================================================================"

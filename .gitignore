@@ -13,3 +13,9 @@ htmlcov/
 .promdb/
 .claude/settings.local.json
 coverage.json
+etc/grafana
+
+# Node.js
+node_modules/
+yarn.lock
+package-lock.json

@@ -21,20 +21,100 @@
   "graphTooltip": 2,
   "id": null,
   "links": [],
-  "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
+  "refresh": "30s",
+  "schemaVersion": 40,
+  "tags": [
+    "kasa",
+    "comparative",
+    "analytics",
+    "efficiency",
+    "cyberpunk"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(consumption_cost, version)",
+        "includeAll": true,
+        "label": "Version",
+        "name": "version",
+        "options": [],
+        "query": {
+          "query": "label_values(consumption_cost, version)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
       },
-      "id": 100,
-      "panels": [],
-      "title": "\ud83d\udc51 Device Rankings",
-      "type": "row"
-    },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(current_consumption, alias)",
+        "includeAll": true,
+        "label": "Device",
+        "multi": true,
+        "name": "device",
+        "options": [],
+        "query": {
+          "query": "label_values(current_consumption, alias)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(current_consumption, alias)",
+        "includeAll": false,
+        "label": "Baseline Device",
+        "name": "baseline_device",
+        "options": [],
+        "query": {
+          "query": "label_values(current_consumption, alias)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "America/Denver",
+  "title": "\ud83d\udcca Comparative Analytics",
+  "uid": "kasa-compare-v2",
+  "version": 1,
+  "weekStart": "",
+  "panels": [
     {
       "datasource": {
         "type": "prometheus",
@@ -320,19 +400,6 @@
       "type": "stat"
     },
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 7
-      },
-      "id": 200,
-      "panels": [],
-      "title": "\ud83d\udcca Power Comparison",
-      "type": "row"
-    },
-    {
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
@@ -445,8 +512,7 @@
               "legend": false
             }
           },
-          "mappings": [],
-          "unit": "watt"
+          "mappings": []
         },
         "overrides": []
       },
@@ -459,8 +525,7 @@
       "id": 202,
       "options": {
         "displayLabels": [
-          "name",
-          "percent"
+          "name"
         ],
         "legend": {
           "displayMode": "table",
@@ -783,19 +848,6 @@
       "type": "table"
     },
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 24
-      },
-      "id": 300,
-      "panels": [],
-      "title": "\ud83d\udcb0 Cost Comparison",
-      "type": "row"
-    },
-    {
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
@@ -908,8 +960,7 @@
               "legend": false
             }
           },
-          "mappings": [],
-          "unit": "currencyUSD"
+          "mappings": []
         },
         "overrides": []
       },
@@ -922,8 +973,7 @@
       "id": 302,
       "options": {
         "displayLabels": [
-          "name",
-          "percent"
+          "name"
         ],
         "legend": {
           "displayMode": "table",
@@ -1246,19 +1296,6 @@
         }
       ],
       "type": "table"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 41
-      },
-      "id": 400,
-      "panels": [],
-      "title": "\u26a1 Efficiency Metrics",
-      "type": "row"
     },
     {
       "datasource": {
@@ -1893,19 +1930,6 @@
       "type": "timeseries"
     },
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 58
-      },
-      "id": 500,
-      "panels": [],
-      "title": "\ud83d\udcc5 Period Comparisons",
-      "type": "row"
-    },
-    {
       "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
@@ -2412,19 +2436,6 @@
         }
       ],
       "type": "table"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 75
-      },
-      "id": 600,
-      "panels": [],
-      "title": "\ud83d\udcca Normalized Metrics",
-      "type": "row"
     },
     {
       "datasource": {
@@ -2935,19 +2946,6 @@
         }
       ],
       "type": "table"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 92
-      },
-      "id": 700,
-      "panels": [],
-      "title": "\ud83d\udcc8 Statistical Comparison",
-      "type": "row"
     },
     {
       "datasource": {
@@ -3530,98 +3528,5 @@
       "title": "\ud83c\udfaf Outlier Devices (High Variance)",
       "type": "stat"
     }
-  ],
-  "refresh": "30s",
-  "schemaVersion": 40,
-  "tags": [
-    "kasa",
-    "comparative",
-    "analytics",
-    "efficiency",
-    "cyberpunk"
-  ],
-  "templating": {
-    "list": [
-      {
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values(consumption_cost, version)",
-        "includeAll": true,
-        "label": "Version",
-        "name": "version",
-        "options": [],
-        "query": {
-          "query": "label_values(consumption_cost, version)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values(current_consumption, alias)",
-        "includeAll": true,
-        "label": "Device",
-        "multi": true,
-        "name": "device",
-        "options": [],
-        "query": {
-          "query": "label_values(current_consumption, alias)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values(current_consumption, alias)",
-        "includeAll": false,
-        "label": "Baseline Device",
-        "name": "baseline_device",
-        "options": [],
-        "query": {
-          "query": "label_values(current_consumption, alias)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
-      }
-    ]
-  },
-  "time": {
-    "from": "now-6h",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "America/Denver",
-  "title": "\ud83d\udcca Comparative Analytics",
-  "uid": "kasa-compare-v2",
-  "version": 1,
-  "weekStart": ""
+  ]
 }

@@ -21,20 +21,102 @@
   "graphTooltip": 2,
   "id": null,
   "links": [],
-  "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
+  "refresh": "1m",
+  "schemaVersion": 40,
+  "tags": [
+    "kasa",
+    "forecasting",
+    "predictions",
+    "analytics",
+    "cyberpunk"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(current_consumption, version)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Version",
+        "multi": false,
+        "name": "version",
+        "options": [],
+        "query": {
+          "query": "label_values(current_consumption, version)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
       },
-      "id": 100,
-      "panels": [],
-      "title": "💰 COST PROJECTIONS",
-      "type": "row"
-    },
+      {
+        "current": {
+          "selected": true,
+          "text": "7d",
+          "value": "7d"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Forecast Period",
+        "multi": false,
+        "name": "forecast_period",
+        "options": [
+          {
+            "selected": false,
+            "text": "1d",
+            "value": "1d"
+          },
+          {
+            "selected": true,
+            "text": "7d",
+            "value": "7d"
+          },
+          {
+            "selected": false,
+            "text": "30d",
+            "value": "30d"
+          }
+        ],
+        "query": "1d,7d,30d",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "America/Denver",
+  "title": "\ud83d\udd2e Forecasting & Predictions",
+  "uid": "kasa-forecast-v2",
+  "version": 1,
+  "weekStart": "",
+  "panels": [
     {
       "datasource": {
         "type": "prometheus",
@@ -110,7 +192,7 @@
           "refId": "A"
         }
       ],
-      "title": "💰 Projected Monthly Cost",
+      "title": "\ud83d\udcb0 Projected Monthly Cost",
       "type": "stat"
     },
     {
@@ -184,7 +266,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Month Progress",
+      "title": "\ud83d\udcca Month Progress",
       "type": "gauge"
     },
     {
@@ -267,7 +349,7 @@
           "refId": "A"
         }
       ],
-      "title": "🎯 Budget Status (vs $100)",
+      "title": "\ud83c\udfaf Budget Status (vs $100)",
       "type": "stat"
     },
     {
@@ -387,21 +469,8 @@
           "refId": "B"
         }
       ],
-      "title": "📈 Cost Trend (24h with Prediction)",
+      "title": "\ud83d\udcc8 Cost Trend (24h with Prediction)",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 6
-      },
-      "id": 200,
-      "panels": [],
-      "title": "📈 TREND ANALYSIS",
-      "type": "row"
     },
     {
       "datasource": {
@@ -468,7 +537,10 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [10, 5],
+                  "dash": [
+                    10,
+                    5
+                  ],
                   "fill": "dash"
                 }
               },
@@ -492,7 +564,10 @@
       "id": 201,
       "options": {
         "legend": {
-          "calcs": ["mean", "last"],
+          "calcs": [
+            "mean",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -532,7 +607,7 @@
           "refId": "C"
         }
       ],
-      "title": "📈 Power Consumption Trend",
+      "title": "\ud83d\udcc8 Power Consumption Trend",
       "type": "timeseries"
     },
     {
@@ -600,7 +675,10 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [10, 5],
+                  "dash": [
+                    10,
+                    5
+                  ],
                   "fill": "dash"
                 }
               },
@@ -624,7 +702,10 @@
       "id": 202,
       "options": {
         "legend": {
-          "calcs": ["mean", "last"],
+          "calcs": [
+            "mean",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -664,7 +745,7 @@
           "refId": "C"
         }
       ],
-      "title": "💵 Cost Rate Trend",
+      "title": "\ud83d\udcb5 Cost Rate Trend",
       "type": "timeseries"
     },
     {
@@ -768,7 +849,10 @@
       "id": 203,
       "options": {
         "legend": {
-          "calcs": ["mean", "max"],
+          "calcs": [
+            "mean",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -799,7 +883,7 @@
           "refId": "B"
         }
       ],
-      "title": "📊 Week-over-Week Comparison",
+      "title": "\ud83d\udcca Week-over-Week Comparison",
       "type": "timeseries"
     },
     {
@@ -903,7 +987,10 @@
       "id": 204,
       "options": {
         "legend": {
-          "calcs": ["mean", "max"],
+          "calcs": [
+            "mean",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -934,21 +1021,8 @@
           "refId": "B"
         }
       ],
-      "title": "📊 Month-over-Month Comparison",
+      "title": "\ud83d\udcca Month-over-Month Comparison",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 23
-      },
-      "id": 300,
-      "panels": [],
-      "title": "🚨 ANOMALY DETECTION",
-      "type": "row"
     },
     {
       "datasource": {
@@ -1032,7 +1106,7 @@
           "refId": "A"
         }
       ],
-      "title": "🚨 Anomaly Indicator",
+      "title": "\ud83d\udea8 Anomaly Indicator",
       "type": "stat"
     },
     {
@@ -1139,7 +1213,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Z-Score (Anomaly Detection)",
+      "title": "\ud83d\udcca Z-Score (Anomaly Detection)",
       "type": "timeseries"
     },
     {
@@ -1208,7 +1282,10 @@
       "id": 303,
       "options": {
         "legend": {
-          "calcs": ["mean", "last"],
+          "calcs": [
+            "mean",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1230,7 +1307,7 @@
           "refId": "A"
         }
       ],
-      "title": "⚠️ Standard Deviation",
+      "title": "\u26a0\ufe0f Standard Deviation",
       "type": "timeseries"
     },
     {
@@ -1296,7 +1373,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Upper Bound (2σ)"
+              "options": "Upper Bound (2\u03c3)"
             },
             "properties": [
               {
@@ -1309,7 +1386,10 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [10, 5],
+                  "dash": [
+                    10,
+                    5
+                  ],
                   "fill": "dash"
                 }
               },
@@ -1322,7 +1402,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Lower Bound (2σ)"
+              "options": "Lower Bound (2\u03c3)"
             },
             "properties": [
               {
@@ -1335,7 +1415,10 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [10, 5],
+                  "dash": [
+                    10,
+                    5
+                  ],
                   "fill": "dash"
                 }
               },
@@ -1383,7 +1466,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "expr": "consumption_cost:avg_1h{version=~\"$version\"} + (2 * consumption_cost:stddev_1h{version=~\"$version\"})",
-          "legendFormat": "Upper Bound (2σ)",
+          "legendFormat": "Upper Bound (2\u03c3)",
           "refId": "B"
         },
         {
@@ -1392,25 +1475,12 @@
             "uid": "PBFA97CFB590B2093"
           },
           "expr": "consumption_cost:avg_1h{version=~\"$version\"} - (2 * consumption_cost:stddev_1h{version=~\"$version\"})",
-          "legendFormat": "Lower Bound (2σ)",
+          "legendFormat": "Lower Bound (2\u03c3)",
           "refId": "C"
         }
       ],
-      "title": "🔍 Outlier Detection (2σ Bounds)",
+      "title": "\ud83d\udd0d Outlier Detection (2\u03c3 Bounds)",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 30
-      },
-      "id": 400,
-      "panels": [],
-      "title": "🌊 SEASONAL PATTERNS",
-      "type": "row"
     },
     {
       "datasource": {
@@ -1488,7 +1558,7 @@
           "color": "rgba(255,0,255,0.7)"
         },
         "filterValues": {
-          "le": 1e-9
+          "le": 1e-09
         },
         "legend": {
           "show": true
@@ -1519,7 +1589,7 @@
           "refId": "A"
         }
       ],
-      "title": "🌡️ Cost by Hour of Day",
+      "title": "\ud83c\udf21\ufe0f Cost by Hour of Day",
       "type": "heatmap"
     },
     {
@@ -1588,7 +1658,10 @@
       "id": 402,
       "options": {
         "legend": {
-          "calcs": ["mean", "max"],
+          "calcs": [
+            "mean",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1610,7 +1683,7 @@
           "refId": "A"
         }
       ],
-      "title": "📅 Cost by Day of Week",
+      "title": "\ud83d\udcc5 Cost by Day of Week",
       "type": "timeseries"
     },
     {
@@ -1728,7 +1801,7 @@
           "refId": "D"
         }
       ],
-      "title": "🌊 Weekly Pattern Overlay",
+      "title": "\ud83c\udf0a Weekly Pattern Overlay",
       "type": "timeseries"
     },
     {
@@ -1797,7 +1870,10 @@
       "id": 404,
       "options": {
         "legend": {
-          "calcs": ["mean", "max"],
+          "calcs": [
+            "mean",
+            "max"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1819,21 +1895,8 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Monthly Pattern",
+      "title": "\ud83d\udcca Monthly Pattern",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 47
-      },
-      "id": 500,
-      "panels": [],
-      "title": "🔮 PREDICTIVE METRICS",
-      "type": "row"
     },
     {
       "datasource": {
@@ -1910,7 +1973,7 @@
           "refId": "A"
         }
       ],
-      "title": "🔮 Next Hour Prediction",
+      "title": "\ud83d\udd2e Next Hour Prediction",
       "type": "stat"
     },
     {
@@ -1988,7 +2051,7 @@
           "refId": "A"
         }
       ],
-      "title": "🔮 Next Day Prediction",
+      "title": "\ud83d\udd2e Next Day Prediction",
       "type": "stat"
     },
     {
@@ -2070,7 +2133,7 @@
           "refId": "A"
         }
       ],
-      "title": "🔮 End of Month Projection",
+      "title": "\ud83d\udd2e End of Month Projection",
       "type": "stat"
     },
     {
@@ -2137,11 +2200,11 @@
             "uid": "PBFA97CFB590B2093"
           },
           "expr": "2 * consumption_cost:stddev_1h{version=~\"$version\"}",
-          "legendFormat": "±2σ Range",
+          "legendFormat": "\u00b12\u03c3 Range",
           "refId": "A"
         }
       ],
-      "title": "📈 Confidence Interval (±2σ)",
+      "title": "\ud83d\udcc8 Confidence Interval (\u00b12\u03c3)",
       "type": "stat"
     },
     {
@@ -2234,7 +2297,10 @@
       "id": 505,
       "options": {
         "legend": {
-          "calcs": ["mean", "last"],
+          "calcs": [
+            "mean",
+            "last"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -2265,21 +2331,8 @@
           "refId": "B"
         }
       ],
-      "title": "📊 Power Derivative (Rate of Change)",
+      "title": "\ud83d\udcca Power Derivative (Rate of Change)",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 61
-      },
-      "id": 600,
-      "panels": [],
-      "title": "📊 HISTORICAL COMPARISON",
-      "type": "row"
     },
     {
       "datasource": {
@@ -2361,7 +2414,9 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": ["sum"],
+          "reducer": [
+            "sum"
+          ],
           "show": false
         },
         "showHeader": true,
@@ -2380,7 +2435,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Cost History Table",
+      "title": "\ud83d\udcca Cost History Table",
       "transformations": [
         {
           "id": "organize",
@@ -2461,7 +2516,10 @@
       "id": 602,
       "options": {
         "legend": {
-          "calcs": ["sum", "mean"],
+          "calcs": [
+            "sum",
+            "mean"
+          ],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -2483,7 +2541,7 @@
           "refId": "A"
         }
       ],
-      "title": "📈 YTD Cost Trend",
+      "title": "\ud83d\udcc8 YTD Cost Trend",
       "type": "timeseries"
     },
     {
@@ -2562,7 +2620,7 @@
           "refId": "A"
         }
       ],
-      "title": "🏆 Record: Highest Day",
+      "title": "\ud83c\udfc6 Record: Highest Day",
       "type": "stat"
     },
     {
@@ -2633,7 +2691,7 @@
           "refId": "A"
         }
       ],
-      "title": "🏅 Record: Lowest Day",
+      "title": "\ud83c\udfc5 Record: Lowest Day",
       "type": "stat"
     },
     {
@@ -2712,7 +2770,7 @@
           "refId": "A"
         }
       ],
-      "title": "🏆 Record: Highest Week",
+      "title": "\ud83c\udfc6 Record: Highest Week",
       "type": "stat"
     },
     {
@@ -2791,103 +2849,8 @@
           "refId": "A"
         }
       ],
-      "title": "🏆 Record: Highest Month",
+      "title": "\ud83c\udfc6 Record: Highest Month",
       "type": "stat"
     }
-  ],
-  "refresh": "1m",
-  "schemaVersion": 40,
-  "tags": [
-    "kasa",
-    "forecasting",
-    "predictions",
-    "analytics",
-    "cyberpunk"
-  ],
-  "templating": {
-    "list": [
-      {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values(current_consumption, version)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Version",
-        "multi": false,
-        "name": "version",
-        "options": [],
-        "query": {
-          "query": "label_values(current_consumption, version)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": "7d",
-          "value": "7d"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Forecast Period",
-        "multi": false,
-        "name": "forecast_period",
-        "options": [
-          {
-            "selected": false,
-            "text": "1d",
-            "value": "1d"
-          },
-          {
-            "selected": true,
-            "text": "7d",
-            "value": "7d"
-          },
-          {
-            "selected": false,
-            "text": "30d",
-            "value": "30d"
-          }
-        ],
-        "query": "1d,7d,30d",
-        "queryValue": "",
-        "skipUrlSync": false,
-        "type": "custom"
-      }
-    ]
-  },
-  "time": {
-    "from": "now-7d",
-    "to": "now"
-  },
-  "timepicker": {
-    "refresh_intervals": [
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ]
-  },
-  "timezone": "America/Denver",
-  "title": "🔮 Forecasting & Predictions",
-  "uid": "kasa-forecast-v2",
-  "version": 1,
-  "weekStart": ""
+  ]
 }

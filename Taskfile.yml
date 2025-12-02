@@ -7,6 +7,7 @@ includes:
   release: ./Taskfile.release.yml
   service: ./Taskfile.service.yml
   db: ./Taskfile.db.yml
+  dashboards: ./Taskfile.dashboards.yml
   utils:
     taskfile: ../../../common/CatalystStack.AbstractTaskFile.yml
     optional: true
@@ -50,7 +51,45 @@ tasks:
       echo "   - Metrics: http://localhost:9201/metrics"
       echo "   - Debug: http://localhost:9201/debug"
       echo ""
+      echo "💡 For dashboard editing with live reload, use: task dev:dashboards"
+      echo ""
       poetry run uvicorn kasa_exporter.__main__:app --reload --host 0.0.0.0 --port 9201
+
+  dev:dashboards:
+    desc: "Run dev stack with dashboard live reload (exporter + dashboard watcher)"
+    deps: [ install ]
+    cmds:
+    - |
+      echo "🚀 Starting backend services (Prometheus, Grafana, Pushgateway)..."
+      docker compose up -d prometheus grafana pushgateway
+      echo "✅ Backend services started:"
+      echo "   - Prometheus: http://localhost:9090"
+      echo "   - Grafana: http://localhost:3000 (admin/admin)"
+      echo "   - Pushgateway: http://localhost:9091"
+      echo ""
+      echo "🎨 Starting Dashboard Watcher + Kasa Exporter with live reload..."
+      echo "   - Exporter: http://localhost:9201"
+      echo "   - Dashboard Watcher: Active (rebuilds on panel changes)"
+      echo ""
+      echo "💡 Edit panels in etc/grafana/dashboards-src/"
+      echo "💡 Dashboards auto-rebuild and Grafana auto-reloads"
+      echo ""
+      echo "Press Ctrl+C to stop all processes"
+      echo ""
+      if command -v foreman >/dev/null 2>&1; then
+        foreman start -f Procfile.dashboards
+      else
+        echo "⚠️  Foreman not found. Running processes manually..."
+        echo ""
+        echo "Starting dashboard watcher in background..."
+        poetry run python scripts/utils/watch_dashboards.py --source etc/grafana/dashboards-src --dest etc/grafana/dashboards &
+        WATCHER_PID=$!
+        echo "Dashboard watcher PID: $WATCHER_PID"
+        echo ""
+        echo "Starting Kasa Exporter..."
+        poetry run uvicorn kasa_exporter.__main__:app --reload --host 0.0.0.0 --port 9201
+        kill $WATCHER_PID 2>/dev/null || true
+      fi
 
   dev:stop:
     desc: "Stop all development services"

@@ -1,0 +1,25 @@
+{
+  "name": "@kasa-exporter/dashboards",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run lint && vite build",
+    "watch": "vite",
+    "lint": "npm run lint:json && npm run lint:yaml",
+    "lint:json": "npx prettier --check 'etc/grafana/**/*.json'",
+    "lint:yaml": "npx prettier --check 'etc/grafana/**/*.{yml,yaml}'",
+    "format": "npm run format:json && npm run format:yaml",
+    "format:json": "npx prettier --write 'etc/grafana/**/*.json'",
+    "format:yaml": "npx prettier --write 'etc/grafana/**/*.{yml,yaml}'"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "eslint-plugin-jsonc": "^2.21.0",
+    "eslint-plugin-yml": "^1.19.0",
+    "js-yaml": "^4.1.0",
+    "prettier": "^3.6.2",
+    "vite": "^5.4.10"
+  }
+}

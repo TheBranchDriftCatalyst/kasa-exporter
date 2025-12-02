@@ -1,17 +1,22 @@
 groups:
   - name: kasa_tou_metrics
-    interval: 15s
+    interval: 5s
     rules:
       # =============================================================================
       # Cost with Rate Class (for TOU analysis)
       # =============================================================================
       # Join consumption_cost with current_energy_rate to add rate_class label
       # This enables historical TOU analysis since rate_class was removed in Phase 1
+      # NOTE: We use max_over_time to select the CURRENTLY ACTIVE rate (highest value = on_peak)
       - record: consumption_cost_with_rate_class
         expr: |
           consumption_cost
           * on(device_id) group_left(rate_class, season)
-          current_energy_rate
+          (
+            current_energy_rate
+            == on(device_id) group_left()
+            max by(device_id) (current_energy_rate)
+          )
 
       # =============================================================================
       # Aggregated Cost Metrics

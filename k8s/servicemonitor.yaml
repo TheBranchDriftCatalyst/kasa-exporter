@@ -1,0 +1,22 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kasa-exporter
+  namespace: monitoring
+  labels:
+    app: kasa-exporter
+    app.kubernetes.io/name: kasa-exporter
+    release: prometheus  # Required for Prometheus Operator discovery
+spec:
+  selector:
+    matchLabels:
+      app: kasa-exporter
+  namespaceSelector:
+    matchNames:
+      - monitoring
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

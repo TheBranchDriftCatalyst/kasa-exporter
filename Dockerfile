@@ -1,4 +1,5 @@
 # Use an official Python runtime as a parent image
+# TODO lets bump this up dawg, bring all deps up along with it
 FROM python:3.12
 
 WORKDIR /app

@@ -21,20 +21,69 @@
   "graphTooltip": 2,
   "id": null,
   "links": [],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": [
+    "kasa",
+    "real-time",
+    "monitoring",
+    "cyberpunk"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "v2",
+          "value": "v2"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(current_consumption, version)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Version",
+        "multi": false,
+        "name": "version",
+        "options": [],
+        "query": {
+          "query": "label_values(current_consumption, version)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "America/Denver",
+  "title": "\ud83c\udf0a Real-Time Monitoring",
+  "uid": "kasa-realtime-v2",
+  "version": 1,
+  "weekStart": "",
   "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 100,
-      "panels": [],
-      "title": "⚡ System Overview",
-      "type": "row"
-    },
     {
       "datasource": {
         "type": "prometheus",
@@ -106,7 +155,7 @@
           "refId": "A"
         }
       ],
-      "title": "⚡ Total Power Draw",
+      "title": "\u26a1 Total Power Draw",
       "type": "stat"
     },
     {
@@ -184,7 +233,7 @@
           "refId": "A"
         }
       ],
-      "title": "💰 Current Cost Rate (per hour)",
+      "title": "\ud83d\udcb0 Current Cost Rate (per hour)",
       "type": "stat"
     },
     {
@@ -279,7 +328,7 @@
           "refId": "A"
         }
       ],
-      "title": "⚡ Energy Rate ($/kWh)",
+      "title": "\u26a1 Energy Rate ($/kWh)",
       "type": "stat"
     },
     {
@@ -357,21 +406,8 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Projected Daily Cost",
+      "title": "\ud83d\udcca Projected Daily Cost",
       "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 6
-      },
-      "id": 200,
-      "panels": [],
-      "title": "🌊 Power Consumption",
-      "type": "row"
     },
     {
       "datasource": {
@@ -480,7 +516,7 @@
           "refId": "A"
         }
       ],
-      "title": "🌊 Power Consumption Over Time",
+      "title": "\ud83c\udf0a Power Consumption Over Time",
       "type": "timeseries"
     },
     {
@@ -500,8 +536,7 @@
               "legend": false
             }
           },
-          "mappings": [],
-          "unit": "watt"
+          "mappings": []
         },
         "overrides": []
       },
@@ -514,7 +549,6 @@
       "id": 202,
       "options": {
         "displayLabels": [
-          "percent",
           "name"
         ],
         "legend": {
@@ -552,21 +586,8 @@
           "refId": "A"
         }
       ],
-      "title": "🥧 Power Distribution",
+      "title": "\ud83e\udd67 Power Distribution",
       "type": "piechart"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 16
-      },
-      "id": 300,
-      "panels": [],
-      "title": "💵 Cost Analysis",
-      "type": "row"
     },
     {
       "datasource": {
@@ -675,7 +696,7 @@
           "refId": "A"
         }
       ],
-      "title": "💵 Cost Rate History ($/hr by Device)",
+      "title": "\ud83d\udcb5 Cost Rate History ($/hr by Device)",
       "type": "timeseries"
     },
     {
@@ -834,21 +855,8 @@
           "refId": "C"
         }
       ],
-      "title": "📈 Projected Costs (Hour/Day/Month)",
+      "title": "\ud83d\udcc8 Projected Costs (Hour/Day/Month)",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 35
-      },
-      "id": 400,
-      "panels": [],
-      "title": "📊 Device Details",
-      "type": "row"
     },
     {
       "datasource": {
@@ -1123,7 +1131,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "state{version=\"$version\"}",
+          "expr": "max without (state) (state{version=\"$version\"})",
           "format": "table",
           "instant": true,
           "refId": "State"
@@ -1189,7 +1197,7 @@
           "refId": "RSSI"
         }
       ],
-      "title": "📊 Device Status Table",
+      "title": "\ud83d\udcca Device Status Table",
       "transformations": [
         {
           "id": "merge",
@@ -1234,67 +1242,5 @@
       ],
       "type": "table"
     }
-  ],
-  "refresh": "10s",
-  "schemaVersion": 39,
-  "tags": [
-    "kasa",
-    "real-time",
-    "monitoring",
-    "cyberpunk"
-  ],
-  "templating": {
-    "list": [
-      {
-        "current": {
-          "selected": false,
-          "text": "v2",
-          "value": "v2"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values(current_consumption, version)",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Version",
-        "multi": false,
-        "name": "version",
-        "options": [],
-        "query": {
-          "query": "label_values(current_consumption, version)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      }
-    ]
-  },
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ]
-  },
-  "timezone": "America/Denver",
-  "title": "🌊 Real-Time Monitoring",
-  "uid": "kasa-realtime-v2",
-  "version": 1,
-  "weekStart": ""
+  ]
 }

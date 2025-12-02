@@ -17,3 +17,9 @@ scrape_configs:
   - targets: [ 'localhost:9200' ]
     labels:
       env: 'production'
+
+# TODO: getting distracted, remove this later grabbign some stuff from another service dawgski
+- job_name: 'syno_node_exporter'
+  static_configs:
+  - targets: [ '192.168.1.234:9100' ]
+  

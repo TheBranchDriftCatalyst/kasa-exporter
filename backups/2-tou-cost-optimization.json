@@ -21,20 +21,99 @@
   "graphTooltip": 2,
   "id": null,
   "links": [],
-  "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 42,
+  "tags": [
+    "kasa",
+    "tou",
+    "optimization",
+    "savings",
+    "cyberpunk"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(consumption_cost, version)",
+        "includeAll": true,
+        "label": "Version",
+        "name": "version",
+        "options": [],
+        "query": {
+          "query": "label_values(consumption_cost, version)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
       },
-      "id": 100,
-      "panels": [],
-      "title": "🌟 Current Rate Class",
-      "type": "row"
-    },
+      {
+        "current": {
+          "text": "24h",
+          "value": "24h"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Range",
+        "multi": false,
+        "name": "timerange",
+        "options": [
+          {
+            "selected": false,
+            "text": "1h",
+            "value": "1h"
+          },
+          {
+            "selected": false,
+            "text": "6h",
+            "value": "6h"
+          },
+          {
+            "selected": false,
+            "text": "12h",
+            "value": "12h"
+          },
+          {
+            "selected": true,
+            "text": "24h",
+            "value": "24h"
+          },
+          {
+            "selected": false,
+            "text": "7d",
+            "value": "7d"
+          },
+          {
+            "selected": false,
+            "text": "30d",
+            "value": "30d"
+          }
+        ],
+        "query": "1h, 6h, 12h, 24h, 7d, 30d",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "America/Denver",
+  "title": "\u26a1 TOU Cost Optimization",
+  "uid": "kasa-tou-opt-v2",
+  "version": 1,
+  "panels": [
     {
       "datasource": {
         "type": "prometheus",
@@ -51,7 +130,7 @@
                 "super_off_peak": {
                   "color": "#00E5FF",
                   "index": 0,
-                  "text": "⚡ Super Off-Peak"
+                  "text": "\u26a1 Super Off-Peak"
                 }
               },
               "type": "value"
@@ -61,7 +140,7 @@
                 "off_peak": {
                   "color": "#9D00FF",
                   "index": 1,
-                  "text": "🌙 Off-Peak"
+                  "text": "\ud83c\udf19 Off-Peak"
                 }
               },
               "type": "value"
@@ -71,7 +150,7 @@
                 "on_peak": {
                   "color": "#FF00FF",
                   "index": 2,
-                  "text": "☀️ On-Peak"
+                  "text": "\u2600\ufe0f On-Peak"
                 }
               },
               "type": "value"
@@ -128,7 +207,7 @@
           "instant": true
         }
       ],
-      "title": "🌟 Current Rate Class",
+      "title": "\ud83c\udf1f Current Rate Class",
       "type": "stat"
     },
     {
@@ -195,14 +274,14 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "current_energy_rate:current{version=~\"$version\"}",
+          "expr": "current_energy_rate:current",
           "legendFormat": "Rate ($/kWh)",
           "range": true,
           "refId": "A",
           "instant": true
         }
       ],
-      "title": "💲 Current Rate ($/kWh)",
+      "title": "\ud83d\udcb2 Current Rate ($/kWh)",
       "type": "stat"
     },
     {
@@ -330,27 +409,14 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate_class:numeric{version=~\"$version\"}",
+          "expr": "rate_class:numeric",
           "legendFormat": "Rate Class",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "⏰ Rate Class Timeline",
+      "title": "\u23f0 Rate Class Timeline",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 7
-      },
-      "id": 101,
-      "panels": [],
-      "title": "💰 Cost Breakdown",
-      "type": "row"
     },
     {
       "datasource": {
@@ -369,8 +435,7 @@
               "viz": false
             }
           },
-          "mappings": [],
-          "unit": "currencyUSD"
+          "mappings": []
         },
         "overrides": [
           {
@@ -388,7 +453,7 @@
               },
               {
                 "id": "displayName",
-                "value": "⚡ Super Off-Peak"
+                "value": "\u26a1 Super Off-Peak"
               }
             ]
           },
@@ -407,7 +472,7 @@
               },
               {
                 "id": "displayName",
-                "value": "🌙 Off-Peak"
+                "value": "\ud83c\udf19 Off-Peak"
               }
             ]
           },
@@ -426,7 +491,7 @@
               },
               {
                 "id": "displayName",
-                "value": "☀️ On-Peak"
+                "value": "\u2600\ufe0f On-Peak"
               }
             ]
           }
@@ -442,8 +507,7 @@
       "options": {
         "displayLabels": [
           "name",
-          "value",
-          "percent"
+          "value"
         ],
         "legend": {
           "displayMode": "table",
@@ -481,7 +545,7 @@
           "refId": "A"
         }
       ],
-      "title": "🥧 Cost by Rate Class",
+      "title": "\ud83e\udd67 Cost by Rate Class",
       "type": "piechart"
     },
     {
@@ -532,7 +596,7 @@
                       "super_off_peak": {
                         "color": "#00E5FF",
                         "index": 0,
-                        "text": "⚡ Super Off-Peak"
+                        "text": "\u26a1 Super Off-Peak"
                       }
                     },
                     "type": "value"
@@ -542,7 +606,7 @@
                       "off_peak": {
                         "color": "#9D00FF",
                         "index": 1,
-                        "text": "🌙 Off-Peak"
+                        "text": "\ud83c\udf19 Off-Peak"
                       }
                     },
                     "type": "value"
@@ -552,7 +616,7 @@
                       "on_peak": {
                         "color": "#FF00FF",
                         "index": 2,
-                        "text": "☀️ On-Peak"
+                        "text": "\u2600\ufe0f On-Peak"
                       }
                     },
                     "type": "value"
@@ -631,7 +695,7 @@
           "instant": true
         }
       ],
-      "title": "📊 Cost Distribution Table",
+      "title": "\ud83d\udcca Cost Distribution Table",
       "transformations": [
         {
           "id": "organize",
@@ -718,7 +782,7 @@
               },
               {
                 "id": "displayName",
-                "value": "⚡ Super Off-Peak"
+                "value": "\u26a1 Super Off-Peak"
               }
             ]
           },
@@ -737,7 +801,7 @@
               },
               {
                 "id": "displayName",
-                "value": "🌙 Off-Peak"
+                "value": "\ud83c\udf19 Off-Peak"
               }
             ]
           },
@@ -756,7 +820,7 @@
               },
               {
                 "id": "displayName",
-                "value": "☀️ On-Peak"
+                "value": "\u2600\ufe0f On-Peak"
               }
             ]
           }
@@ -797,21 +861,8 @@
           "refId": "A"
         }
       ],
-      "title": "💵 Hourly Cost Trends by Rate Class",
+      "title": "\ud83d\udcb5 Hourly Cost Trends by Rate Class",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 18
-      },
-      "id": 102,
-      "panels": [],
-      "title": "💸 Savings Opportunities",
-      "type": "row"
     },
     {
       "datasource": {
@@ -899,7 +950,7 @@
           "refId": "A"
         }
       ],
-      "title": "💰 Potential Savings - Super Off-Peak",
+      "title": "\ud83d\udcb0 Potential Savings - Super Off-Peak",
       "type": "stat"
     },
     {
@@ -984,7 +1035,7 @@
           "refId": "A"
         }
       ],
-      "title": "💰 Potential Savings - Off-Peak",
+      "title": "\ud83d\udcb0 Potential Savings - Off-Peak",
       "type": "stat"
     },
     {
@@ -1123,21 +1174,8 @@
           "refId": "B"
         }
       ],
-      "title": "📈 Savings Over Time",
+      "title": "\ud83d\udcc8 Savings Over Time",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 27
-      },
-      "id": 103,
-      "panels": [],
-      "title": "⚡ Load Shift Analysis",
-      "type": "row"
     },
     {
       "datasource": {
@@ -1185,7 +1223,7 @@
               },
               {
                 "id": "displayName",
-                "value": "⚡ Super Off-Peak"
+                "value": "\u26a1 Super Off-Peak"
               }
             ]
           },
@@ -1204,7 +1242,7 @@
               },
               {
                 "id": "displayName",
-                "value": "🌙 Off-Peak"
+                "value": "\ud83c\udf19 Off-Peak"
               }
             ]
           },
@@ -1223,7 +1261,7 @@
               },
               {
                 "id": "displayName",
-                "value": "☀️ On-Peak"
+                "value": "\u2600\ufe0f On-Peak"
               }
             ]
           }
@@ -1269,7 +1307,7 @@
           "instant": true
         }
       ],
-      "title": "⚡ Power by Rate Class",
+      "title": "\u26a1 Power by Rate Class",
       "type": "bargauge"
     },
     {
@@ -1287,7 +1325,7 @@
               "options": {
                 "from": 0,
                 "result": {
-                  "text": "🌙 Wait for Off-Peak (after 8pm)"
+                  "text": "\ud83c\udf19 Wait for Off-Peak (after 8pm)"
                 },
                 "to": 20
               },
@@ -1297,7 +1335,7 @@
               "options": {
                 "from": 20,
                 "result": {
-                  "text": "⚡ BEST TIME - Super Off-Peak Active!"
+                  "text": "\u26a1 BEST TIME - Super Off-Peak Active!"
                 },
                 "to": 60
               },
@@ -1307,7 +1345,7 @@
               "options": {
                 "from": 60,
                 "result": {
-                  "text": "✅ Good Time - Off-Peak Rates"
+                  "text": "\u2705 Good Time - Off-Peak Rates"
                 },
                 "to": 100
               },
@@ -1378,7 +1416,7 @@
           "instant": true
         }
       ],
-      "title": "🎯 Optimal Usage Recommendations",
+      "title": "\ud83c\udfaf Optimal Usage Recommendations",
       "type": "stat"
     },
     {
@@ -1460,21 +1498,8 @@
           "instant": true
         }
       ],
-      "title": "📊 Super Off-Peak Utilization",
+      "title": "\ud83d\udcca Super Off-Peak Utilization",
       "type": "gauge"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 36
-      },
-      "id": 104,
-      "panels": [],
-      "title": "💡 What-If Scenarios",
-      "type": "row"
     },
     {
       "datasource": {
@@ -1543,7 +1568,7 @@
           "instant": true
         }
       ],
-      "title": "💡 What-If: All Super Off-Peak ($0.314/kWh)",
+      "title": "\ud83d\udca1 What-If: All Super Off-Peak ($0.314/kWh)",
       "type": "stat"
     },
     {
@@ -1613,7 +1638,7 @@
           "instant": true
         }
       ],
-      "title": "💡 What-If: All Off-Peak ($0.351/kWh)",
+      "title": "\ud83d\udca1 What-If: All Off-Peak ($0.351/kWh)",
       "type": "stat"
     },
     {
@@ -1683,7 +1708,7 @@
           "instant": true
         }
       ],
-      "title": "💡 What-If: All On-Peak ($0.634/kWh)",
+      "title": "\ud83d\udca1 What-If: All On-Peak ($0.634/kWh)",
       "type": "stat"
     },
     {
@@ -1877,21 +1902,8 @@
           "refId": "D"
         }
       ],
-      "title": "📊 Scenario Comparison - Monthly Cost Projection",
+      "title": "\ud83d\udcca Scenario Comparison - Monthly Cost Projection",
       "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 51
-      },
-      "id": 105,
-      "panels": [],
-      "title": "🎯 Optimization Insights",
-      "type": "row"
     },
     {
       "datasource": {
@@ -2047,7 +2059,7 @@
           "instant": true
         }
       ],
-      "title": "📋 Key Optimization Metrics",
+      "title": "\ud83d\udccb Key Optimization Metrics",
       "transformations": [
         {
           "id": "seriesToColumns",
@@ -2097,8 +2109,7 @@
               "viz": false
             }
           },
-          "mappings": [],
-          "unit": "watt"
+          "mappings": []
         },
         "overrides": []
       },
@@ -2112,8 +2123,7 @@
       "options": {
         "displayLabels": [
           "name",
-          "value",
-          "percent"
+          "value"
         ],
         "legend": {
           "displayMode": "table",
@@ -2152,100 +2162,8 @@
           "instant": true
         }
       ],
-      "title": "🔌 Current Power Distribution by Device",
+      "title": "\ud83d\udd0c Current Power Distribution by Device",
       "type": "piechart"
     }
-  ],
-  "preload": false,
-  "refresh": "30s",
-  "schemaVersion": 42,
-  "tags": [
-    "kasa",
-    "tou",
-    "optimization",
-    "savings",
-    "cyberpunk"
-  ],
-  "templating": {
-    "list": [
-      {
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values(consumption_cost, version)",
-        "includeAll": true,
-        "label": "Version",
-        "name": "version",
-        "options": [],
-        "query": {
-          "query": "label_values(consumption_cost, version)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "current": {
-          "text": "24h",
-          "value": "24h"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Time Range",
-        "multi": false,
-        "name": "timerange",
-        "options": [
-          {
-            "selected": false,
-            "text": "1h",
-            "value": "1h"
-          },
-          {
-            "selected": false,
-            "text": "6h",
-            "value": "6h"
-          },
-          {
-            "selected": false,
-            "text": "12h",
-            "value": "12h"
-          },
-          {
-            "selected": true,
-            "text": "24h",
-            "value": "24h"
-          },
-          {
-            "selected": false,
-            "text": "7d",
-            "value": "7d"
-          },
-          {
-            "selected": false,
-            "text": "30d",
-            "value": "30d"
-          }
-        ],
-        "query": "1h, 6h, 12h, 24h, 7d, 30d",
-        "skipUrlSync": false,
-        "type": "custom"
-      }
-    ]
-  },
-  "time": {
-    "from": "now-24h",
-    "to": "now"
-  },
-  "timepicker": {},
-  "timezone": "America/Denver",
-  "title": "⚡ TOU Cost Optimization",
-  "uid": "kasa-tou-opt-v2",
-  "version": 1
+  ]
 }

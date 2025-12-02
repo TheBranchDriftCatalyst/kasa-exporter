@@ -1,0 +1,88 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kasa-exporter
+  namespace: monitoring
+  labels:
+    app: kasa-exporter
+    app.kubernetes.io/name: kasa-exporter
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/part-of: monitoring
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate  # Only one instance should run due to hostNetwork
+  selector:
+    matchLabels:
+      app: kasa-exporter
+  template:
+    metadata:
+      labels:
+        app: kasa-exporter
+        app.kubernetes.io/name: kasa-exporter
+        app.kubernetes.io/component: exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9200"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Required for mDNS device discovery - gives pod access to host network
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: kasa-exporter
+          image: ghcr.io/thebranchdriftcatalyst/kasa-exporter:latest
+          imagePullPolicy: Always
+          env:
+            - name: KASA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: kasa-credentials
+                  key: username
+            - name: KASA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kasa-credentials
+                  key: password
+            - name: METRICS_PORT
+              value: "9200"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: TZ
+              value: "America/Los_Angeles"
+          ports:
+            - name: metrics
+              containerPort: 9200
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              add:
+                - NET_RAW  # Required for mDNS multicast
+              drop:
+                - ALL

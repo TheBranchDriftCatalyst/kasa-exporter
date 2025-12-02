@@ -70,7 +70,10 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
       - GF_RENDERING_SERVER_URL=http://localhost:8081/render
       - GF_RENDERING_CALLBACK_URL=http://localhost:3000/
-      - GF_LOG_FILTERS=rendering:debug
+      - GF_LOG_FILTERS=rendering:debug,provisioning.dashboard:debug
+      - GF_LOG_LEVEL=debug
+      - GF_FEATURE_TOGGLES_ENABLE=
+      # - GF_FEATURE_TOGGLES_DISABLE=dashboardScene,dashboardSceneSolo,dashboardSceneForViewers
     network_mode: host
     depends_on:
       - prometheus

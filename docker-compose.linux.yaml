@@ -29,8 +29,8 @@ services:
     container_name: grafana
     volumes:
       - ./etc/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./etc/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/main.yaml
-      - ./etc/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./etc/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
+      - ./etc/grafana/provisioning/dashboards/.out:/etc/grafana/provisioning/dashboards/.out
     ports:
       - "3000:3000"
     environment:
