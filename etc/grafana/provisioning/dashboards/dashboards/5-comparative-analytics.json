@@ -23,13 +23,7 @@
   "links": [],
   "refresh": "30s",
   "schemaVersion": 40,
-  "tags": [
-    "kasa",
-    "comparative",
-    "analytics",
-    "efficiency",
-    "cyberpunk"
-  ],
+  "tags": ["kasa", "comparative", "analytics", "efficiency", "cyberpunk"],
   "templating": {
     "list": [
       {
@@ -39,7 +33,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
+          "uid": "mimir"
         },
         "definition": "label_values(consumption_cost, version)",
         "includeAll": true,
@@ -62,7 +56,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
+          "uid": "mimir"
         },
         "definition": "label_values(current_consumption, alias)",
         "includeAll": true,
@@ -86,7 +80,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
+          "uid": "mimir"
         },
         "definition": "label_values(current_consumption, alias)",
         "includeAll": false,
@@ -118,7 +112,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -161,9 +155,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -176,7 +168,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "topk(1, current_consumption:by_device{version=~\"$version\", alias=~\"$device\"})",
           "refId": "A",
@@ -189,7 +181,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -232,9 +224,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -247,7 +237,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "topk(1, consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"})",
           "refId": "A",
@@ -260,7 +250,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -304,9 +294,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -319,7 +307,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "bottomk(1, cost_efficiency:by_device{version=~\"$version\", alias=~\"$device\"})",
           "refId": "A",
@@ -332,7 +320,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -375,9 +363,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -390,7 +376,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "count(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"})",
           "refId": "A"
@@ -402,7 +388,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -485,7 +471,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "sort_desc(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"})",
           "refId": "A",
@@ -498,7 +484,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -524,23 +510,16 @@
       },
       "id": 202,
       "options": {
-        "displayLabels": [
-          "name"
-        ],
+        "displayLabels": ["name"],
         "legend": {
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "values": [
-            "value",
-            "percent"
-          ]
+          "values": ["value", "percent"]
         },
         "pieType": "donut",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -554,7 +533,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}",
           "refId": "A",
@@ -567,7 +546,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -630,11 +609,7 @@
       "id": 203,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "last"
-          ],
+          "calcs": ["mean", "max", "last"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -649,7 +624,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}",
           "refId": "A",
@@ -662,7 +637,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -770,9 +745,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true,
@@ -788,7 +761,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}",
           "format": "table",
@@ -798,7 +771,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"} / ignoring(alias) group_left sum(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"})) * 100",
           "format": "table",
@@ -850,7 +823,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -933,7 +906,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "sort_desc(consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"})",
           "refId": "A",
@@ -946,7 +919,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -972,23 +945,16 @@
       },
       "id": 302,
       "options": {
-        "displayLabels": [
-          "name"
-        ],
+        "displayLabels": ["name"],
         "legend": {
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "values": [
-            "value",
-            "percent"
-          ]
+          "values": ["value", "percent"]
         },
         "pieType": "donut",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -1002,7 +968,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}",
           "refId": "A",
@@ -1015,7 +981,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1078,11 +1044,7 @@
       "id": 303,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "last"
-          ],
+          "calcs": ["mean", "max", "last"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1097,7 +1059,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}",
           "refId": "A",
@@ -1110,7 +1072,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1210,9 +1172,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true,
@@ -1228,7 +1188,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}",
           "format": "table",
@@ -1238,7 +1198,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}",
           "format": "table",
@@ -1248,7 +1208,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "cost_efficiency:by_device{version=~\"$version\", alias=~\"$device\"}",
           "format": "table",
@@ -1300,7 +1260,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1388,7 +1348,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "sort(cost_efficiency:by_device{version=~\"$version\", alias=~\"$device\"})",
           "refId": "A",
@@ -1401,7 +1361,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1475,7 +1435,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "cost_efficiency:by_device{version=~\"$version\", alias=~\"$device\"}",
           "refId": "A",
@@ -1488,7 +1448,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1672,9 +1632,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true
@@ -1684,7 +1642,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}",
           "format": "table",
@@ -1694,7 +1652,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "current_consumption:by_device{version=~\"$version\", alias=\"$baseline_device\"}",
           "format": "table",
@@ -1704,7 +1662,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}",
           "format": "table",
@@ -1714,7 +1672,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:by_device{version=~\"$version\", alias=\"$baseline_device\"}",
           "format": "table",
@@ -1724,7 +1682,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "cost_efficiency:by_device{version=~\"$version\", alias=~\"$device\"}",
           "format": "table",
@@ -1734,7 +1692,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "cost_efficiency:by_device{version=~\"$version\", alias=\"$baseline_device\"}",
           "format": "table",
@@ -1836,7 +1794,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1900,11 +1858,7 @@
       "id": 404,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "min",
-            "last"
-          ],
+          "calcs": ["mean", "min", "last"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1919,7 +1873,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "cost_efficiency:by_device{version=~\"$version\", alias=~\"$device\"}",
           "refId": "A",
@@ -1932,7 +1886,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2007,7 +1961,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "increase(consumption_today{version=~\"$version\", alias=~\"$device\"}[24h])",
           "refId": "A",
@@ -2020,7 +1974,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2095,7 +2049,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "increase(consumption_today{version=~\"$version\", alias=~\"$device\"}[30d])",
           "refId": "A",
@@ -2108,7 +2062,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2174,11 +2128,7 @@
       "id": 503,
       "options": {
         "legend": {
-          "calcs": [
-            "sum",
-            "mean",
-            "last"
-          ],
+          "calcs": ["sum", "mean", "last"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -2193,7 +2143,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}",
           "refId": "A",
@@ -2206,7 +2156,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2342,9 +2292,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": true
         },
         "showHeader": true,
@@ -2360,7 +2308,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}",
           "format": "table",
@@ -2440,7 +2388,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2516,9 +2464,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true,
@@ -2534,7 +2480,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "increase(consumption_today{version=~\"$version\", alias=~\"$device\"}[24h])",
           "format": "table",
@@ -2544,7 +2490,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "avg_over_time(consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}[24h]) * 24",
           "format": "table",
@@ -2599,7 +2545,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2663,9 +2609,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true,
@@ -2681,7 +2625,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "avg_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -2716,7 +2660,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2780,9 +2724,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true,
@@ -2798,7 +2740,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "max_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -2833,7 +2775,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2897,9 +2839,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true,
@@ -2915,7 +2855,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "power_utilization:by_device{version=~\"$version\", alias=~\"$device\"}",
           "format": "table",
@@ -2950,7 +2890,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -3074,9 +3014,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true
@@ -3086,7 +3024,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "avg_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -3096,7 +3034,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "quantile_over_time(0.5, current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -3106,7 +3044,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "stddev_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -3116,7 +3054,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "min_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -3126,7 +3064,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "max_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -3169,7 +3107,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -3293,9 +3231,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true
@@ -3305,7 +3241,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "avg_over_time(consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -3315,7 +3251,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "quantile_over_time(0.5, consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -3325,7 +3261,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "stddev_over_time(consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -3335,7 +3271,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "min_over_time(consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -3345,7 +3281,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "max_over_time(consumption_cost:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])",
           "format": "table",
@@ -3388,7 +3324,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "description": "Correlation analysis showing which devices have similar usage patterns (based on power consumption correlation over time)",
       "fieldConfig": {
@@ -3436,9 +3372,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true
@@ -3448,7 +3382,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}",
           "format": "time_series",
@@ -3461,7 +3395,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -3503,9 +3437,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -3518,7 +3450,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "count by (alias) (stddev_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[$__range]) > avg(stddev_over_time(current_consumption:by_device{version=~\"$version\", alias=~\"$device\"}[$__range])))",
           "refId": "A",

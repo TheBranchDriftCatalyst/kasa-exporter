@@ -23,13 +23,7 @@
   "links": [],
   "refresh": "1m",
   "schemaVersion": 40,
-  "tags": [
-    "kasa",
-    "forecasting",
-    "predictions",
-    "analytics",
-    "cyberpunk"
-  ],
+  "tags": ["kasa", "forecasting", "predictions", "analytics", "cyberpunk"],
   "templating": {
     "list": [
       {
@@ -40,7 +34,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
+          "uid": "mimir"
         },
         "definition": "label_values(current_consumption, version)",
         "hide": 0,
@@ -120,7 +114,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -171,9 +165,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -186,7 +178,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:projected_month{version=~\"$version\"}",
           "refId": "A"
@@ -198,7 +190,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -245,9 +237,7 @@
         "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -260,7 +250,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "(day_of_month() / 30.44) * 100",
           "refId": "A"
@@ -272,7 +262,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -323,9 +313,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -342,7 +330,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "100 - (consumption_cost:projected_month{version=~\"$version\"})",
           "legendFormat": "Budget Remaining",
@@ -355,7 +343,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -453,7 +441,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:avg_24h{version=~\"$version\"}",
           "legendFormat": "24h Avg Cost",
@@ -462,7 +450,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "predict_linear(consumption_cost:avg_24h{version=~\"$version\"}[6h], 3600)",
           "legendFormat": "Trend Line",
@@ -475,7 +463,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -537,10 +525,7 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [
-                    10,
-                    5
-                  ],
+                  "dash": [10, 5],
                   "fill": "dash"
                 }
               },
@@ -564,10 +549,7 @@
       "id": 201,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "last"
-          ],
+          "calcs": ["mean", "last"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -582,7 +564,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "current_consumption:total{version=~\"$version\"}",
           "legendFormat": "Current Power",
@@ -591,7 +573,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "predict_linear(current_consumption:total{version=~\"$version\"}[1h], 3600)",
           "legendFormat": "Prediction +1h",
@@ -600,7 +582,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "predict_linear(current_consumption:total{version=~\"$version\"}[6h], 21600)",
           "legendFormat": "Prediction +6h",
@@ -613,7 +595,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -675,10 +657,7 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [
-                    10,
-                    5
-                  ],
+                  "dash": [10, 5],
                   "fill": "dash"
                 }
               },
@@ -702,10 +681,7 @@
       "id": 202,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "last"
-          ],
+          "calcs": ["mean", "last"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -720,7 +696,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:total{version=~\"$version\"}",
           "legendFormat": "Current Cost",
@@ -729,7 +705,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "predict_linear(consumption_cost:total{version=~\"$version\"}[1h], 3600)",
           "legendFormat": "Prediction +1h",
@@ -738,7 +714,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "predict_linear(consumption_cost:total{version=~\"$version\"}[6h], 21600)",
           "legendFormat": "Prediction +6h",
@@ -751,7 +727,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -849,10 +825,7 @@
       "id": 203,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "max"
-          ],
+          "calcs": ["mean", "max"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -867,7 +840,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:total{version=~\"$version\"}",
           "legendFormat": "This Week",
@@ -876,7 +849,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:total{version=~\"$version\"} offset 7d",
           "legendFormat": "Last Week",
@@ -889,7 +862,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -987,10 +960,7 @@
       "id": 204,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "max"
-          ],
+          "calcs": ["mean", "max"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1005,7 +975,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:total{version=~\"$version\"}",
           "legendFormat": "This Month",
@@ -1014,7 +984,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:total{version=~\"$version\"} offset 30d",
           "legendFormat": "Last Month",
@@ -1027,7 +997,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1081,9 +1051,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -1100,7 +1068,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:anomaly{version=~\"$version\"}",
           "refId": "A"
@@ -1112,7 +1080,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1206,7 +1174,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:zscore{version=~\"$version\"}",
           "legendFormat": "Z-Score",
@@ -1219,7 +1187,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1282,10 +1250,7 @@
       "id": 303,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "last"
-          ],
+          "calcs": ["mean", "last"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1300,7 +1265,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:stddev_1h{version=~\"$version\"}",
           "legendFormat": "Std Dev (1h)",
@@ -1313,7 +1278,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1386,10 +1351,7 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [
-                    10,
-                    5
-                  ],
+                  "dash": [10, 5],
                   "fill": "dash"
                 }
               },
@@ -1415,10 +1377,7 @@
               {
                 "id": "custom.lineStyle",
                 "value": {
-                  "dash": [
-                    10,
-                    5
-                  ],
+                  "dash": [10, 5],
                   "fill": "dash"
                 }
               },
@@ -1454,7 +1413,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:total{version=~\"$version\"}",
           "legendFormat": "Current Cost",
@@ -1463,7 +1422,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:avg_1h{version=~\"$version\"} + (2 * consumption_cost:stddev_1h{version=~\"$version\"})",
           "legendFormat": "Upper Bound (2σ)",
@@ -1472,7 +1431,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:avg_1h{version=~\"$version\"} - (2 * consumption_cost:stddev_1h{version=~\"$version\"})",
           "legendFormat": "Lower Bound (2σ)",
@@ -1485,7 +1444,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1581,7 +1540,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "avg_over_time(consumption_cost:total{version=~\"$version\"}[1h])",
           "format": "time_series",
@@ -1595,7 +1554,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1658,10 +1617,7 @@
       "id": 402,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "max"
-          ],
+          "calcs": ["mean", "max"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1676,7 +1632,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "avg_over_time(consumption_cost:total{version=~\"$version\"}[1d])",
           "legendFormat": "{{day_of_week}}",
@@ -1689,7 +1645,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1767,7 +1723,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:total{version=~\"$version\"}",
           "legendFormat": "Week 0 (Current)",
@@ -1776,7 +1732,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:total{version=~\"$version\"} offset 7d",
           "legendFormat": "Week -1",
@@ -1785,7 +1741,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:total{version=~\"$version\"} offset 14d",
           "legendFormat": "Week -2",
@@ -1794,7 +1750,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:total{version=~\"$version\"} offset 21d",
           "legendFormat": "Week -3",
@@ -1807,7 +1763,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1870,10 +1826,7 @@
       "id": 404,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "max"
-          ],
+          "calcs": ["mean", "max"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -1888,7 +1841,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "avg_over_time(consumption_cost:total{version=~\"$version\"}[30d])",
           "legendFormat": "30-Day Rolling Average",
@@ -1901,7 +1854,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1948,9 +1901,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -1967,7 +1918,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "predict_linear(consumption_cost:avg_1h{version=~\"$version\"}[1h], 3600)",
           "refId": "A"
@@ -1979,7 +1930,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2026,9 +1977,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -2045,7 +1994,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "predict_linear(consumption_cost:avg_24h{version=~\"$version\"}[24h], 86400)",
           "refId": "A"
@@ -2057,7 +2006,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2108,9 +2057,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -2127,7 +2074,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "consumption_cost:projected_month{version=~\"$version\"}",
           "refId": "A"
@@ -2139,7 +2086,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2178,9 +2125,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+          "calcs": ["lastNotNull"],
           "fields": "",
           "values": false
         },
@@ -2197,7 +2142,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "2 * consumption_cost:stddev_1h{version=~\"$version\"}",
           "legendFormat": "±2σ Range",
@@ -2210,7 +2155,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2297,10 +2242,7 @@
       "id": 505,
       "options": {
         "legend": {
-          "calcs": [
-            "mean",
-            "last"
-          ],
+          "calcs": ["mean", "last"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -2315,7 +2257,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "current_consumption:total{version=~\"$version\"}",
           "legendFormat": "Current Power",
@@ -2324,7 +2266,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "deriv(current_consumption:total{version=~\"$version\"}[5m])",
           "legendFormat": "Rate of Change",
@@ -2337,7 +2279,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2414,9 +2356,7 @@
         "footer": {
           "countRows": false,
           "fields": "",
-          "reducer": [
-            "sum"
-          ],
+          "reducer": ["sum"],
           "show": false
         },
         "showHeader": true,
@@ -2427,7 +2367,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "sum_over_time(consumption_cost:total{version=~\"$version\"}[24h])",
           "format": "table",
@@ -2453,7 +2393,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2516,10 +2456,7 @@
       "id": 602,
       "options": {
         "legend": {
-          "calcs": [
-            "sum",
-            "mean"
-          ],
+          "calcs": ["sum", "mean"],
           "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
@@ -2534,7 +2471,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "sum_over_time(consumption_cost:total{version=~\"$version\"}[1d])",
           "legendFormat": "Daily Total",
@@ -2547,7 +2484,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2594,9 +2531,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
+          "calcs": ["max"],
           "fields": "",
           "values": false
         },
@@ -2613,7 +2548,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "max_over_time(sum_over_time(consumption_cost:total{version=~\"$version\"}[1d])[30d:1d])",
           "legendFormat": "Highest Day",
@@ -2626,7 +2561,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2665,9 +2600,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "min"
-          ],
+          "calcs": ["min"],
           "fields": "",
           "values": false
         },
@@ -2684,7 +2617,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "min_over_time(sum_over_time(consumption_cost:total{version=~\"$version\"}[1d])[30d:1d])",
           "legendFormat": "Lowest Day",
@@ -2697,7 +2630,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2744,9 +2677,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
+          "calcs": ["max"],
           "fields": "",
           "values": false
         },
@@ -2763,7 +2694,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "max_over_time(sum_over_time(consumption_cost:total{version=~\"$version\"}[7d])[30d:7d])",
           "legendFormat": "Highest Week",
@@ -2776,7 +2707,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2823,9 +2754,7 @@
         "orientation": "horizontal",
         "percentChangeColorMode": "standard",
         "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
+          "calcs": ["max"],
           "fields": "",
           "values": false
         },
@@ -2842,7 +2771,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "expr": "max_over_time(sum_over_time(consumption_cost:total{version=~\"$version\"}[30d])[365d:30d])",
           "legendFormat": "Highest Month",
