@@ -12,7 +12,7 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: Recreate  # Only one instance should run due to hostNetwork
+    type: Recreate # Only one instance should run due to hostNetwork
   selector:
     matchLabels:
       app: kasa-exporter
@@ -22,10 +22,7 @@ spec:
         app: kasa-exporter
         app.kubernetes.io/name: kasa-exporter
         app.kubernetes.io/component: exporter
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "9200"
-        prometheus.io/path: "/metrics"
+      # Note: Scraped via ServiceMonitor (not pod annotations) to avoid duplicate metrics
     spec:
       # Required for mDNS device discovery - gives pod access to host network
       hostNetwork: true
@@ -46,11 +43,11 @@ spec:
                   name: kasa-credentials
                   key: password
             - name: METRICS_PORT
-              value: "9200"
+              value: '9200'
             - name: LOG_LEVEL
-              value: "INFO"
+              value: 'INFO'
             - name: TZ
-              value: "America/Los_Angeles"
+              value: 'America/Los_Angeles'
           ports:
             - name: metrics
               containerPort: 9200
@@ -84,6 +81,6 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               add:
-                - NET_RAW  # Required for mDNS multicast
+                - NET_RAW # Required for mDNS multicast
               drop:
                 - ALL

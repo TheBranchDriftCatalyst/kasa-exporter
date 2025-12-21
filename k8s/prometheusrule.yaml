@@ -29,10 +29,10 @@ spec:
             )
 
         # =============================================================================
-        # Aggregated Cost Metrics
+        # Aggregated Cost Metrics (using max per device to handle duplicate scrapes)
         # =============================================================================
         - record: consumption_cost:total
-          expr: sum(consumption_cost)
+          expr: sum(max by (alias) (consumption_cost))
 
         - record: consumption_cost:by_rate_class
           expr: sum by (rate_class) (consumption_cost_with_rate_class)
@@ -44,10 +44,10 @@ spec:
           expr: sum by (alias, rate_class) (consumption_cost_with_rate_class)
 
         # =============================================================================
-        # Power Consumption Metrics
+        # Power Consumption Metrics (using max per device to handle duplicate scrapes)
         # =============================================================================
         - record: current_consumption:total
-          expr: sum(current_consumption)
+          expr: sum(max by (alias) (current_consumption))
 
         - record: current_consumption:by_device
           expr: max by (alias) (current_consumption)
