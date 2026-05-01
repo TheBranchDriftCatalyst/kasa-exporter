@@ -16,7 +16,7 @@ watchdog = "^6.0.0"
 fastapi = "^0.136.0"
 pytz = "^2024.1"
 jsonpickle = "^3.2.2"
-twisted = "^24.3.0"
+twisted = "^25.0.0"
 uvicorn = {extras = ["standard"], version = "^0.38.0"}
 pillow = "^12.0.0"
 numpy = "^2.3.4"
