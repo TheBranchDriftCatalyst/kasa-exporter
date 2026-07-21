@@ -1,12 +1,13 @@
 import os
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import pytz
 import yaml
 
 
-def load_tou_config(config_path: str | Path | None = None) -> dict:
+def load_tou_config(config_path: str | Path | None = None) -> dict[str, Any]:
     """
     Load Time of Use configuration from YAML file.
 
@@ -74,7 +75,7 @@ DEFAULT_TIME_OF_USE_CONFIG = {
 
 
 class TimeOfUseCalc:
-    def __init__(self, config: dict | None = None, timezone: str | None = None):
+    def __init__(self, config: dict[str, Any] | None = None, timezone: str | None = None):
         """
         Initialize TimeOfUseCalc with config and timezone.
 
@@ -90,7 +91,7 @@ class TimeOfUseCalc:
                 print(f"Warning: Failed to load TOU config, using defaults: {e}")
                 config = DEFAULT_TIME_OF_USE_CONFIG
 
-        self.config = config
+        self.config: dict[str, Any] = config
         # Allow timezone override via environment variable or constructor
         self.timezone = timezone or os.getenv("TZ", "America/Los_Angeles")
 
