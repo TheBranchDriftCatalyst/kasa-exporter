@@ -19,8 +19,9 @@ Usage:
     python extract_panels.py --fields id,title,type
 """
 
-import json
 import argparse
+import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -115,9 +116,7 @@ def extract_all_dashboards(
 
 def main():
     """Extract panels from Grafana dashboards."""
-    parser = argparse.ArgumentParser(
-        description="Extract panels from Grafana dashboard JSON files"
-    )
+    parser = argparse.ArgumentParser(description="Extract panels from Grafana dashboard JSON files")
     parser.add_argument(
         "--dashboard",
         "-d",
@@ -178,4 +177,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

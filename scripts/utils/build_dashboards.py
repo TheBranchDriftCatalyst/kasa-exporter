@@ -30,8 +30,9 @@ Usage:
     python scripts/utils/build_dashboards.py --watch
 """
 
-import json
 import argparse
+import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -67,9 +68,7 @@ def load_common_config(src_dir: Path) -> dict[str, Any]:
 
 
 def build_panel_dashboard(
-    panel: dict[str, Any],
-    panel_name: str,
-    common_config: dict[str, Any] | None = None
+    panel: dict[str, Any], panel_name: str, common_config: dict[str, Any] | None = None
 ) -> dict[str, Any]:
     """
     Build a single-panel dashboard for debugging.
@@ -89,7 +88,7 @@ def build_panel_dashboard(
         "version": 1,
         "id": None,
         "time": {"from": "now-6h", "to": "now"},
-        "refresh": "10s"
+        "refresh": "10s",
     }
 
     # Inject common config if provided
@@ -104,7 +103,7 @@ def build_dashboard(
     output_file: Path,
     common_config: dict[str, Any] | None = None,
     build_individual_panels: bool = False,
-    panels_output_dir: Path | None = None
+    panels_output_dir: Path | None = None,
 ) -> tuple[int, bool]:
     """
     Build a complete dashboard from exploded panel files.
@@ -192,7 +191,7 @@ def build_all_dashboards(
     source_dir: Path,
     output_dir: Path,
     build_individual_panels: bool = False,
-    panels_output_dir: Path | None = None
+    panels_output_dir: Path | None = None,
 ) -> dict[str, tuple[int, bool]]:
     """
     Build all dashboards from source directory.
@@ -211,15 +210,14 @@ def build_all_dashboards(
     # Load common configuration (if it exists)
     common_config = load_common_config(source_dir)
     if common_config:
-        print(f"📦 Loaded common configuration from _common.json")
+        print("📦 Loaded common configuration from _common.json")
         print(f"   Injecting: {', '.join(common_config.keys())}")
         if build_individual_panels:
-            print(f"🔍 Building individual panel dashboards for debugging")
+            print("🔍 Building individual panel dashboards for debugging")
 
     # Find all dashboard source directories (those with _dashboard.json)
     dashboard_dirs = [
-        d for d in source_dir.iterdir()
-        if d.is_dir() and (d / "_dashboard.json").exists()
+        d for d in source_dir.iterdir() if d.is_dir() and (d / "_dashboard.json").exists()
     ]
 
     for dashboard_dir in sorted(dashboard_dirs):
@@ -229,11 +227,7 @@ def build_all_dashboards(
         print(f"\n🔨 Building {dashboard_name}.json...")
 
         panel_count, success = build_dashboard(
-            dashboard_dir,
-            output_file,
-            common_config,
-            build_individual_panels,
-            panels_output_dir
+            dashboard_dir, output_file, common_config, build_individual_panels, panels_output_dir
         )
         results[dashboard_name] = (panel_count, success)
 
@@ -242,12 +236,12 @@ def build_all_dashboards(
             if build_individual_panels:
                 print(f"     + {panel_count} individual panel dashboards in {dashboard_name}/")
         else:
-            print(f"  ❌ Build failed")
+            print("  ❌ Build failed")
 
     return results
 
 
-def main():
+def main():  # noqa: PLR0912, PLR0915  # CLI orchestrator: arg parsing + summary reporting is linear
     """Build Grafana dashboards from individual panel files."""
     parser = argparse.ArgumentParser(
         description="Build Grafana dashboards from individual panel files"
@@ -287,16 +281,13 @@ def main():
 
     if not source_dir.exists():
         print(f"❌ Source directory not found: {source_dir}")
-        print(f"💡 Run explode_dashboards.py first to create source files")
+        print("💡 Run explode_dashboards.py first to create source files")
         return 1
 
     # Determine panels output directory
     panels_output_dir = None
     if args.with_panels:
-        if args.panels_dir:
-            panels_output_dir = Path(args.panels_dir)
-        else:
-            panels_output_dir = output_dir / "_panels"
+        panels_output_dir = Path(args.panels_dir) if args.panels_dir else output_dir / "_panels"
 
     print(f"Source: {source_dir}")
     print(f"Destination: {output_dir}")
@@ -306,7 +297,7 @@ def main():
     # Load common configuration
     common_config = load_common_config(source_dir)
     if common_config:
-        print(f"📦 Loaded common configuration from _common.json")
+        print("📦 Loaded common configuration from _common.json")
         print(f"   Injecting: {', '.join(common_config.keys())}\n")
 
     # Build dashboard(s)
@@ -323,25 +314,16 @@ def main():
         output_file = output_dir / f"{args.dashboard}.json"
         print(f"🔨 Building {args.dashboard}.json...")
         panel_count, success = build_dashboard(
-            dashboard_dir,
-            output_file,
-            common_config,
-            args.with_panels,
-            panels_output_dir
+            dashboard_dir, output_file, common_config, args.with_panels, panels_output_dir
         )
 
         if success:
             results = {args.dashboard: (panel_count, True)}
         else:
-            print(f"❌ Build failed")
+            print("❌ Build failed")
             return 1
     else:
-        results = build_all_dashboards(
-            source_dir,
-            output_dir,
-            args.with_panels,
-            panels_output_dir
-        )
+        results = build_all_dashboards(source_dir, output_dir, args.with_panels, panels_output_dir)
 
     # Summary
     print("\n" + "=" * 70)
@@ -362,10 +344,7 @@ def main():
             failed_count += 1
 
     print("=" * 70)
-    print(
-        f"✅ Built {success_count} dashboard(s), "
-        f"{total_panels} total panels"
-    )
+    print(f"✅ Built {success_count} dashboard(s), {total_panels} total panels")
     if failed_count > 0:
         print(f"❌ Failed: {failed_count} dashboard(s)")
     print(f"📂 Output: {output_dir}")
@@ -375,4 +354,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

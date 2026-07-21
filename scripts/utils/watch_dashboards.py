@@ -26,12 +26,12 @@ Usage:
     python scripts/utils/watch_dashboards.py --source etc/grafana/dashboards/src --dest etc/grafana/dashboards
 """
 
-import sys
-import time
 import argparse
 import subprocess
-from pathlib import Path
+import sys
+import time
 from datetime import datetime
+from pathlib import Path
 
 # Add scripts/utils to path so we can import build_dashboards
 _script_dir = Path(__file__).parent
@@ -39,15 +39,15 @@ if str(_script_dir) not in sys.path:
     sys.path.insert(0, str(_script_dir))
 
 try:
+    from watchdog.events import FileSystemEventHandler
     from watchdog.observers import Observer
-    from watchdog.events import FileSystemEventHandler, FileModifiedEvent, FileCreatedEvent
 except ImportError:
     print("❌ Error: watchdog package not installed")
     print("Install with: pip install watchdog")
     sys.exit(1)
 
-# Import our build function
-from build_dashboards import build_dashboard
+# Import our build function (must happen after sys.path tweak above)
+from build_dashboards import build_dashboard  # noqa: E402
 
 
 class DashboardChangeHandler(FileSystemEventHandler):
@@ -73,7 +73,7 @@ class DashboardChangeHandler(FileSystemEventHandler):
         self.dest_dir = dest_dir
         self.restart_grafana = restart_grafana
         self.debounce_seconds = debounce_seconds
-        self.pending_builds = {}  # dashboard_name -> last_change_time
+        self.pending_builds: dict[str, float] = {}  # dashboard_name -> last_change_time
 
     def _get_dashboard_name(self, file_path: str) -> str | None:
         """Extract dashboard name from file path."""
@@ -98,7 +98,7 @@ class DashboardChangeHandler(FileSystemEventHandler):
 
     def _rebuild_dashboard(self, dashboard_name: str):
         """Rebuild a specific dashboard."""
-        timestamp = datetime.now().strftime("%H:%M:%S")
+        timestamp = datetime.now().astimezone().strftime("%H:%M:%S")
         print(f"\n[{timestamp}] 🔨 Rebuilding {dashboard_name}...")
 
         dashboard_dir = self.source_dir / dashboard_name
@@ -124,13 +124,14 @@ class DashboardChangeHandler(FileSystemEventHandler):
 
     def _restart_grafana_container(self):
         """Restart Grafana container to reload dashboards."""
-        timestamp = datetime.now().strftime("%H:%M:%S")
+        timestamp = datetime.now().astimezone().strftime("%H:%M:%S")
         print(f"[{timestamp}] 🔄 Restarting Grafana container...")
 
         try:
             # Try docker-compose first
             result = subprocess.run(
                 ["docker-compose", "restart", "grafana"],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=30,
@@ -142,6 +143,7 @@ class DashboardChangeHandler(FileSystemEventHandler):
                 # Try docker compose (v2 syntax)
                 result = subprocess.run(
                     ["docker", "compose", "restart", "grafana"],
+                    check=False,
                     capture_output=True,
                     text=True,
                     timeout=30,
@@ -170,7 +172,7 @@ class DashboardChangeHandler(FileSystemEventHandler):
         if not dashboard_name:
             return
 
-        timestamp = datetime.now().strftime("%H:%M:%S")
+        timestamp = datetime.now().astimezone().strftime("%H:%M:%S")
         file_name = Path(event.src_path).name
         print(f"[{timestamp}] 📝 Changed: {dashboard_name}/{file_name}")
 
@@ -183,10 +185,7 @@ class DashboardChangeHandler(FileSystemEventHandler):
 
     def check_pending_builds(self):
         """Check and execute pending builds that have passed debounce period."""
-        dashboards_to_rebuild = [
-            name for name in self.pending_builds.keys()
-            if self._should_rebuild(name)
-        ]
+        dashboards_to_rebuild = [name for name in self.pending_builds if self._should_rebuild(name)]
 
         for dashboard_name in dashboards_to_rebuild:
             self._rebuild_dashboard(dashboard_name)
@@ -230,7 +229,7 @@ def main():
 
     if not source_dir.exists():
         print(f"❌ Source directory not found: {source_dir}")
-        print(f"💡 Run explode_dashboards.py first to create source files")
+        print("💡 Run explode_dashboards.py first to create source files")
         return 1
 
     print("=" * 70)
@@ -263,7 +262,7 @@ def main():
             event_handler.check_pending_builds()
 
     except KeyboardInterrupt:
-        timestamp = datetime.now().strftime("%H:%M:%S")
+        timestamp = datetime.now().astimezone().strftime("%H:%M:%S")
         print(f"\n[{timestamp}] 👋 Stopping watcher...")
         observer.stop()
 
@@ -273,4 +272,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())
