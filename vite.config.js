@@ -80,18 +80,29 @@ function dashboardBuilder() {
     // Combine into final dashboard
     dashboard.panels = panels;
 
-    // 1. Write consolidated dashboard to .out/ (flat, for Grafana to provision)
-    const outDir = `${DEST_DIR}/.out`;
+    // 1. Write consolidated dashboard to built/ (flat, for Grafana to provision)
+    // Make UID unique by appending '-built' suffix
+    const outDir = `${DEST_DIR}/built`;
     mkdirSync(outDir, { recursive: true });
+    const consolidatedDashboard = {
+      ...dashboard,
+      uid: `${dashboard.uid}-built`,
+      title: `${dashboard.title} (Built)`
+    };
     const consolidatedPath = `${outDir}/${dashboardName}.json`;
-    writeFileSync(consolidatedPath, JSON.stringify(dashboard, null, 2));
+    writeFileSync(consolidatedPath, JSON.stringify(consolidatedDashboard, null, 2));
 
-    // 2. Write individual panel dashboards to .src/<dashboard>/ (for testing panels in isolation)
-    const srcDir = `${DEST_DIR}/.src/${dashboardName}`;
+    // 2. Write individual panel dashboards to src/<dashboard>/ (for testing panels in isolation)
+    const srcDir = `${DEST_DIR}/src/${dashboardName}`;
     mkdirSync(srcDir, { recursive: true });
 
-    // Write consolidated dashboard to .src folder too
-    writeFileSync(`${srcDir}/${dashboardName}.json`, JSON.stringify(dashboard, null, 2));
+    // Write consolidated dashboard to src folder too (with -src suffix for unique UID)
+    const srcConsolidatedDashboard = {
+      ...dashboard,
+      uid: `${dashboard.uid}-src`,
+      title: `${dashboard.title} (Source)`
+    };
+    writeFileSync(`${srcDir}/${dashboardName}.json`, JSON.stringify(srcConsolidatedDashboard, null, 2));
 
     // Write each panel as its own standalone dashboard (for testing individual panels)
     panels.forEach((panel, idx) => {
@@ -106,7 +117,7 @@ function dashboardBuilder() {
     });
 
     const timestamp = new Date().toLocaleTimeString();
-    console.log(`[${timestamp}] ✅ Built ${panels.length} panels → .out/${dashboardName}.json + .src/${dashboardName}/ (${panels.length + 1} dashboards)`);
+    console.log(`[${timestamp}] ✅ Built ${panels.length} panels → built/${dashboardName}.json + src/${dashboardName}/ (${panels.length + 1} dashboards)`);
 
     return consolidatedPath;
   }

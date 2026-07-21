@@ -13,6 +13,7 @@ import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import requests
 from PIL import Image
@@ -74,7 +75,7 @@ def autocrop_image(image_path: Path, bg_threshold: int = 25) -> None:
         image_path: Path to the image file
         bg_threshold: Threshold for background detection (default 25 for Grafana dark theme)
     """
-    img = Image.open(image_path)
+    img: Image.Image = Image.open(image_path)
 
     # Convert to RGB if necessary
     if img.mode != "RGB":
@@ -87,11 +88,11 @@ def autocrop_image(image_path: Path, bg_threshold: int = 25) -> None:
     crop_height = height
 
     for y in range(height - 1, -1, -1):
-        # Sample pixels across the width
+        # Sample pixels across the width (each pixel is an RGB tuple after conversion above)
         pixels = [img.getpixel((x, y)) for x in range(0, width, 20)]  # Sample every 20px
 
         # Calculate average of max RGB values across samples
-        avg_max = sum(max(p) for p in pixels) / len(pixels)
+        avg_max = sum(max(p) for p in pixels if isinstance(p, tuple)) / len(pixels)  # type: ignore[type-var]
 
         # If average max value exceeds threshold, we found content
         if avg_max > bg_threshold:
@@ -142,7 +143,7 @@ def take_dashboard_screenshot(
     # Format: /render/d/{uid}/{slug}
     render_url = f"{GRAFANA_BASE_URL}/render/d/{dashboard_uid}/{dashboard_uid}"
 
-    params = {
+    params: dict[str, Any] = {
         "orgId": org_id,
         "from": time_from,
         "to": time_to,

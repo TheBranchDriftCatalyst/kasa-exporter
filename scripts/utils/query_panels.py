@@ -28,8 +28,9 @@ Usage:
     python query_panels.py --id 101 --fields id,title,targets
 """
 
-import json
 import argparse
+import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -103,9 +104,7 @@ def query_panels(
     return results
 
 
-def format_panel_output(
-    panels: list[dict[str, Any]], fields: list[str] | None = None
-) -> str:
+def format_panel_output(panels: list[dict[str, Any]], fields: list[str] | None = None) -> str:
     """
     Format panels for output.
 
@@ -121,9 +120,9 @@ def format_panel_output(
 
     output = []
     for i, panel in enumerate(panels, 1):
-        output.append(f"\n{'='*60}")
+        output.append(f"\n{'=' * 60}")
         output.append(f"Panel {i} of {len(panels)}")
-        output.append(f"{'='*60}")
+        output.append(f"{'=' * 60}")
 
         # If specific fields requested, show only those
         if fields:
@@ -148,12 +147,8 @@ def main():
         default="dashboard_panels.json",
         help="Input JSON file with extracted panels (default: dashboard_panels.json)",
     )
-    parser.add_argument(
-        "--id", type=int, help="Filter by panel ID"
-    )
-    parser.add_argument(
-        "--title", help="Filter by panel title (partial match, case-insensitive)"
-    )
+    parser.add_argument("--id", type=int, help="Filter by panel ID")
+    parser.add_argument("--title", help="Filter by panel title (partial match, case-insensitive)")
     parser.add_argument(
         "--dashboard",
         "-d",
@@ -212,4 +207,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

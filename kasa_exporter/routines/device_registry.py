@@ -14,7 +14,9 @@ class DeviceRegistry:
     def __init__(self, collector_registry: CollectorRegistry):
         self.devices: DeviceDict = {}
         self.last_checkin: LastCheckinDict = {}
-        self.seen_devices: SeenDevicesSet = set()  # Track devices that have been discovered at least once
+        self.seen_devices: SeenDevicesSet = (
+            set()
+        )  # Track devices that have been discovered at least once
 
         # Prometheus metrics with the provided registry
         self.total_devices = Gauge(

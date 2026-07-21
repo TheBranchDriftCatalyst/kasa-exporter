@@ -19,11 +19,13 @@ Usage:
     python panel_stats.py --output stats.json
 """
 
-import json
 import argparse
+import json
+import re
+import sys
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
-from collections import Counter, defaultdict
 
 
 def load_panels_data(panels_file: Path) -> list[dict[str, Any]]:
@@ -39,8 +41,6 @@ def extract_metrics_from_expr(expr: str) -> list[str]:
     This is a simple pattern matcher that extracts metric names.
     More sophisticated parsing could be added later.
     """
-    import re
-
     # Match metric names (alphanumeric with underscores and colons)
     metrics = re.findall(r"\b([a-zA-Z_][a-zA-Z0-9_:]*)\b", expr)
 
@@ -81,7 +81,7 @@ def analyze_panels(data: list[dict[str, Any]]) -> dict[str, Any]:
     Returns:
         Dictionary with various statistics
     """
-    stats = {
+    stats: dict[str, Any] = {
         "total_dashboards": len(data),
         "total_panels": 0,
         "panels_by_dashboard": {},
@@ -214,10 +214,7 @@ def format_stats_report(stats: dict[str, Any]) -> str:
         lines.append("⚠️  PANELS WITHOUT QUERIES")
         lines.append("-" * 70)
         for panel in stats["panels_without_queries"]:
-            lines.append(
-                f"{panel['dashboard']:30} Panel {panel['panel_id']:3}: "
-                f"{panel['title']}"
-            )
+            lines.append(f"{panel['dashboard']:30} Panel {panel['panel_id']:3}: {panel['title']}")
         lines.append("")
 
     lines.append("=" * 70)
@@ -241,9 +238,7 @@ def main():
         "-d",
         help="Filter statistics to specific dashboard (partial match)",
     )
-    parser.add_argument(
-        "--output", "-o", help="Export statistics as JSON to specified file"
-    )
+    parser.add_argument("--output", "-o", help="Export statistics as JSON to specified file")
 
     args = parser.parse_args()
 
@@ -258,9 +253,7 @@ def main():
 
     # Filter by dashboard if specified
     if args.dashboard:
-        data = [
-            d for d in data if args.dashboard.lower() in d["file"].lower()
-        ]
+        data = [d for d in data if args.dashboard.lower() in d["file"].lower()]
         if not data:
             print(f"❌ No dashboards found matching: {args.dashboard}")
             return 1
@@ -282,4 +275,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

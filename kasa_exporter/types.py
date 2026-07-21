@@ -1,10 +1,9 @@
 """Type definitions for kasa_exporter."""
 
 from datetime import datetime
-from typing import Protocol, TypeAlias
+from typing import Any, Protocol
 
 from kasa import Device
-from prometheus_client.metrics import MetricWrapperBase
 
 
 class KasaDevice(Protocol):
@@ -24,7 +23,9 @@ class KasaDevice(Protocol):
 
 
 # Type aliases
-DeviceDict: TypeAlias = dict[str, Device]
-LastCheckinDict: TypeAlias = dict[str, datetime]
-SeenDevicesSet: TypeAlias = set[str]
-MetricObjectsDict: TypeAlias = dict[str, MetricWrapperBase | dict[str, MetricWrapperBase]]
+type DeviceDict = dict[str, Device]
+type LastCheckinDict = dict[str, datetime]
+type SeenDevicesSet = set[str]
+# metric_objects values are heterogeneous ({"metric": <MetricWrapper>, "getter": Callable,
+# "derive_labels": dict[str, Callable]}) so we widen to Any to avoid overly-precise unions.
+type MetricObjectsDict = dict[str, dict[str, Any]]

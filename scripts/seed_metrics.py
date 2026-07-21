@@ -15,12 +15,13 @@ Usage patterns:
 
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from scipy.signal.windows import gaussian
 
 # Device definitions based on current metrics
-DEVICES = [
+DEVICES: list[dict[str, Any]] = [
     {
         "alias": "Dream Machine",
         "device_id": "803A8E059228352E87967BD82DCBA06122588678",

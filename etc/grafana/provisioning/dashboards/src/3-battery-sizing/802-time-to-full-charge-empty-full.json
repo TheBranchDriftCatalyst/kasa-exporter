@@ -1,0 +1,355 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 229, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Battery capacity sizing, runtime analysis, and load profiling for backup system design",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 2,
+  "id": 1,
+  "links": [],
+  "preload": false,
+  "refresh": "10s",
+  "schemaVersion": 42,
+  "tags": ["kasa", "battery", "sizing", "runtime", "backup", "cyberpunk"],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(version)",
+        "includeAll": true,
+        "label": "Version",
+        "name": "version",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(version)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PBFA97CFB590B2093"
+        },
+        "definition": "label_values(alias)",
+        "includeAll": true,
+        "label": "Device",
+        "multi": true,
+        "name": "device",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(alias)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "48",
+          "value": "48"
+        },
+        "includeAll": false,
+        "label": "Battery Voltage",
+        "name": "battery_voltage",
+        "options": [
+          {
+            "selected": false,
+            "text": "12",
+            "value": "12"
+          },
+          {
+            "selected": false,
+            "text": "24",
+            "value": "24"
+          },
+          {
+            "selected": true,
+            "text": "48",
+            "value": "48"
+          }
+        ],
+        "query": "12, 24, 48",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "200",
+          "value": "200"
+        },
+        "includeAll": false,
+        "label": "Battery Capacity (Ah)",
+        "name": "battery_capacity_ah",
+        "options": [
+          {
+            "selected": false,
+            "text": "100",
+            "value": "100"
+          },
+          {
+            "selected": true,
+            "text": "200",
+            "value": "200"
+          },
+          {
+            "selected": false,
+            "text": "400",
+            "value": "400"
+          },
+          {
+            "selected": false,
+            "text": "800",
+            "value": "800"
+          },
+          {
+            "selected": false,
+            "text": "1600",
+            "value": "1600"
+          }
+        ],
+        "query": "100, 200, 400, 800, 1600",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "0.8",
+          "value": "0.8"
+        },
+        "includeAll": false,
+        "label": "Depth of Discharge",
+        "name": "depth_of_discharge",
+        "options": [
+          {
+            "selected": false,
+            "text": "0.5",
+            "value": "0.5"
+          },
+          {
+            "selected": true,
+            "text": "0.8",
+            "value": "0.8"
+          },
+          {
+            "selected": false,
+            "text": "0.9",
+            "value": "0.9"
+          }
+        ],
+        "query": "0.5, 0.8, 0.9",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "0.90",
+          "value": "0.90"
+        },
+        "includeAll": false,
+        "label": "Inverter Efficiency",
+        "name": "inverter_efficiency",
+        "options": [
+          {
+            "selected": false,
+            "text": "0.85",
+            "value": "0.85"
+          },
+          {
+            "selected": true,
+            "text": "0.90",
+            "value": "0.90"
+          },
+          {
+            "selected": false,
+            "text": "0.95",
+            "value": "0.95"
+          }
+        ],
+        "query": "0.85, 0.90, 0.95",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "400",
+          "value": "400"
+        },
+        "includeAll": false,
+        "label": "Solar Panel Wattage",
+        "name": "solar_panel_watts",
+        "options": [
+          {
+            "selected": false,
+            "text": "100",
+            "value": "100"
+          },
+          {
+            "selected": false,
+            "text": "200",
+            "value": "200"
+          },
+          {
+            "selected": false,
+            "text": "300",
+            "value": "300"
+          },
+          {
+            "selected": true,
+            "text": "400",
+            "value": "400"
+          },
+          {
+            "selected": false,
+            "text": "500",
+            "value": "500"
+          },
+          {
+            "selected": false,
+            "text": "600",
+            "value": "600"
+          },
+          {
+            "selected": false,
+            "text": "800",
+            "value": "800"
+          },
+          {
+            "selected": false,
+            "text": "1000",
+            "value": "1000"
+          },
+          {
+            "selected": false,
+            "text": "1200",
+            "value": "1200"
+          },
+          {
+            "selected": false,
+            "text": "1500",
+            "value": "1500"
+          },
+          {
+            "selected": false,
+            "text": "2000",
+            "value": "2000"
+          }
+        ],
+        "query": "100,200,300,400,500,600,800,1000,1200,1500,2000",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "America/Denver",
+  "title": "🔋 Battery Sizing & Analysis - ⏱️ Time to Full Charge (Empty → Full)",
+  "uid": "kasa-battery-v2-panel-802",
+  "version": 2,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "Hours to charge from 0% to 100%",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#00FF41",
+                "value": 0
+              },
+              {
+                "color": "#00E5FF",
+                "value": 8
+              },
+              {
+                "color": "#FF9500",
+                "value": 12
+              },
+              {
+                "color": "#FF007F",
+                "value": 24
+              }
+            ]
+          },
+          "unit": "h"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 78
+      },
+      "id": 802,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "($battery_voltage * $battery_capacity_ah) / ($solar_panel_watts * $inverter_efficiency)",
+          "refId": "A"
+        }
+      ],
+      "title": "⏱️ Time to Full Charge (Empty → Full)",
+      "type": "stat"
+    }
+  ]
+}

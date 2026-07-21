@@ -13,6 +13,12 @@ htmlcov/
 .promdb/
 .claude/settings.local.json
 coverage.json
+
+# macOS
+.DS_Store
+
+# Local dashboard snapshots (ad-hoc backups, not source of truth)
+backups/
 # Ignore Grafana provisioning data but track dashboard JSON files
 etc/grafana/provisioning/datasources/
 !etc/grafana/provisioning/dashboards/dashboards/*.json

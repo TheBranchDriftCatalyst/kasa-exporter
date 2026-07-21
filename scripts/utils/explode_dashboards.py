@@ -23,11 +23,11 @@ Usage:
     python scripts/utils/explode_dashboards.py --source etc/grafana/dashboards --dest etc/grafana/dashboards/src
 """
 
-import json
 import argparse
+import json
 import re
+import sys
 from pathlib import Path
-from typing import Any
 
 
 def slugify(text: str) -> str:
@@ -48,9 +48,7 @@ def slugify(text: str) -> str:
     return text.lower().strip("-")
 
 
-def explode_dashboard(
-    dashboard_path: Path, output_dir: Path, overwrite: bool = False
-) -> int:
+def explode_dashboard(dashboard_path: Path, output_dir: Path, overwrite: bool = False) -> int:
     """
     Explode a single dashboard into individual panel files.
 
@@ -208,4 +206,4 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

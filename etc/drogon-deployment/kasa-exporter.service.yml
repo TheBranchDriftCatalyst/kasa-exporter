@@ -1,5 +1,0 @@
-configs:
-  kasa-exporter-scrape-config:
-    file: ./scrape-config.yml
-    labels:
-    - "io.prometheus.scrape_config=true"
