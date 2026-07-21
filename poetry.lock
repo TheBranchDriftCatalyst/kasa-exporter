@@ -1742,17 +1742,19 @@ testing = ["coverage", "pytest", "pytest-benchmark"]
 
 [[package]]
 name = "prometheus-client"
-version = "0.20.0"
+version = "0.25.0"
 description = "Python client for the Prometheus monitoring system."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "prometheus_client-0.20.0-py3-none-any.whl", hash = "sha256:cde524a85bce83ca359cc837f28b8c0db5cac7aa653a588fd7e84ba061c329e7"},
-    {file = "prometheus_client-0.20.0.tar.gz", hash = "sha256:287629d00b147a32dcb2be0b9df905da599b2d82f80377083ec8463309a4bb89"},
+    {file = "prometheus_client-0.25.0-py3-none-any.whl", hash = "sha256:d5aec89e349a6ec230805d0df882f3807f74fd6c1a2fa86864e3c2279059fed1"},
+    {file = "prometheus_client-0.25.0.tar.gz", hash = "sha256:5e373b75c31afb3c86f1a52fa1ad470c9aace18082d39ec0d2f918d11cc9ba28"},
 ]
 
 [package.extras]
+aiohttp = ["aiohttp"]
+django = ["django"]
 twisted = ["twisted"]
 
 [[package]]
@@ -3180,4 +3182,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "634e9f055d461884a6119930fa719a87620eff6786b80455a4db584fa40e8fa5"
+content-hash = "a927c64e2039ffcaad11d03f88afa1f312c3f6e01409542c312211ac0db8d7d3"

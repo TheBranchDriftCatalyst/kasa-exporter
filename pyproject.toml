@@ -8,7 +8,7 @@ packages = [{include = "kasa_exporter"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
-prometheus-client = "^0.20.0"
+prometheus-client = "^0.25.0"
 structlog = "^24.4.0"
 python-kasa = "^0.7.0.5"
 requests = "^2.32.3"
