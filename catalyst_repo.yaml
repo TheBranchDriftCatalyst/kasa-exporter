@@ -1,0 +1,36 @@
+version: '0.1.1'
+name: 'kasa-exporter'
+description: 'Prometheus exporter for TP-Link Kasa smart plugs with real-time power monitoring, time-of-use energy cost tracking, and pre-built Grafana dashboards'
+repo_url: 'https://github.com/TheBranchDriftCatalyst/kasa-exporter'
+private: true
+status: 'active'
+
+tech_stack:
+  languages:
+    - 'python'
+  frameworks:
+    - 'fastapi'
+  tools:
+    - 'prometheus'
+    - 'grafana'
+    - 'docker'
+    - 'poetry'
+    - 'kubernetes'
+
+groups:
+  - 'homelab'
+  - 'observability'
+  - 'tools'
+
+badges:
+  stars: true
+  issues: true
+  prs: true
+  license: true
+
+highlights:
+  - '20+ Prometheus metrics with auto-discovery via python-kasa'
+  - 'Time-of-use cost calculator with seasonal/tiered pricing'
+  - 'Pre-built Grafana dashboards for power analytics'
+  - 'Kubernetes-ready with Helm-style manifests and ServiceMonitor'
+  - 'Push gateway support and async background polling'
