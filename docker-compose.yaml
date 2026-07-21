@@ -4,12 +4,11 @@
 #     name: mdsn_net
 
 services:
-
   kasa_exporter:
     build:
       context: .
     ports:
-      - "9201:9201"
+      - '9201:9201'
     volumes:
       - ./etc:/app/etc
     environment:
@@ -20,7 +19,7 @@ services:
     network_mode: host
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9201/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9201/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -34,10 +33,10 @@ services:
     #     - action: sync
     #       path: ./kasa_exporter
     #       target: /app/kasa_exporter
-          # ignore:
-            # - node_modules/
-        # - action: rebuild
-          # path: package.json
+    # ignore:
+    # - node_modules/
+    # - action: rebuild
+    # path: package.json
 
   prometheus:
     image: prom/prometheus:latest
@@ -53,7 +52,7 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
     ports:
-      - "9090:9090"
+      - '9090:9090'
     network_mode: host
 
   grafana:
@@ -61,11 +60,11 @@ services:
     container_name: grafana
     volumes:
       - ./etc/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./etc/grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
-      - ./etc/grafana/dashboards:/etc/grafana/provisioning/dashboards/dashboards
+      - ./etc/grafana/provisioning/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
+      - ./etc/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - grafana-storage:/var/lib/grafana
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
       - GF_RENDERING_SERVER_URL=http://localhost:8081/render
@@ -83,7 +82,7 @@ services:
     image: grafana/grafana-image-renderer:latest
     container_name: grafana-renderer
     ports:
-      - "8081:8081"
+      - '8081:8081'
     environment:
       - ENABLE_METRICS=true
     network_mode: host
@@ -92,7 +91,7 @@ services:
     image: prom/pushgateway:latest
     container_name: pushgateway
     ports:
-      - "9091:9091"
+      - '9091:9091'
     network_mode: host
 
 volumes:

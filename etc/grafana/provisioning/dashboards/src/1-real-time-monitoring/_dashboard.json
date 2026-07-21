@@ -1,0 +1,80 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "#FF00FF",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Live power consumption and cost monitoring with synthwave cyberpunk styling",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 2,
+  "id": null,
+  "links": [],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["kasa", "real-time", "monitoring", "cyberpunk"],
+  "templating": {
+    "list": [
+      [
+        {
+          "current": {
+            "text": "v2",
+            "value": "v2"
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "definition": "label_values(current_consumption, version)",
+          "includeAll": true,
+          "label": "Version",
+          "multi": true,
+          "name": "version",
+          "options": [],
+          "query": {
+            "query": "label_values(current_consumption, version)",
+            "refId": "PrometheusVariableQueryEditor-VariableQuery"
+          },
+          "refresh": 1,
+          "regex": "",
+          "type": "query"
+        }
+      ]
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "America/Denver",
+  "title": "🌊 Real-Time Monitoring",
+  "uid": "kasa-realtime-v21231ifji0djfd",
+  "version": 1,
+  "weekStart": "",
+  "panels": []
+}

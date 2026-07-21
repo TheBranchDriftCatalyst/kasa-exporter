@@ -1,0 +1,35 @@
+apiVersion: 1
+
+providers:
+  # Pinned/stable consolidated dashboards
+  - name: 'Dashboards (Pinned)'
+    orgId: 1
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 3
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/dashboards
+      foldersFromFilesStructure: false
+
+  # Built consolidated dashboards from source
+  - name: 'Dashboards (Built)'
+    orgId: 1
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 3
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/built
+      foldersFromFilesStructure: false
+
+  # Individual panel dashboards for isolated testing
+  - name: 'Panel Testing'
+    orgId: 1
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 3
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/src
+      foldersFromFilesStructure: true
