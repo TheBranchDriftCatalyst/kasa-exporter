@@ -1017,7 +1017,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "count_over_time((consumption_cost:anomaly{version=~\"$version\"} == 1)[$__range])",
+          "expr": "sum(count_over_time((consumption_cost:anomaly == 1)[$__range:])) or vector(0)",
           "refId": "A"
         }
       ],
@@ -1239,7 +1239,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "(\n  count(current_consumption:total{version=~\"$version\"} > $power_alert_threshold) or vector(0)\n) + (\n  count(consumption_cost:total{version=~\"$version\"} > $cost_alert_threshold) or vector(0)\n) + (\n  count(consumption_cost:anomaly{version=~\"$version\"} == 1) or vector(0)\n) + (\n  count(rate_class{version=~\"$version\"} == \"on_peak\") or vector(0)\n) + (\n  count(state{version=~\"$version\"} != 1) or vector(0)\n)",
+          "expr": "(\n  count(current_consumption:total > $power_alert_threshold) or vector(0)\n) + (\n  count(consumption_cost:total > $cost_alert_threshold) or vector(0)\n) + (\n  count(consumption_cost:anomaly == 1) or vector(0)\n) + (\n  count(rate_class:numeric == 3) or vector(0)\n) + (\n  count(state{version=~\"$version\"} != 1) or vector(0)\n)",
           "refId": "A"
         }
       ],
@@ -2841,7 +2841,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "time() - max(\n  max_over_time((current_consumption:total{version=~\"$version\"} > $power_alert_threshold)[1h:]) > bool $power_alert_threshold\n  * on() group_left() timestamp(current_consumption:total{version=~\"$version\"})\n) or time() - 86400",
+          "expr": "time() - max(max_over_time(timestamp(current_consumption:total > $power_alert_threshold)[$__range:])) or vector(86400)",
           "refId": "A"
         }
       ],

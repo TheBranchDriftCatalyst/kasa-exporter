@@ -258,7 +258,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "count_over_time((consumption_cost:anomaly{version=~\"$version\"} == 1)[$__range])",
+          "expr": "sum(count_over_time((consumption_cost:anomaly == 1)[$__range:])) or vector(0)",
           "refId": "A"
         }
       ],

@@ -2741,7 +2741,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "clamp_max((($solar_panel_watts * $inverter_efficiency) / ($battery_voltage * $battery_capacity_ah)) * 100 * (time() % 86400) / 3600, 100)",
+          "expr": "clamp_max(vector((($solar_panel_watts * $inverter_efficiency) / ($battery_voltage * $battery_capacity_ah)) * 100 * (time() % 86400) / 3600), 100)",
           "legendFormat": "Battery Charge (Solar Only)",
           "refId": "B"
         },

@@ -258,7 +258,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "time() - max(\n  max_over_time((current_consumption:total{version=~\"$version\"} > $power_alert_threshold)[1h:]) > bool $power_alert_threshold\n  * on() group_left() timestamp(current_consumption:total{version=~\"$version\"})\n) or time() - 86400",
+          "expr": "time() - max(max_over_time(timestamp(current_consumption:total > $power_alert_threshold)[$__range:])) or vector(86400)",
           "refId": "A"
         }
       ],

@@ -269,7 +269,7 @@
             "type": "prometheus",
             "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "(\n  count(current_consumption:total{version=~\"$version\"} > $power_alert_threshold) or vector(0)\n) + (\n  count(consumption_cost:total{version=~\"$version\"} > $cost_alert_threshold) or vector(0)\n) + (\n  count(consumption_cost:anomaly{version=~\"$version\"} == 1) or vector(0)\n) + (\n  count(rate_class{version=~\"$version\"} == \"on_peak\") or vector(0)\n) + (\n  count(state{version=~\"$version\"} != 1) or vector(0)\n)",
+          "expr": "(\n  count(current_consumption:total > $power_alert_threshold) or vector(0)\n) + (\n  count(consumption_cost:total > $cost_alert_threshold) or vector(0)\n) + (\n  count(consumption_cost:anomaly == 1) or vector(0)\n) + (\n  count(rate_class:numeric == 3) or vector(0)\n) + (\n  count(state{version=~\"$version\"} != 1) or vector(0)\n)",
           "refId": "A"
         }
       ],
