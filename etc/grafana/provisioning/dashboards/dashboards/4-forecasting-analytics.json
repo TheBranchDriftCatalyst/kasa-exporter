@@ -75,7 +75,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🔮 Forecasting & Predictions",
   "uid": "kasa-forecast-v2",
-  "version": 3,
+  "version": 4,
   "weekStart": "",
   "panels": [
     {
@@ -123,7 +123,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 1
+        "y": 5
       },
       "id": 101,
       "options": {
@@ -205,7 +205,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 1
+        "y": 5
       },
       "id": 102,
       "options": {
@@ -287,7 +287,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 1
+        "y": 5
       },
       "id": 103,
       "options": {
@@ -413,7 +413,7 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 1
+        "y": 5
       },
       "id": 104,
       "options": {
@@ -550,7 +550,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 7
+        "y": 11
       },
       "id": 201,
       "options": {
@@ -702,7 +702,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 7
+        "y": 11
       },
       "id": 202,
       "options": {
@@ -866,7 +866,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 15
+        "y": 19
       },
       "id": 203,
       "options": {
@@ -1015,7 +1015,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 15
+        "y": 19
       },
       "id": 204,
       "options": {
@@ -1115,7 +1115,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 24
+        "y": 28
       },
       "id": 301,
       "options": {
@@ -1236,7 +1236,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 24
+        "y": 28
       },
       "id": 302,
       "options": {
@@ -1335,7 +1335,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 24
+        "y": 28
       },
       "id": 303,
       "options": {
@@ -1491,7 +1491,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 24
+        "y": 28
       },
       "id": 304,
       "options": {
@@ -1613,7 +1613,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 31
+        "y": 35
       },
       "id": 401,
       "options": {
@@ -1737,7 +1737,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 31
+        "y": 35
       },
       "id": 402,
       "options": {
@@ -1836,7 +1836,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 39
+        "y": 43
       },
       "id": 403,
       "options": {
@@ -1980,7 +1980,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 39
+        "y": 43
       },
       "id": 404,
       "options": {
@@ -2058,7 +2058,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 48
+        "y": 52
       },
       "id": 501,
       "options": {
@@ -2142,7 +2142,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 48
+        "y": 52
       },
       "id": 502,
       "options": {
@@ -2230,7 +2230,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 48
+        "y": 52
       },
       "id": 503,
       "options": {
@@ -2306,7 +2306,7 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 48
+        "y": 52
       },
       "id": 504,
       "options": {
@@ -2436,7 +2436,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 57
       },
       "id": 505,
       "options": {
@@ -2578,7 +2578,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 62
+        "y": 66
       },
       "id": 601,
       "options": {
@@ -2706,7 +2706,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 62
+        "y": 66
       },
       "id": 602,
       "options": {
@@ -2784,7 +2784,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 72
+        "y": 76
       },
       "id": 603,
       "options": {
@@ -2861,7 +2861,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 72
+        "y": 76
       },
       "id": 604,
       "options": {
@@ -2946,7 +2946,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 72
+        "y": 76
       },
       "id": 605,
       "options": {
@@ -3031,7 +3031,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 72
+        "y": 76
       },
       "id": 606,
       "options": {
@@ -3081,7 +3081,7 @@
       "title": "Fresh device readings",
       "gridPos": {
         "x": 0,
-        "y": 76,
+        "y": 0,
         "w": 6,
         "h": 4
       },
@@ -3112,6 +3112,64 @@
         }
       },
       "description": "Devices with a successful power reading in the last 60 seconds. Zero or missing data requires investigation."
+    },
+    {
+      "id": 9902,
+      "type": "stat",
+      "title": "24h cost history coverage",
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 18,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "clamp_max(min(count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[24h])) / 2880 * 100, 100)",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "noValue": "UNKNOWN",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99.9
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "description": "Percentage of expected 30-second total-cost recordings present in the last 24 hours. Low coverage means historical cost totals are partial. This measures sample availability, not whether every device contributed to each total. Corrected history starts at the September 8 cutover."
     }
   ]
 }

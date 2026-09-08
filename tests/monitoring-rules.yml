@@ -71,3 +71,80 @@ tests:
       - expr: count(kasa:consumption_cost:zscore != kasa:consumption_cost:zscore)
         eval_time: 1h
         exp_samples: []
+  - name: http-up-but-no-devices
+    interval: 30s
+    input_series:
+      - series: up{job="kasa-exporter"}
+        values: 1+0x10
+      - series: kasa_fresh_devices{job="kasa-exporter"}
+        values: 0+0x10
+      - series: kasa_last_measurement_timestamp_seconds{job="kasa-exporter"}
+        values: 0+30x10
+      - series: kasa_discovery_unsupported_devices{job="kasa-exporter"}
+        values: 0+0x10
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: KasaExporterScrapeMissing
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: KasaExporterNoFreshDevices
+        exp_alerts:
+          - exp_labels: &id001
+              severity: warning
+            exp_annotations: &id002
+              summary: Kasa exporter has no fresh device measurements
+              description:
+                An HTTP200 metrics response does not prove device collection works. Check discovery, credentials,
+                protocol support and LAN connectivity.
+      - eval_time: 3m
+        alertname: KasaUnsupportedDeviceProtocol
+        exp_alerts: []
+  - name: fresh-collection
+    interval: 30s
+    input_series:
+      - series: up{job="kasa-exporter"}
+        values: 1+0x10
+      - series: kasa_fresh_devices{job="kasa-exporter"}
+        values: 5+0x10
+      - series: kasa_last_measurement_timestamp_seconds{job="kasa-exporter"}
+        values: 0+30x10
+      - series: kasa_discovery_unsupported_devices{job="kasa-exporter"}
+        values: 0+0x10
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: KasaExporterScrapeMissing
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: KasaExporterNoFreshDevices
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: KasaUnsupportedDeviceProtocol
+        exp_alerts: []
+  - name: unsupported-firmware
+    interval: 30s
+    input_series:
+      - series: up{job="kasa-exporter"}
+        values: 1+0x10
+      - series: kasa_fresh_devices{job="kasa-exporter"}
+        values: 0+0x10
+      - series: kasa_last_measurement_timestamp_seconds{job="kasa-exporter"}
+        values: 0+30x10
+      - series: kasa_discovery_unsupported_devices{job="kasa-exporter"}
+        values: 1+0x10
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: KasaExporterScrapeMissing
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: KasaExporterNoFreshDevices
+        exp_alerts:
+          - exp_labels: *id001
+            exp_annotations: *id002
+      - eval_time: 3m
+        alertname: KasaUnsupportedDeviceProtocol
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: Kasa device firmware uses an unsupported protocol
+              description: Discovery receives devices that the installed library cannot handle.

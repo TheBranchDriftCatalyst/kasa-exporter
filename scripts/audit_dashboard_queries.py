@@ -286,9 +286,21 @@ def main():
     fresh = api(
         args.prometheus_url, "/api/v1/query", {"query": 'kasa_fresh_devices{job="kasa-exporter"}'}
     )
+    age = api(
+        args.prometheus_url,
+        "/api/v1/query",
+        {"query": 'time() - kasa_last_measurement_timestamp_seconds{job="kasa-exporter"}'},
+    )
+    unsupported = api(
+        args.prometheus_url,
+        "/api/v1/query",
+        {"query": 'kasa_discovery_unsupported_devices{job="kasa-exporter"}'},
+    )
     health_checks = {
         "scrape": check_result(scrape, instant=True, minimum=1, maximum=1),
         "freshness": check_result(fresh, instant=True, minimum=1),
+        "measurement_age": check_result(age, instant=True, minimum=0, maximum=90),
+        "unsupported_devices": check_result(unsupported, instant=True, minimum=0, maximum=0),
     }
     report = {
         "generated_at": args.end,
@@ -312,7 +324,7 @@ def main():
         or any(c["status"] != "PASS" for d in results for c in d["variable_checks"])
         or any(c["status"] != "PASS" for c in health_checks.values())
         or not rule_checks
-        or any(r["health"] != "ok" for r in rule_checks)
+        or any(r["health"] != "ok" or r["state"] == "firing" for r in rule_checks)
     )
     return 1 if failed else 0
 

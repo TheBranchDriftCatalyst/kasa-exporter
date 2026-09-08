@@ -73,7 +73,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🌊 Real-Time Monitoring",
   "uid": "kasa-realtime-v2",
-  "version": 3,
+  "version": 4,
   "weekStart": "",
   "panels": [
     {
@@ -117,7 +117,7 @@
         "h": 5,
         "w": 6,
         "x": 0,
-        "y": 1
+        "y": 5
       },
       "id": 101,
       "options": {
@@ -197,7 +197,7 @@
         "h": 5,
         "w": 6,
         "x": 6,
-        "y": 1
+        "y": 5
       },
       "id": 102,
       "options": {
@@ -277,7 +277,7 @@
         "h": 5,
         "w": 6,
         "x": 12,
-        "y": 1
+        "y": 5
       },
       "id": 103,
       "options": {
@@ -361,7 +361,7 @@
         "h": 5,
         "w": 6,
         "x": 18,
-        "y": 1
+        "y": 5
       },
       "id": 104,
       "options": {
@@ -481,7 +481,7 @@
         "h": 9,
         "w": 16,
         "x": 0,
-        "y": 7
+        "y": 11
       },
       "id": 201,
       "options": {
@@ -544,7 +544,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 7
+        "y": 11
       },
       "id": 202,
       "options": {
@@ -666,7 +666,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 21
       },
       "id": 301,
       "options": {
@@ -811,7 +811,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 30
       },
       "id": 302,
       "options": {
@@ -1055,7 +1055,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 40
       },
       "id": 401,
       "options": {
@@ -1225,7 +1225,7 @@
       "title": "Fresh device readings",
       "gridPos": {
         "x": 0,
-        "y": 46,
+        "y": 0,
         "w": 6,
         "h": 4
       },
@@ -1256,6 +1256,64 @@
         }
       },
       "description": "Devices with a successful power reading in the last 60 seconds. Zero or missing data requires investigation."
+    },
+    {
+      "id": 9902,
+      "type": "stat",
+      "title": "24h cost history coverage",
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 18,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "clamp_max(min(count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[24h])) / 2880 * 100, 100)",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "noValue": "UNKNOWN",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99.9
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "description": "Percentage of expected 30-second total-cost recordings present in the last 24 hours. Low coverage means historical cost totals are partial. This measures sample availability, not whether every device contributed to each total. Corrected history starts at the September 8 cutover."
     }
   ]
 }

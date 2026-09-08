@@ -33,7 +33,9 @@ spec:
         - record: kasa:cost_efficiency:by_device
           expr: kasa:consumption_cost:by_device / (kasa:current_consumption:by_device > 0) * 1000
         - record: kasa:power_utilization:by_device
-          expr: kasa:current_consumption:by_device / on(version) group_left() (kasa:current_consumption:total > 0) * 100
+          expr:
+            kasa:current_consumption:by_device / on(version) group_left() (kasa:current_consumption:total > 0) *
+            100
         - record: kasa:consumption_cost:avg_5m
           expr: avg_over_time(kasa:consumption_cost:total[5m])
         - record: kasa:consumption_cost:avg_1h
@@ -58,18 +60,20 @@ spec:
           expr: kasa:consumption_cost:total * 730
         - record: kasa:consumption_cost:potential_savings_super_off_peak
           expr:
-            clamp_min(kasa:consumption_cost:total - kasa:current_consumption:total / 1000 * scalar((max by(season) (kasa_tariff_usd_per_kwh{job="kasa-exporter",rate_class="super_off_peak"})
-            and on(season) kasa:current_energy_rate:current)), 0)
+            clamp_min(kasa:consumption_cost:total - kasa:current_consumption:total / 1000 * scalar((max by(season)
+            (kasa_tariff_usd_per_kwh{job="kasa-exporter",rate_class="super_off_peak"}) and on(season) kasa:current_energy_rate:current)),
+            0)
         - record: kasa:consumption_cost:potential_savings_off_peak
           expr:
-            clamp_min(kasa:consumption_cost:total - kasa:current_consumption:total / 1000 * scalar((max by(season) (kasa_tariff_usd_per_kwh{job="kasa-exporter",rate_class="off_peak"})
-            and on(season) kasa:current_energy_rate:current)), 0)
+            clamp_min(kasa:consumption_cost:total - kasa:current_consumption:total / 1000 * scalar((max by(season)
+            (kasa_tariff_usd_per_kwh{job="kasa-exporter",rate_class="off_peak"}) and on(season) kasa:current_energy_rate:current)),
+            0)
         - record: kasa:consumption_cost:stddev_1h
           expr: stddev_over_time(kasa:consumption_cost:total[1h])
         - record: kasa:consumption_cost:zscore
           expr:
-            ((kasa:consumption_cost:total - kasa:consumption_cost:avg_1h) / (kasa:consumption_cost:stddev_1h > 0)) or (kasa:consumption_cost:stddev_1h
-            == 0)
+            ((kasa:consumption_cost:total - kasa:consumption_cost:avg_1h) / (kasa:consumption_cost:stddev_1h > 0))
+            or (kasa:consumption_cost:stddev_1h == 0)
         - record: kasa:consumption_cost:anomaly
           expr: abs(kasa:consumption_cost:zscore) > bool 2
     - name: kasa_exporter_health
@@ -85,8 +89,8 @@ spec:
             description: No working Kasa scrape target exists; power and cost readings are unavailable.
         - alert: KasaExporterNoFreshDevices
           expr:
-            (max(kasa_fresh_devices{job="kasa-exporter"}) == 0) or (time() - max(kasa_last_measurement_timestamp_seconds{job="kasa-exporter"})
-            > 90)
+            absent(kasa_fresh_devices{job="kasa-exporter"}) or (max(kasa_fresh_devices{job="kasa-exporter"}) ==
+            0) or (time() - max(kasa_last_measurement_timestamp_seconds{job="kasa-exporter"}) > 90)
           for: 2m
           labels:
             severity: warning

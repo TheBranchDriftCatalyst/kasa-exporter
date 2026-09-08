@@ -275,7 +275,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🔋 Battery Sizing & Analysis",
   "uid": "kasa-battery-v2",
-  "version": 4,
+  "version": 5,
   "panels": [
     {
       "datasource": {
@@ -318,7 +318,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 1
+        "y": 5
       },
       "id": 101,
       "options": {
@@ -388,7 +388,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 1
+        "y": 5
       },
       "id": 102,
       "options": {
@@ -457,7 +457,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 1
+        "y": 5
       },
       "id": 103,
       "options": {
@@ -526,7 +526,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 1
+        "y": 5
       },
       "id": 104,
       "options": {
@@ -607,7 +607,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 8
+        "y": 12
       },
       "id": 201,
       "options": {
@@ -688,7 +688,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 8
+        "y": 12
       },
       "id": 202,
       "options": {
@@ -769,7 +769,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 8
+        "y": 12
       },
       "id": 203,
       "options": {
@@ -838,7 +838,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 8
+        "y": 12
       },
       "id": 204,
       "options": {
@@ -999,7 +999,7 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 17
+        "y": 21
       },
       "id": 301,
       "options": {
@@ -1248,7 +1248,7 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 17
+        "y": 21
       },
       "id": 302,
       "options": {
@@ -1452,7 +1452,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 34
       },
       "id": 401,
       "options": {
@@ -1551,7 +1551,7 @@
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 40
+        "y": 44
       },
       "id": 402,
       "options": {
@@ -1650,7 +1650,7 @@
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 40
+        "y": 44
       },
       "id": 403,
       "options": {
@@ -1716,7 +1716,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 51
+        "y": 55
       },
       "id": 501,
       "options": {
@@ -1788,7 +1788,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 51
+        "y": 55
       },
       "id": 502,
       "options": {
@@ -1860,7 +1860,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 51
+        "y": 55
       },
       "id": 503,
       "options": {
@@ -1900,7 +1900,7 @@
           }
         }
       ],
-      "title": "💡 Optimal Battery Size (2x degradation)",
+      "title": "Battery capacity scenario · 2× base requirement",
       "type": "stat",
       "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
@@ -1932,7 +1932,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 51
+        "y": 55
       },
       "id": 504,
       "options": {
@@ -2012,7 +2012,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 60
+        "y": 64
       },
       "id": 601,
       "options": {
@@ -2080,7 +2080,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 60
+        "y": 64
       },
       "id": 602,
       "options": {
@@ -2160,7 +2160,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 60
+        "y": 64
       },
       "id": 603,
       "options": {
@@ -2246,7 +2246,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 69
+        "y": 73
       },
       "id": 701,
       "options": {
@@ -2281,7 +2281,7 @@
           }
         }
       ],
-      "title": "📉 Load Factor (avg/peak - higher is better)",
+      "title": "Load factor · average / peak",
       "type": "gauge",
       "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
@@ -2327,7 +2327,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 69
+        "y": 73
       },
       "id": 702,
       "options": {
@@ -2410,7 +2410,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 69
+        "y": 73
       },
       "id": 703,
       "options": {
@@ -2488,7 +2488,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 78
+        "y": 82
       },
       "id": 801,
       "options": {
@@ -2569,7 +2569,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 78
+        "y": 82
       },
       "id": 802,
       "options": {
@@ -2650,7 +2650,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 78
+        "y": 82
       },
       "id": 803,
       "options": {
@@ -2731,7 +2731,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 78
+        "y": 82
       },
       "id": 804,
       "options": {
@@ -2803,7 +2803,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 84
+        "y": 88
       },
       "id": 805,
       "options": {
@@ -2885,7 +2885,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 84
+        "y": 88
       },
       "id": 806,
       "options": {
@@ -2965,7 +2965,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 84
+        "y": 88
       },
       "id": 807,
       "options": {
@@ -3123,7 +3123,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 90
+        "y": 94
       },
       "id": 808,
       "options": {
@@ -3275,7 +3275,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 98
+        "y": 102
       },
       "id": 809,
       "options": {
@@ -3438,7 +3438,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 84
+        "y": 88
       },
       "id": 810,
       "options": {
@@ -3483,7 +3483,7 @@
       "title": "Fresh device readings",
       "gridPos": {
         "x": 0,
-        "y": 104,
+        "y": 0,
         "w": 6,
         "h": 4
       },
@@ -3514,6 +3514,64 @@
         }
       },
       "description": "Devices with a successful power reading in the last 60 seconds. Zero or missing data requires investigation."
+    },
+    {
+      "id": 9902,
+      "type": "stat",
+      "title": "24h cost history coverage",
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 18,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "clamp_max(min(count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[24h])) / 2880 * 100, 100)",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "noValue": "UNKNOWN",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99.9
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "description": "Percentage of expected 30-second total-cost recordings present in the last 24 hours. Low coverage means historical cost totals are partial. This measures sample availability, not whether every device contributed to each total. Corrected history starts at the September 8 cutover."
     }
   ]
 }

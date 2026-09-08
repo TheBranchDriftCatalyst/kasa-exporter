@@ -28,8 +28,7 @@ def test_every_visualization_has_reviewed_query_contracts():
             assert panel["targets"], (path, panel["id"])
             for target in panel["targets"]:
                 assert target["expr"].strip(), (path, panel["id"])
-                if panel["id"] != 9901:
-                    assert "audit" in target, (path, panel["id"])
+                assert "audit" in target, (path, panel["id"])
                 assert not re.search(
                     r"\b(?:increase|rate)\(consumption_(?:cost|today|this_month)", target["expr"]
                 )
@@ -38,4 +37,4 @@ def test_every_visualization_has_reviewed_query_contracts():
                     mapping["type"] == "special" and mapping["options"].get("match") == "null"
                 ), "Missing data must not map to healthy"
         assert len(ids) == len(set(ids))
-    assert count == 151  # 145 original query panels plus six freshness panels
+    assert count == 157  # 145 original query panels plus twelve health/coverage panels

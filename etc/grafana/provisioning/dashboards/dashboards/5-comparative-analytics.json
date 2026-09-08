@@ -108,7 +108,7 @@
   "timezone": "America/Los_Angeles",
   "title": "📊 Comparative Analytics",
   "uid": "kasa-compare-v2",
-  "version": 3,
+  "version": 4,
   "weekStart": "",
   "panels": [
     {
@@ -148,7 +148,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 1
+        "y": 5
       },
       "id": 101,
       "options": {
@@ -225,7 +225,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 1
+        "y": 5
       },
       "id": 102,
       "options": {
@@ -303,7 +303,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 1
+        "y": 5
       },
       "id": 103,
       "options": {
@@ -380,7 +380,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 1
+        "y": 5
       },
       "id": 104,
       "options": {
@@ -477,7 +477,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 8
+        "y": 12
       },
       "id": 201,
       "options": {
@@ -549,7 +549,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 8
+        "y": 12
       },
       "id": 202,
       "options": {
@@ -655,7 +655,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 8
+        "y": 12
       },
       "id": 203,
       "options": {
@@ -785,7 +785,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 20
       },
       "id": 204,
       "options": {
@@ -932,7 +932,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 25
+        "y": 29
       },
       "id": 301,
       "options": {
@@ -1004,7 +1004,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 25
+        "y": 29
       },
       "id": 302,
       "options": {
@@ -1110,7 +1110,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 25
+        "y": 29
       },
       "id": 303,
       "options": {
@@ -1252,7 +1252,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 37
       },
       "id": 304,
       "options": {
@@ -1419,7 +1419,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 42
+        "y": 46
       },
       "id": 401,
       "options": {
@@ -1521,7 +1521,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 42
+        "y": 46
       },
       "id": 402,
       "options": {
@@ -1678,7 +1678,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 50
+        "y": 54
       },
       "id": 403,
       "options": {
@@ -1854,7 +1854,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 50
+        "y": 54
       },
       "id": 404,
       "options": {
@@ -1941,7 +1941,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 59
+        "y": 63
       },
       "id": 501,
       "options": {
@@ -2037,7 +2037,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 59
+        "y": 63
       },
       "id": 502,
       "options": {
@@ -2148,7 +2148,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 67
+        "y": 71
       },
       "id": 503,
       "options": {
@@ -2266,7 +2266,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 67
+        "y": 71
       },
       "id": 504,
       "options": {
@@ -2429,7 +2429,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 76
+        "y": 80
       },
       "id": 601,
       "options": {
@@ -2599,7 +2599,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 76
+        "y": 80
       },
       "id": 602,
       "options": {
@@ -2750,7 +2750,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 84
+        "y": 88
       },
       "id": 603,
       "options": {
@@ -2901,7 +2901,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 84
+        "y": 88
       },
       "id": 604,
       "options": {
@@ -3100,7 +3100,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 93
+        "y": 97
       },
       "id": 701,
       "options": {
@@ -3357,7 +3357,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 93
+        "y": 97
       },
       "id": 702,
       "options": {
@@ -3575,7 +3575,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 101
+        "y": 105
       },
       "id": 703,
       "options": {
@@ -3674,7 +3674,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 101
+        "y": 105
       },
       "id": 704,
       "options": {
@@ -3720,7 +3720,7 @@
       "title": "Fresh device readings",
       "gridPos": {
         "x": 0,
-        "y": 109,
+        "y": 0,
         "w": 6,
         "h": 4
       },
@@ -3751,6 +3751,64 @@
         }
       },
       "description": "Devices with a successful power reading in the last 60 seconds. Zero or missing data requires investigation."
+    },
+    {
+      "id": 9902,
+      "type": "stat",
+      "title": "24h cost history coverage",
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 18,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "clamp_max(min(count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[24h])) / 2880 * 100, 100)",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "noValue": "UNKNOWN",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99.9
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "description": "Percentage of expected 30-second total-cost recordings present in the last 24 hours. Low coverage means historical cost totals are partial. This measures sample availability, not whether every device contributed to each total. Corrected history starts at the September 8 cutover."
     }
   ]
 }

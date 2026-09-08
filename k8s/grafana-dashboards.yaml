@@ -14,7 +14,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/1-real-time-monitoring.json?v=20260908-audit2"
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/1-real-time-monitoring.json?v=20260908-audit3"
   folder: "Kasa"
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -28,7 +28,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/2-tou-cost-optimization.json?v=20260908-audit2"
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/2-tou-cost-optimization.json?v=20260908-audit3"
   folder: "Kasa"
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -42,7 +42,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/3-battery-sizing.json?v=20260908-audit2"
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/3-battery-sizing.json?v=20260908-audit3"
   folder: "Kasa"
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -56,7 +56,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/4-forecasting-analytics.json?v=20260908-audit2"
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/4-forecasting-analytics.json?v=20260908-audit3"
   folder: "Kasa"
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -70,7 +70,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/5-comparative-analytics.json?v=20260908-audit2"
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/5-comparative-analytics.json?v=20260908-audit3"
   folder: "Kasa"
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -84,5 +84,5 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/6-alerts-monitoring.json?v=20260908-audit2"
+  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/6-alerts-monitoring.json?v=20260908-audit3"
   folder: "Kasa"

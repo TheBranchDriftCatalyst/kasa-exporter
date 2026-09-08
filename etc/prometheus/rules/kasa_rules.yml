@@ -1,4 +1,3 @@
-# Canonical rules. Fixed30s evaluation; dashboard integrals resample explicitly.
 groups:
   - name: kasa_tou_metrics
     interval: 30s
@@ -48,18 +47,20 @@ groups:
         expr: kasa:consumption_cost:total * 730
       - record: kasa:consumption_cost:potential_savings_super_off_peak
         expr:
-          clamp_min(kasa:consumption_cost:total - kasa:current_consumption:total / 1000 * scalar((max by(season) (kasa_tariff_usd_per_kwh{job="kasa-exporter",rate_class="super_off_peak"})
-          and on(season) kasa:current_energy_rate:current)), 0)
+          clamp_min(kasa:consumption_cost:total - kasa:current_consumption:total / 1000 * scalar((max by(season)
+          (kasa_tariff_usd_per_kwh{job="kasa-exporter",rate_class="super_off_peak"}) and on(season) kasa:current_energy_rate:current)),
+          0)
       - record: kasa:consumption_cost:potential_savings_off_peak
         expr:
-          clamp_min(kasa:consumption_cost:total - kasa:current_consumption:total / 1000 * scalar((max by(season) (kasa_tariff_usd_per_kwh{job="kasa-exporter",rate_class="off_peak"})
-          and on(season) kasa:current_energy_rate:current)), 0)
+          clamp_min(kasa:consumption_cost:total - kasa:current_consumption:total / 1000 * scalar((max by(season)
+          (kasa_tariff_usd_per_kwh{job="kasa-exporter",rate_class="off_peak"}) and on(season) kasa:current_energy_rate:current)),
+          0)
       - record: kasa:consumption_cost:stddev_1h
         expr: stddev_over_time(kasa:consumption_cost:total[1h])
       - record: kasa:consumption_cost:zscore
         expr:
-          ((kasa:consumption_cost:total - kasa:consumption_cost:avg_1h) / (kasa:consumption_cost:stddev_1h > 0)) or (kasa:consumption_cost:stddev_1h
-          == 0)
+          ((kasa:consumption_cost:total - kasa:consumption_cost:avg_1h) / (kasa:consumption_cost:stddev_1h > 0))
+          or (kasa:consumption_cost:stddev_1h == 0)
       - record: kasa:consumption_cost:anomaly
         expr: abs(kasa:consumption_cost:zscore) > bool 2
   - name: kasa_exporter_health
@@ -75,8 +76,8 @@ groups:
           description: No working Kasa scrape target exists; power and cost readings are unavailable.
       - alert: KasaExporterNoFreshDevices
         expr:
-          (max(kasa_fresh_devices{job="kasa-exporter"}) == 0) or (time() - max(kasa_last_measurement_timestamp_seconds{job="kasa-exporter"})
-          > 90)
+          absent(kasa_fresh_devices{job="kasa-exporter"}) or (max(kasa_fresh_devices{job="kasa-exporter"}) == 0)
+          or (time() - max(kasa_last_measurement_timestamp_seconds{job="kasa-exporter"}) > 90)
         for: 2m
         labels:
           severity: warning
