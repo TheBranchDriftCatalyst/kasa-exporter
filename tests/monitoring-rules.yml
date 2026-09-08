@@ -71,6 +71,18 @@ tests:
       - expr: count(kasa:consumption_cost:zscore != kasa:consumption_cost:zscore)
         eval_time: 1h
         exp_samples: []
+      - expr:
+          round(((clamp_min(predict_linear(kasa:current_consumption:total{version=~"v1"}[1h], 3600), 0)) and on(version)
+          (count_over_time(kasa:current_consumption:total{version=~"v1"}[1h]) >= 96)), 0.000001)
+        eval_time: 30s
+        exp_samples: []
+      - expr:
+          round(((clamp_min(predict_linear(kasa:current_consumption:total{version=~"v1"}[1h], 3600), 0)) and on(version)
+          (count_over_time(kasa:current_consumption:total{version=~"v1"}[1h]) >= 96)), 0.000001)
+        eval_time: 1h
+        exp_samples:
+          - labels: '{version="v1"}'
+            value: 3000
   - name: http-up-but-no-devices
     interval: 30s
     input_series:
