@@ -275,7 +275,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🔋 Battery Sizing & Analysis",
   "uid": "kasa-battery-v2",
-  "version": 5,
+  "version": 6,
   "panels": [
     {
       "datasource": {
@@ -3009,7 +3009,7 @@
         "type": "prometheus",
         "uid": "mimir"
       },
-      "description": "Modeled charge using sampled observed load since range start. Missing load data understates discharge. Starts full for discharge/net curves and empty for solar-only charge. Solar assumes continuous configured output, not actual irradiance. This is not battery telemetry.",
+      "description": "Modeled charge using sampled observed load since range start. Missing load data understates discharge. Starts full for discharge/net curves and empty for solar-only charge. Solar assumes continuous configured output, not actual irradiance. This is not battery telemetry. Charge uses nominal battery energy, solar input is reduced by efficiency, and AC load is divided by efficiency. The same efficiency setting approximates charging and discharging losses. The discharge-floor line follows the selected depth of discharge.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3045,7 +3045,7 @@
               "mode": "none"
             },
             "thresholdsStyle": {
-              "mode": "line"
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -3116,6 +3116,32 @@
                 "value": 4
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Configured discharge floor"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [10, 10]
+                }
+              }
+            ]
           }
         ]
       },
@@ -3162,7 +3188,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_max((($solar_panel_watts * $inverter_efficiency) * clamp_min(vector(time() - ${__from:date:seconds}), 0) / 3600) / ($battery_voltage * $battery_capacity_ah * $inverter_efficiency) * 100, 100)",
+          "expr": "clamp_max((($solar_panel_watts * $inverter_efficiency) * clamp_min(vector(time() - ${__from:date:seconds}), 0) / 3600) / ($battery_voltage * $battery_capacity_ah) * 100, 100)",
           "legendFormat": "Battery Charge (Solar Only)",
           "refId": "B",
           "instant": false,
@@ -3179,7 +3205,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_max(clamp_min(100 + ((($solar_panel_watts * $inverter_efficiency) * clamp_min(vector(time() - ${__from:date:seconds}), 0) / 3600) - ((sum_over_time((sum(max by(device_id,alias,version)(current_consumption{job=\"kasa-exporter\",alias=~\"${device:regex}\",version=~\"${version:regex}\"})) and on() (vector(time()) >= ${__from:date:seconds}))[$__range:30s]) - last_over_time((sum(max by(device_id,alias,version)(current_consumption{job=\"kasa-exporter\",alias=~\"${device:regex}\",version=~\"${version:regex}\"})) and on() (vector(time()) >= ${__from:date:seconds}))[$__range:30s])) * 30 / 3600)) / ($battery_voltage * $battery_capacity_ah * $inverter_efficiency) * 100, 0),100)",
+          "expr": "clamp_max(clamp_min(100 + ((($solar_panel_watts * $inverter_efficiency) * clamp_min(vector(time() - ${__from:date:seconds}), 0) / 3600) - (((sum_over_time((sum(max by(device_id,alias,version)(current_consumption{job=\"kasa-exporter\",alias=~\"${device:regex}\",version=~\"${version:regex}\"})) and on() (vector(time()) >= ${__from:date:seconds}))[$__range:30s]) - last_over_time((sum(max by(device_id,alias,version)(current_consumption{job=\"kasa-exporter\",alias=~\"${device:regex}\",version=~\"${version:regex}\"})) and on() (vector(time()) >= ${__from:date:seconds}))[$__range:30s])) * 30 / 3600) / $inverter_efficiency)) / ($battery_voltage * $battery_capacity_ah) * 100, 0), 100)",
           "legendFormat": "Net Battery State",
           "refId": "C",
           "instant": false,
@@ -3189,6 +3215,21 @@
             "required_labels": [],
             "min": 0,
             "max": 100
+          }
+        },
+        {
+          "refId": "D",
+          "expr": "vector((1 - $depth_of_discharge) * 100)",
+          "legendFormat": "Configured discharge floor",
+          "instant": false,
+          "range": true,
+          "audit": {
+            "min": 0,
+            "max": 100
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "mimir"
           }
         }
       ],

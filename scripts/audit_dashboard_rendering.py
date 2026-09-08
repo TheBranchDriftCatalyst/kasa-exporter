@@ -105,9 +105,22 @@ def panels(items):
 async def run(args):
     dashboards = []
     for file in sorted(args.dashboards.glob("*.json")):
-        uid = json.loads(file.read_text())["uid"]
+        local = json.loads(file.read_text())
+        uid = local["uid"]
         with urlopen(f"{args.grafana_url}/api/dashboards/uid/{uid}", timeout=30) as response:
-            dashboards.append(json.load(response)["dashboard"])
+            deployed = json.load(response)["dashboard"]
+
+        def signature(dashboard):
+            return {
+                p["id"]: (p["type"], [t.get("expr") for t in p.get("targets", [])])
+                for p in panels(dashboard.get("panels", []))
+            }
+
+        if signature(local) != signature(deployed):
+            raise ValueError(
+                f"{uid}: deployed panels differ from local JSON; wait for reconciliation"
+            )
+        dashboards.append(deployed)
     args.output.mkdir(parents=True, exist_ok=True)
     queue = asyncio.Queue()
     for dashboard in dashboards:

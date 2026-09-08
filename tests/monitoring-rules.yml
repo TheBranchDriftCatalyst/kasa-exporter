@@ -148,3 +148,36 @@ tests:
             exp_annotations:
               summary: Kasa device firmware uses an unsupported protocol
               description: Discovery receives devices that the installed library cannot handle.
+  - name: battery-charge-discharge-energy-balance
+    interval: 30s
+    input_series:
+      - series: current_consumption{job="kasa-exporter",version="v1",alias="test",device_id="test"}
+        values: 3000+0x240
+    promql_expr_test:
+      - expr:
+          round((clamp_min(100 - ((sum_over_time((sum(max by(device_id,alias,version)(current_consumption{job="kasa-exporter",alias=~".*",version=~".*"}))
+          and on() (vector(time()) >= 0))[7200s:30s]) - last_over_time((sum(max by(device_id,alias,version)(current_consumption{job="kasa-exporter",alias=~".*",version=~".*"}))
+          and on() (vector(time()) >= 0))[7200s:30s])) * 30 / 3600) / (48 * 200 * 0.90) * 100, 0)), 0.000001)
+        eval_time: 2h
+        exp_samples:
+          - labels: "{}"
+            value: 30.555556
+      - expr: round((clamp_max(((400 * 0.90) * clamp_min(vector(time() - 0), 0) / 3600) / (48 * 200) * 100, 100)), 0.000001)
+        eval_time: 2h
+        exp_samples:
+          - labels: "{}"
+            value: 7.5
+      - expr:
+          round((clamp_max(clamp_min(100 + (((400 * 0.90) * clamp_min(vector(time() - 0), 0) / 3600) - (((sum_over_time((sum(max
+          by(device_id,alias,version)(current_consumption{job="kasa-exporter",alias=~".*",version=~".*"})) and on()
+          (vector(time()) >= 0))[7200s:30s]) - last_over_time((sum(max by(device_id,alias,version)(current_consumption{job="kasa-exporter",alias=~".*",version=~".*"}))
+          and on() (vector(time()) >= 0))[7200s:30s])) * 30 / 3600) / 0.90)) / (48 * 200) * 100, 0), 100)), 0.000001)
+        eval_time: 2h
+        exp_samples:
+          - labels: "{}"
+            value: 38.055556
+      - expr: round((vector((1 - 0.8) * 100)), 0.000001)
+        eval_time: 2h
+        exp_samples:
+          - labels: "{}"
+            value: 20
