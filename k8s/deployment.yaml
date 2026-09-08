@@ -24,6 +24,7 @@ spec:
         app.kubernetes.io/component: exporter
       # Note: Scraped via ServiceMonitor (not pod annotations) to avoid duplicate metrics
     spec:
+      automountServiceAccountToken: false
       # Required for mDNS device discovery - gives pod access to host network
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
@@ -43,11 +44,15 @@ spec:
                   name: kasa-credentials
                   key: password
             - name: METRICS_PORT
-              value: '9200'
+              value: "9200"
             - name: LOG_LEVEL
-              value: 'INFO'
+              value: "INFO"
             - name: TZ
-              value: 'America/Los_Angeles'
+              value: "America/Los_Angeles"
+            - name: KASA_DISCOVERY_TARGET
+              value: "192.168.1.255"
+            - name: LOG_FORMAT
+              value: "json"
           ports:
             - name: metrics
               containerPort: 9200

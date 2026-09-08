@@ -10,7 +10,8 @@ packages = [{include = "kasa_exporter"}]
 python = "^3.12"
 prometheus-client = "^0.25.0"
 structlog = "^24.4.0"
-python-kasa = "^0.7.0.5"
+# TPAP support for KP125M firmware; upstream PR #1592, verified read-only against live plugs.
+python-kasa = {git = "https://github.com/python-kasa/python-kasa.git", rev = "e7084472972f08f2e2235b342f3964aedbfaeb3b"}
 requests = "^2.32.3"
 watchdog = "^6.0.0"
 fastapi = "^0.136.0"

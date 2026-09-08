@@ -1,4 +1,5 @@
 import asyncio
+import os
 from datetime import UTC, datetime, timedelta
 
 import structlog
@@ -34,9 +35,36 @@ class DeviceRegistry:
             "Total number of devices discovered",
             registry=collector_registry,
         )
+        self.unsupported_devices = Gauge(
+            "kasa_discovery_unsupported_devices",
+            "Devices responding with a protocol unsupported by this exporter",
+            registry=collector_registry,
+        )
+        self.discovery_timestamp = Gauge(
+            "kasa_discovery_last_success_timestamp_seconds",
+            "Unix timestamp of the last completed discovery, including empty results",
+            registry=collector_registry,
+        )
 
     async def discover_devices(self, credentials, interface):
-        found_devices = await Discover.discover(credentials=credentials, **interface)
+        unsupported = 0
+
+        async def on_unsupported(error):
+            nonlocal unsupported
+            unsupported += 1
+            logger.warning(
+                "Unsupported Kasa device; check firmware protocol compatibility",
+                error_type=type(error).__name__,
+            )
+
+        found_devices = await Discover.discover(
+            credentials=credentials,
+            target=os.getenv("KASA_DISCOVERY_TARGET", "255.255.255.255"),
+            on_unsupported=on_unsupported,
+            **interface,
+        )
+        self.unsupported_devices.set(unsupported)
+        self.discovery_timestamp.set(datetime.now(tz=UTC).timestamp())
         self.devices = dict(found_devices.items())
 
         # Only increment counter for NEW devices (not previously seen)
