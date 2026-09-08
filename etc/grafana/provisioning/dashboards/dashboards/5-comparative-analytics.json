@@ -108,7 +108,7 @@
   "timezone": "America/Los_Angeles",
   "title": "📊 Comparative Analytics",
   "uid": "kasa-compare-v2",
-  "version": 6,
+  "version": 7,
   "weekStart": "",
   "panels": [
     {
@@ -825,7 +825,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(kasa:current_consumption:by_device{version=~\"${version}\", alias=~\"${device}\"} / scalar(sum(kasa:current_consumption:by_device{version=~\"${version}\", alias=~\"${device}\"}) > 0) * 100) + 0",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version}\", alias=~\"${device}\"} / on() group_left() (sum(kasa:current_consumption:by_device{version=~\"${version}\", alias=~\"${device}\"}) > 0) * 100) + 0",
           "format": "table",
           "instant": true,
           "refId": "B",
@@ -872,7 +872,7 @@
         }
       ],
       "type": "table",
-      "description": "Missing readings are unknown."
+      "description": "Missing readings are unknown. Percentages are undefined when the selected denominator is zero or missing; the value columns remain available."
     },
     {
       "datasource": {
@@ -1712,7 +1712,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(kasa:current_consumption:by_device{version=~\"${version}\", alias=~\"${device}\"} / scalar(sum(kasa:current_consumption:by_device{version=~\"${version}\", alias=\"${baseline_device}\"}) > 0) * 100) + 0",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version}\", alias=~\"${device}\"} / on() group_left() (sum(kasa:current_consumption:by_device{version=~\"${version}\", alias=\"${baseline_device}\"}) > 0) * 100) + 0",
           "format": "table",
           "instant": true,
           "refId": "B",
@@ -1740,7 +1740,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(kasa:consumption_cost:by_device{version=~\"${version}\", alias=~\"${device}\"} / scalar(sum(kasa:consumption_cost:by_device{version=~\"${version}\", alias=\"${baseline_device}\"}) > 0) * 100) + 0",
+          "expr": "(kasa:consumption_cost:by_device{version=~\"${version}\", alias=~\"${device}\"} / on() group_left() (sum(kasa:consumption_cost:by_device{version=~\"${version}\", alias=\"${baseline_device}\"}) > 0) * 100) + 0",
           "format": "table",
           "instant": true,
           "refId": "D",
@@ -1789,7 +1789,7 @@
         }
       ],
       "type": "table",
-      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Percentages are undefined when the selected denominator is zero or missing; the value columns remain available."
     },
     {
       "datasource": {

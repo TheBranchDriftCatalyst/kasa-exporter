@@ -193,3 +193,30 @@ tests:
         exp_samples:
           - labels: "{}"
             value: 20
+  - name: zero-baseline-does-not-produce-NaN
+    interval: 30s
+    input_series:
+      - series: current_consumption{job="kasa-exporter",device_id="zero",alias="zero",version="v1"}
+        values: 0+0x10
+      - series: current_consumption{job="kasa-exporter",device_id="load",alias="load",version="v1"}
+        values: 100+0x10
+      - series: consumption_cost{job="kasa-exporter",device_id="zero",alias="zero",version="v1"}
+        values: 0+0x10
+      - series: consumption_cost{job="kasa-exporter",device_id="load",alias="load",version="v1"}
+        values: 0.03+0x10
+    promql_expr_test:
+      - expr:
+          (kasa:current_consumption:by_device{version=~"v1", alias=~"zero"} / on() group_left() (sum(kasa:current_consumption:by_device{version=~"v1",
+          alias=~"zero"}) > 0) * 100) + 0
+        eval_time: 3m
+        exp_samples: []
+      - expr:
+          (kasa:current_consumption:by_device{version=~"v1", alias=~".*"} / on() group_left() (sum(kasa:current_consumption:by_device{version=~"v1",
+          alias="zero"}) > 0) * 100) + 0
+        eval_time: 3m
+        exp_samples: []
+      - expr:
+          (kasa:consumption_cost:by_device{version=~"v1", alias=~".*"} / on() group_left() (sum(kasa:consumption_cost:by_device{version=~"v1",
+          alias="zero"}) > 0) * 100) + 0
+        eval_time: 3m
+        exp_samples: []
