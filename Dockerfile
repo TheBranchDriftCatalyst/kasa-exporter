@@ -10,6 +10,12 @@ WORKDIR /app
 # dependency hash and rejects otherwise valid locks with dependency-groups.
 RUN python -m venv /opt/poetry && /opt/poetry/bin/pip install --no-cache-dir poetry==2.4.3
 ENV PATH="/opt/poetry/bin:${PATH}"
+# The Nix base's default SSL path is not usable by Dulwich's Git transport.
+# Supply Poetry's current CA bundle explicitly, retaining certificate verification.
+RUN /opt/poetry/bin/python -c 'import certifi, shutil; shutil.copyfile(certifi.where(), "/opt/poetry/ca-bundle.pem")'
+ENV SSL_CERT_FILE=/opt/poetry/ca-bundle.pem \
+    GIT_SSL_CAINFO=/opt/poetry/ca-bundle.pem \
+    REQUESTS_CA_BUNDLE=/opt/poetry/ca-bundle.pem
 
 # Copy dependency files first for layer caching
 COPY pyproject.toml poetry.lock README.md /app/
