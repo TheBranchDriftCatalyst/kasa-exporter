@@ -108,7 +108,7 @@
   "timezone": "America/Los_Angeles",
   "title": "📊 Comparative Analytics",
   "uid": "kasa-compare-v2",
-  "version": 4,
+  "version": 5,
   "weekStart": "",
   "panels": [
     {
@@ -3699,7 +3699,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "count((stddev_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) > scalar(avg(stddev_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range]))))",
+          "expr": "sum((stddev_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) > bool scalar(avg(stddev_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range]))))",
           "refId": "A",
           "legendFormat": "High Variance Devices",
           "instant": true,
