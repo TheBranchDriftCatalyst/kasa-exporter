@@ -42,6 +42,9 @@ LAN broadcast discovery still requires host networking.
   intervals; it does not apply `increase()` to a gauge or sum dollars/hour as dollars.
 - Sampled integrals subtract the final endpoint to avoid counting both ends of an
   interval. Missing periods are not extrapolated into a full day or month.
+- Zero/missing comparison baselines produce no percentage, rather than NaN.
+- Filters use the [Prometheus datasource default formatting](https://grafana.com/docs/grafana/latest/visualizations/dashboards/variables/variable-syntax/);
+  generic regex formatting would under-escape dotted version values in PromQL.
 - Device daily/monthly energy is already kWh. Units and table-column units now
   distinguish power, energy, hourly cost, tariffs, percentages, and runtime.
 - Aggregations deduplicate scrape instances by device ID and retain version.
