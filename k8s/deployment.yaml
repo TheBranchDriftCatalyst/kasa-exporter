@@ -30,7 +30,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: kasa-exporter
-          image: ghcr.io/thebranchdriftcatalyst/kasa-exporter:latest
+          image: ghcr.io/thebranchdriftcatalyst/kasa-exporter@sha256:172afffa7d595aec2cd80d105943d80b849a28665a3a108509c0d69d1902b33e
           imagePullPolicy: Always
           env:
             - name: KASA_USERNAME
