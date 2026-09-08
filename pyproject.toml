@@ -106,7 +106,7 @@ line-ending = "auto"
 known-first-party = ["kasa_exporter"]
 
 [tool.pytest.ini_options]
-testpaths = ["kasa_exporter"]
+testpaths = ["kasa_exporter", "tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"

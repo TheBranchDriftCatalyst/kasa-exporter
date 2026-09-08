@@ -96,26 +96,23 @@ class TestTimeBlockTransitions:
         ("time_str", "expected_period", "expected_rate"),
         [
             # Super off-peak period (midnight to 6am)
-            # Note: 06:00 is included in super_off_peak range, matches first due to config order
             ("00:00", "super_off_peak", 0.314),
             ("00:01", "super_off_peak", 0.314),
             ("03:00", "super_off_peak", 0.314),
             ("05:59", "super_off_peak", 0.314),
-            ("06:00", "super_off_peak", 0.314),  # Boundary case - matches super_off_peak first
+            ("06:00", "off_peak", 0.351),  # Start-inclusive, end-exclusive boundary.
             # Off-peak morning period (6am to 4pm)
             ("06:01", "off_peak", 0.351),
             ("09:00", "off_peak", 0.351),
             ("12:00", "off_peak", 0.351),
             ("15:59", "off_peak", 0.351),
             # On-peak period (4pm to 9pm)
-            # Note: 16:00 matches off_peak first due to config order
-            ("16:00", "off_peak", 0.351),  # Boundary case - matches off_peak first
+            ("16:00", "on_peak", 0.634),  # Start-inclusive, end-exclusive boundary.
             ("16:01", "on_peak", 0.634),
             ("18:00", "on_peak", 0.634),
             ("20:59", "on_peak", 0.634),
             # Off-peak evening period (9pm to midnight)
-            # Note: 21:00 matches off_peak first due to config order (off_peak comes before on_peak)
-            ("21:00", "off_peak", 0.351),  # Boundary case - matches off_peak first
+            ("21:00", "off_peak", 0.351),  # Start-inclusive, end-exclusive boundary.
             ("21:01", "off_peak", 0.351),
             ("22:00", "off_peak", 0.351),
             ("23:59", "off_peak", 0.351),
@@ -142,11 +139,11 @@ class TestTimeBlockTransitions:
             # Winter uses same time blocks as summer
             ("00:00", "super_off_peak", 0.314),
             ("05:59", "super_off_peak", 0.314),
-            ("06:00", "super_off_peak", 0.314),  # Boundary case - matches super_off_peak first
+            ("06:00", "off_peak", 0.351),  # Start-inclusive, end-exclusive boundary.
             ("15:59", "off_peak", 0.351),
-            ("16:00", "off_peak", 0.351),  # Boundary case - matches off_peak first
+            ("16:00", "on_peak", 0.634),  # Start-inclusive, end-exclusive boundary.
             ("20:59", "on_peak", 0.634),
-            ("21:00", "off_peak", 0.351),  # Boundary case - matches off_peak first
+            ("21:00", "off_peak", 0.351),  # Start-inclusive, end-exclusive boundary.
             ("23:59", "off_peak", 0.351),
         ],
     )
@@ -170,13 +167,13 @@ class TestTimeBlockTransitions:
         expected_sequence = [
             ("00:00", "super_off_peak"),
             ("05:59", "super_off_peak"),
-            ("06:00", "super_off_peak"),  # Boundary matches super_off_peak
+            ("06:00", "off_peak"),  # Start-inclusive, end-exclusive boundary.
             ("06:01", "off_peak"),
             ("15:59", "off_peak"),
-            ("16:00", "off_peak"),  # Boundary matches off_peak
+            ("16:00", "on_peak"),  # Start-inclusive, end-exclusive boundary.
             ("16:01", "on_peak"),
             ("20:59", "on_peak"),
-            ("21:00", "off_peak"),  # Boundary matches off_peak
+            ("21:00", "off_peak"),  # Start-inclusive, end-exclusive boundary.
             ("21:01", "off_peak"),
             ("23:59", "off_peak"),
         ]
@@ -216,10 +213,10 @@ class TestEdgeCases:
         assert calculator.get_rate_name(time_before, "summer") == "off_peak"
         assert calculator.get_rate_for_time(time_before, "summer") == 0.351
 
-        # 16:00 is a boundary - matches off_peak first due to config order
+        # Boundary belongs to the interval beginning at this time.
         time_boundary = datetime(2024, 7, 15, 16, 0, tzinfo=pytz.timezone("America/Los_Angeles"))
-        assert calculator.get_rate_name(time_boundary, "summer") == "off_peak"
-        assert calculator.get_rate_for_time(time_boundary, "summer") == 0.351
+        assert calculator.get_rate_name(time_boundary, "summer") == "on_peak"
+        assert calculator.get_rate_for_time(time_boundary, "summer") == 0.634
 
         # 16:01 should be on-peak
         time_after = datetime(2024, 7, 15, 16, 1, tzinfo=pytz.timezone("America/Los_Angeles"))
@@ -233,7 +230,7 @@ class TestEdgeCases:
         assert calculator.get_rate_name(time_before, "summer") == "on_peak"
         assert calculator.get_rate_for_time(time_before, "summer") == 0.634
 
-        # 21:00 is a boundary - matches off_peak first due to config order
+        # Boundary belongs to the interval beginning at this time.
         time_boundary = datetime(2024, 7, 15, 21, 0, tzinfo=pytz.timezone("America/Los_Angeles"))
         assert calculator.get_rate_name(time_boundary, "summer") == "off_peak"
         assert calculator.get_rate_for_time(time_boundary, "summer") == 0.351
@@ -250,10 +247,10 @@ class TestEdgeCases:
         assert calculator.get_rate_name(time_before, "summer") == "super_off_peak"
         assert calculator.get_rate_for_time(time_before, "summer") == 0.314
 
-        # 06:00 is a boundary - matches super_off_peak first due to config order
+        # Boundary belongs to the interval beginning at this time.
         time_boundary = datetime(2024, 7, 15, 6, 0, tzinfo=pytz.timezone("America/Los_Angeles"))
-        assert calculator.get_rate_name(time_boundary, "summer") == "super_off_peak"
-        assert calculator.get_rate_for_time(time_boundary, "summer") == 0.314
+        assert calculator.get_rate_name(time_boundary, "summer") == "off_peak"
+        assert calculator.get_rate_for_time(time_boundary, "summer") == 0.351
 
         # 06:01 should be off-peak
         time_after = datetime(2024, 7, 15, 6, 1, tzinfo=pytz.timezone("America/Los_Angeles"))
@@ -510,14 +507,14 @@ class TestRateNameRetrieval:
         [
             (0, "super_off_peak"),
             (5, "super_off_peak"),
-            (6, "super_off_peak"),  # Boundary - matches super_off_peak
+            (6, "off_peak"),  # Boundary belongs to the interval beginning at this time.
             (7, "off_peak"),
             (12, "off_peak"),
             (15, "off_peak"),
-            (16, "off_peak"),  # Boundary - matches off_peak
+            (16, "on_peak"),  # Boundary belongs to the interval beginning at this time.
             (17, "on_peak"),
             (20, "on_peak"),
-            (21, "off_peak"),  # Boundary - matches off_peak
+            (21, "off_peak"),  # Boundary belongs to the interval beginning at this time.
             (22, "off_peak"),
             (23, "off_peak"),
         ],

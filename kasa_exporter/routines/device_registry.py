@@ -15,6 +15,8 @@ class DeviceRegistry:
     def __init__(self, collector_registry: CollectorRegistry):
         self.devices: DeviceDict = {}
         self.last_checkin: LastCheckinDict = {}
+        self.last_scrape_success: LastCheckinDict = {}
+        self.on_remove = lambda _device: None
         self.seen_devices: SeenDevicesSet = (
             set()
         )  # Track devices that have been discovered at least once
@@ -45,6 +47,16 @@ class DeviceRegistry:
             "Unix timestamp of the last completed discovery, including empty results",
             registry=collector_registry,
         )
+        self.fresh_devices = Gauge(
+            "kasa_fresh_devices",
+            "Devices with a successful reading within 60 seconds",
+            registry=collector_registry,
+        )
+        self.last_measurement = Gauge(
+            "kasa_last_measurement_timestamp_seconds",
+            "Unix timestamp of the most recent successful device reading",
+            registry=collector_registry,
+        )
 
     async def discover_devices(self, credentials, interface):
         unsupported = 0
@@ -65,6 +77,10 @@ class DeviceRegistry:
         )
         self.unsupported_devices.set(unsupported)
         self.discovery_timestamp.set(datetime.now(tz=UTC).timestamp())
+        for addr, old_device in self.devices.items():
+            if addr not in found_devices:
+                self.on_remove(old_device)
+                self.last_scrape_success.pop(addr, None)
         self.devices = dict(found_devices.items())
 
         # Only increment counter for NEW devices (not previously seen)
@@ -80,6 +96,15 @@ class DeviceRegistry:
 
         self.total_devices.set(len(self.devices))
         return self.devices
+
+    def fresh_device_count(self):
+        cutoff = datetime.now(tz=UTC) - timedelta(seconds=60)
+        count = sum(
+            addr in self.devices and timestamp >= cutoff
+            for addr, timestamp in self.last_scrape_success.items()
+        )
+        self.fresh_devices.set(count)
+        return count
 
     def get_devices_info(self):
         return [
@@ -112,12 +137,21 @@ class DeviceRegistry:
 
                 for addr in to_prune:
                     logger.info(f"Pruning device {addr} due to missed check-in")
-                    self.devices.pop(addr, None)
+                    device = self.devices.pop(addr, None)
+                    if device is not None:
+                        self.on_remove(device)
+                    self.last_scrape_success.pop(addr, None)
                     self.last_checkin.pop(addr, None)
                     # Keep addr in seen_devices so if it returns it won't be counted as "newly discovered"
                     self.pruned_devices.inc()  # Increment pruned devices counter
 
                 self.total_devices.set(len(self.devices))  # Update total devices gauge
+                for addr, timestamp in list(self.last_scrape_success.items()):
+                    if now - timestamp > timedelta(seconds=60):
+                        if addr in self.devices:
+                            self.on_remove(self.devices[addr])
+                        self.last_scrape_success.pop(addr, None)
+                self.fresh_device_count()
 
                 # Reset retry count on success
                 retry_count = 0

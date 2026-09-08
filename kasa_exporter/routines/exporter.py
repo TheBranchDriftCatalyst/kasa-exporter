@@ -4,9 +4,10 @@ from datetime import UTC, datetime
 
 import structlog
 from kasa import Credentials
-from prometheus_client import CollectorRegistry
+from prometheus_client import CollectorRegistry, Gauge
 
 from ..devices.KP125M import Extractor as KP125MDeviceExtractor
+from ..devices.KP125M import calculator
 
 logger = structlog.get_logger()
 
@@ -15,10 +16,25 @@ class DeviceExporter:
     def __init__(self, device_registry, collector_registry: CollectorRegistry):
         self.device_registry = device_registry
         self.collector_registry = collector_registry
+        self.device_registry.on_remove = KP125MDeviceExtractor.remove_device
         self.credentials = Credentials(
             os.getenv("KASA_USERNAME"),
             os.getenv("KASA_PASSWORD"),
         )
+        self.tariffs = Gauge(
+            "kasa_tariff_usd_per_kwh",
+            "Configured tariff in USD/kWh (not a verified utility bill)",
+            ["season", "rate_class"],
+            registry=collector_registry,
+        )
+        self.next_rate_change = Gauge(
+            "kasa_tariff_seconds_until_change",
+            "Seconds until the next configured utility tariff period",
+            registry=collector_registry,
+        )
+        for season in ("summer", "winter"):
+            for rate_class, value in calculator.config[season]["rate"].items():
+                self.tariffs.labels(season=season, rate_class=rate_class).set(value)
         # Initialize metrics for device extractors
         for extractor in [KP125MDeviceExtractor]:
             extractor.initialize_metrics(registry=self.collector_registry)
@@ -39,6 +55,7 @@ class DeviceExporter:
 
         while True:
             try:
+                self.next_rate_change.set(calculator.seconds_until_rate_change())
                 # Discover devices with timeout (30 seconds)
                 await asyncio.wait_for(
                     self.device_registry.discover_devices(self.credentials, interface), timeout=30.0
@@ -48,6 +65,7 @@ class DeviceExporter:
                 devices_snapshot = list(self.device_registry.devices.items())
 
                 for addr, device in devices_snapshot:
+                    successful = False
                     try:
                         # Update device with timeout (10 seconds per device)
                         await asyncio.wait_for(device.update(), timeout=10.0)
@@ -59,6 +77,15 @@ class DeviceExporter:
                             address=addr,
                         )
                         KP125MDeviceExtractor.update_metrics(device)
+                        if (
+                            "current_consumption" in device.features
+                            and device.features["current_consumption"].value is not None
+                        ):
+                            self.device_registry.last_scrape_success[addr] = datetime.now(tz=UTC)
+                            self.device_registry.last_measurement.set(
+                                datetime.now(tz=UTC).timestamp()
+                            )
+                            successful = True
                     except TimeoutError:
                         logger.warning(f"Timeout updating device {addr}, will retry next cycle")
                     except OSError as e:
@@ -72,6 +99,10 @@ class DeviceExporter:
                     except Exception as e:
                         logger.error(f"Error updating device {addr}: {e!s}")
                     finally:
+                        if not successful:
+                            KP125MDeviceExtractor.remove_device(device)
+                            self.device_registry.last_scrape_success.pop(addr, None)
+                        self.device_registry.fresh_device_count()
                         try:
                             await asyncio.wait_for(device.disconnect(), timeout=5.0)
                         except Exception as e:

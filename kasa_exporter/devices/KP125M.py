@@ -85,12 +85,12 @@ metrics = {
     "consumption_today": {
         "type": PromMetricType.GAUGE,
         "getter": lambda d: d.features["consumption_today"].value,
-        # Unit: watt-hours (Wh) - cumulative energy consumed today
+        # Unit: kilowatt-hours (kWh) - cumulative energy consumed today
     },
     "consumption_this_month": {
         "type": PromMetricType.GAUGE,
         "getter": lambda d: d.features["consumption_this_month"].value,
-        # Unit: watt-hours (Wh) - cumulative energy consumed this month
+        # Unit: kilowatt-hours (kWh) - cumulative energy consumed this month
     },
     "auto_update_enabled": {
         "type": PromMetricType.ENUM,
@@ -128,14 +128,12 @@ metrics = {
     },
     "update_attempts": {
         "type": PromMetricType.COUNTER,
-        "getter": lambda d: int(d.features.get("update_attempts", 0)),
+        "getter": lambda d: int(d.features["update_attempts"].value),
         # Unit: count - total number of firmware update attempts
     },
     "consumption_cost": {
         "type": PromMetricType.GAUGE,
-        "getter": lambda device: calculator.calc_rate(
-            device.state_information["Current consumption"]
-        ),
+        "getter": lambda device: calculator.calc_rate(device.features["current_consumption"].value),
         # Unit: USD per hour ($/hour) - instantaneous cost rate based on current power draw
         # Calculation: (watts / 1000) * rate_per_kWh
         # Note: rate_class label removed to prevent label cardinality explosion
@@ -144,14 +142,14 @@ metrics = {
     "current_energy_rate": {
         "type": PromMetricType.GAUGE,
         "getter": lambda _d: calculator.get_rate_for_time(
-            datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
+            datetime.now(pytz.timezone(calculator.timezone)), calculator.get_current_season()
         ),
         # Unit: USD per kilowatt-hour ($/kWh) - current electricity rate from utility
         # Values: 0.314 (super_off_peak), 0.351 (off_peak), 0.634 (on_peak)
         "derive_labels": {
             "season": lambda _d: calculator.get_current_season(),
             "rate_class": lambda _d: calculator.get_rate_name(
-                datetime.now(pytz.timezone("America/Denver")), calculator.get_current_season()
+                datetime.now(pytz.timezone(calculator.timezone)), calculator.get_current_season()
             ),
         },
     },

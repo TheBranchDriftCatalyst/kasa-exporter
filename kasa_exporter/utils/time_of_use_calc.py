@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -97,7 +97,7 @@ class TimeOfUseCalc:
 
     def get_current_season(self) -> str:
         """Determine the current season based on the date."""
-        today = datetime.now(tz=pytz.UTC).strftime("%m-%d")
+        today = datetime.now(tz=pytz.timezone(self.timezone)).strftime("%m-%d")
         for season, date_range in self.config["season"].items():
             start, end = date_range
             # Handle the case where the season spans across the year-end
@@ -113,7 +113,7 @@ class TimeOfUseCalc:
             if period == "rate":
                 continue
             for start, end in ranges:
-                if start <= current_time_str <= end:
+                if start <= current_time_str < end or (end == "23:59" and current_time_str == end):
                     return period
         return "off_peak"
 
@@ -124,7 +124,7 @@ class TimeOfUseCalc:
             if period == "rate":
                 continue
             for start, end in ranges:
-                if start <= current_time_str <= end:
+                if start <= current_time_str < end or (end == "23:59" and current_time_str == end):
                     return self.config[season]["rate"][period]
         return self.config[season]["rate"]["off_peak"]  # Default rate if not in any range
 
@@ -134,3 +134,29 @@ class TimeOfUseCalc:
         current_time = datetime.now(pytz.timezone("UTC")).astimezone(pytz.timezone(self.timezone))
         rate = self.get_rate_for_time(current_time, self.current_season)
         return round((current_consumption / 1000) * rate, 6)
+
+    def seconds_until_rate_change(self, now: datetime | None = None) -> float:
+        """Time to the next configured period start in the utility's timezone."""
+        zone = pytz.timezone(self.timezone)
+        now = (now or datetime.now(tz=pytz.UTC)).astimezone(zone)
+        candidates = []
+        for offset in range(3):
+            date = now.date() + timedelta(days=offset)
+            date_text = date.strftime("%m-%d")
+            season = next(
+                name
+                for name, (start, end) in self.config["season"].items()
+                if start <= date_text <= end
+                or (start > end and (date_text >= start or date_text <= end))
+            )
+            for name, ranges in self.config[season].items():
+                if name == "rate":
+                    continue
+                for start, _ in ranges:
+                    hour, minute = map(int, start.split(":"))
+                    boundary = zone.localize(
+                        datetime(date.year, date.month, date.day, hour, minute)  # noqa: DTZ001 - localize wall time below
+                    )
+                    if boundary > now:
+                        candidates.append((boundary - now).total_seconds())
+        return min(candidates)

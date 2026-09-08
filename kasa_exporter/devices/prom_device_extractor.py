@@ -80,9 +80,13 @@ class PrometheusDeviceExtractor:
         self.metrics = metrics or {}
         self.dimensions = dimensions or {}
         self.metric_objects: MetricObjectsDict = {}
+        self.device_samples: dict[str, dict[str, tuple]] = {}
+        self.counter_values: dict[tuple, float] = {}
 
     def initialize_metrics(self, registry=None) -> None:
         self.registry = registry
+        self.device_samples.clear()
+        self.counter_values.clear()
         for metric_key, metric_info in self.metrics.items():
             self.register_metric(metric_key, metric_info)
 
@@ -152,7 +156,8 @@ class PrometheusDeviceExtractor:
             logger.error(f"Metric type '{metric_type}' not supported.")
             raise ValueError(f"Metric type '{metric_type}' not supported.")
 
-    def update_metrics(self, device: Any) -> None:
+    def update_metrics(self, device: Any) -> None:  # noqa: PLR0912
+        samples = self.device_samples.setdefault(str(device.device_id), {})
         for metric_key, metric_info in self.metric_objects.items():
             try:
                 getter = metric_info["getter"]
@@ -188,10 +193,23 @@ class PrometheusDeviceExtractor:
 
                 if metric_value is not None:
                     metric_object = metric_info["metric"]
+                    label_values = tuple(all_labels[name] for name in metric_object._labelnames)
+                    previous = samples.get(metric_key)
+                    if previous is not None and previous != label_values:
+                        metric_object.remove(*previous)
+                    samples[metric_key] = label_values
                     if isinstance(metric_object, Gauge):
                         metric_object.labels(**all_labels).set(metric_value)
                     elif isinstance(metric_object, Counter):
-                        metric_object.labels(**all_labels).inc(metric_value)
+                        key = (metric_key, label_values)
+                        last_value = self.counter_values.get(key, 0)
+                        delta = (
+                            metric_value - last_value
+                            if metric_value >= last_value
+                            else metric_value
+                        )
+                        metric_object.labels(**all_labels).inc(delta)
+                        self.counter_values[key] = metric_value
                     elif isinstance(metric_object, (Summary, Histogram)):
                         metric_object.labels(**all_labels).observe(metric_value)
                     elif isinstance(metric_object, Info):
@@ -205,7 +223,16 @@ class PrometheusDeviceExtractor:
                         device_alias=getattr(device, "alias", "unknown"),
                         labels=all_labels,
                     )
+                elif metric_key in samples:
+                    metric_info["metric"].remove(*samples.pop(metric_key))
+            except KeyError:
+                # Device models expose different optional features. Never retain a
+                # previous reading when a feature is no longer available.
+                if metric_key in samples:
+                    metric_info["metric"].remove(*samples.pop(metric_key))
             except Exception as e:
+                if metric_key in samples:
+                    metric_info["metric"].remove(*samples.pop(metric_key))
                 logger.error(
                     f"Error processing metric '{metric_key}' for device {getattr(device, 'alias', 'unknown')}",
                     metric_key=metric_key,
@@ -214,3 +241,9 @@ class PrometheusDeviceExtractor:
                 )
                 # Continue to next metric instead of crashing
                 continue
+
+    def remove_device(self, device: Any) -> None:
+        """Stop publishing stale readings for an unreachable or removed device."""
+        for key, values in self.device_samples.pop(str(device.device_id), {}).items():
+            self.metric_objects[key]["metric"].remove(*values)
+            self.counter_values.pop((key, values), None)

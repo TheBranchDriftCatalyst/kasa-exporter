@@ -52,9 +52,9 @@ logger.info(f"  📦 Version: {VERSION}")
 logger.info(f"  🔖 Git Hash: {GIT_HASH}")
 logger.info(f"  📊 Metrics Port: {os.getenv('METRICS_PORT', '8000')}")
 logger.info(f"  📝 Log Level: {log_level_name}")
-logger.info(f"  👤 Kasa Username: {os.getenv('KASA_USERNAME', 'NOT SET')}")
 logger.info(
-    f"  🔑 Kasa Password: {'*' * len(os.getenv('KASA_PASSWORD', '')) if os.getenv('KASA_PASSWORD') else 'NOT SET'}"
+    "Kasa credentials configured",
+    configured=bool(os.getenv("KASA_USERNAME") and os.getenv("KASA_PASSWORD")),
 )
 logger.info(f"  🌐 mDNS Interface: {os.getenv('MDNS_INTERFACE', 'auto-detect')}")
 logger.info(f"  🚀 Push Gateway Host: {os.getenv('PUSH_GATEWAY_HOST', 'localhost')}")
@@ -120,7 +120,7 @@ async def health_check():
         is_cancelled = task.cancelled()
 
         # Task is unhealthy if it's done but not cancelled (means it crashed)
-        is_healthy = not is_done or is_cancelled
+        is_healthy = not is_done
 
         status = {
             "name": task.get_name(),
@@ -148,21 +148,26 @@ async def health_check():
 
     # Return 503 if unhealthy for proper health check integration
     if not all_healthy:
-        return Response(content=str(response), status_code=503, media_type="application/json")
+        return Response(
+            content=json.dumps(response), status_code=503, media_type="application/json"
+        )
 
     return response
 
 
 @app.get("/ready")
 async def readiness_check():
-    """Readiness check to verify the app has discovered at least one device"""
+    """Require a recent successful power reading, not merely a discovery response."""
     device_count = len(device_registry.devices)
-    is_ready = device_count > 0
+    fresh_count = device_registry.fresh_device_count()
+    is_ready = fresh_count > 0
 
-    response = {"ready": is_ready, "device_count": device_count}
+    response = {"ready": is_ready, "device_count": device_count, "fresh_device_count": fresh_count}
 
     if not is_ready:
-        return Response(content=str(response), status_code=503, media_type="application/json")
+        return Response(
+            content=json.dumps(response), status_code=503, media_type="application/json"
+        )
 
     return response
 
