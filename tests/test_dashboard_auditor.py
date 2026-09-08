@@ -62,9 +62,22 @@ def test_nested_collapsed_rows_are_included():
 
 def test_variables_are_explicit_and_regex_escaped():
     assert (
-        audit.interpolate('x{alias=~"${device:regex}"}', {"device": "plug.a"}, 0, 3600, 30)
+        audit.interpolate('x{alias=~"${device}"}', {"device": "plug.a"}, 0, 3600, 30, {"device"})
         == r'x{alias=~"plug\\.a"}'
     )
     assert audit.interpolate("${__from:date:seconds}+$__range_s", {}, 100, 3700, 30) == "100+3600"
     with pytest.raises(ValueError, match="unresolved"):
         audit.interpolate("$missing", {}, 0, 3600, 30)
+
+
+def test_generic_regex_formatter_differs_from_prometheus_default():
+    assert (
+        audit.interpolate('x{version=~"${version:regex}"}', {"version": "1.0.0"}, 0, 3600, 30)
+        == r'x{version=~"1\.0\.0"}'
+    )
+    assert (
+        audit.interpolate(
+            'x{alias="${baseline_device}"}', {"baseline_device": 'plug "one"'}, 0, 3600, 30
+        )
+        == r'x{alias="plug \"one\""}'
+    )

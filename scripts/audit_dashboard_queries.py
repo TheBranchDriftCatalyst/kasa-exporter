@@ -37,7 +37,7 @@ def panels(items):
         yield from panels(panel.get("panels", []))
 
 
-def interpolate(expression, values, start, end, step):
+def interpolate(expression, values, start, end, step, regex_variables=()):
     macros = {
         "__range_s": str(end - start),
         "__range_ms": str((end - start) * 1000),
@@ -63,14 +63,22 @@ def interpolate(expression, values, start, end, step):
             value = "(" + "|".join(re.escape(str(v)).replace(r"\ ", " ") for v in value) + ")"
             return json.dumps(value)[1:-1]
         if fmt == "regex" and value != ".*":
+            # Grafana's generic formatter bypasses Prometheus string escaping.
+            return re.escape(str(value)).replace(r"\ ", " ")
+        if name in regex_variables and value != ".*":
             return json.dumps(re.escape(str(value)).replace(r"\ ", " "))[1:-1]
-        return str(value)
+        return json.dumps(str(value))[1:-1]
 
     return re.sub(r"\$\{([A-Za-z_]\w*)(?::([^}]+))?\}|\$([A-Za-z_]\w*)", replace, expression)
 
 
 def resolve_variables(dashboard, base, overrides, start, end, step):
     values, findings = {}, []
+    regex_variables = {
+        v["name"]
+        for v in dashboard.get("templating", {}).get("list", [])
+        if v.get("multi") or v.get("includeAll")
+    }
     for var in dashboard.get("templating", {}).get("list", []):
         name = var["name"]
         current = var.get("current", {}).get("value")
@@ -103,7 +111,7 @@ def resolve_variables(dashboard, base, overrides, start, end, step):
             continue
         selector, label = match.groups()
         try:
-            selector = interpolate(selector, values, start, end, step)
+            selector = interpolate(selector, values, start, end, step, regex_variables)
             result = api(
                 base, "/api/v1/series", {"match[]": selector, "start": end - 300, "end": end}
             )
@@ -179,7 +187,14 @@ def audit_target(item):
         raw = target.get("expr", "")
         if not raw.strip():
             raise ValueError("empty target expression")
-        expr = interpolate(raw, values, options.start, options.end, options.step)
+        expr = interpolate(
+            raw,
+            values,
+            options.start,
+            options.end,
+            options.step,
+            getattr(options, "regex_variables", ()),
+        )
         output["query"] = expr
         if re.search(r"\b(?:increase|rate)\(consumption_(?:cost|today|this_month)", expr):
             raise ValueError("counter function applied to an exporter gauge")
@@ -232,6 +247,11 @@ def main():
     results = []
     for file in sorted(args.dashboards.glob("*.json")):
         dashboard = json.loads(file.read_text())
+        args.regex_variables = {
+            v["name"]
+            for v in dashboard.get("templating", {}).get("list", [])
+            if v.get("multi") or v.get("includeAll")
+        }
         variables, variable_checks = resolve_variables(
             dashboard, args.prometheus_url, overrides, args.start, args.end, args.step
         )

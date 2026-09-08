@@ -19,7 +19,7 @@
           "uid": "mimir"
         },
         "enable": true,
-        "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold",
+        "expr": "kasa:current_consumption:total{version=~\"${version}\"} > $power_alert_threshold",
         "iconColor": "#FF1694",
         "name": "Power threshold samples",
         "tagKeys": "alert",
@@ -32,7 +32,7 @@
           "uid": "mimir"
         },
         "enable": true,
-        "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == 1",
+        "expr": "kasa:consumption_cost:anomaly{version=~\"${version}\"} == 1",
         "iconColor": "#FFEA00",
         "name": "Cost Anomalies",
         "tagKeys": "anomaly",
@@ -147,7 +147,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🚨 Alerts & Thresholds",
   "uid": "kasa-alerts-v2",
-  "version": 5,
+  "version": 6,
   "weekStart": "",
   "panels": [
     {
@@ -248,7 +248,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"} > bool $power_alert_threshold",
+          "expr": "kasa:current_consumption:total{version=~\"${version}\"} > bool $power_alert_threshold",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -401,7 +401,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"}",
+          "expr": "kasa:current_consumption:total{version=~\"${version}\"}",
           "legendFormat": "Current Power",
           "refId": "A",
           "instant": false,
@@ -491,7 +491,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max_over_time(kasa:current_consumption:total{version=~\"${version:regex}\"}[1h]) / $power_alert_threshold",
+          "expr": "max_over_time(kasa:current_consumption:total{version=~\"${version}\"}[1h]) / $power_alert_threshold",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -604,7 +604,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold) + 0",
+          "expr": "(kasa:current_consumption:total{version=~\"${version}\"} > $power_alert_threshold) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -721,7 +721,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:anomaly{version=~\"${version}\"}",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -799,7 +799,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:zscore{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:zscore{version=~\"${version}\"}",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -943,7 +943,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"}",
           "legendFormat": "Cost",
           "refId": "A",
           "instant": false,
@@ -958,7 +958,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} * kasa:consumption_cost:total{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:anomaly{version=~\"${version}\"} * kasa:consumption_cost:total{version=~\"${version}\"}",
           "legendFormat": "Anomaly Periods",
           "refId": "B",
           "instant": false,
@@ -1033,7 +1033,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(sum_over_time((kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == bool 1)[$__range:30s]))",
+          "expr": "sum(sum_over_time((kasa:consumption_cost:anomaly{version=~\"${version}\"} == bool 1)[$__range:30s]))",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -1117,7 +1117,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:rate_class:numeric{version=~\"${version:regex}\"}",
+          "expr": "kasa:rate_class:numeric{version=~\"${version}\"}",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -1276,7 +1276,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum(kasa:current_consumption:total{version=~\"${version:regex}\"} > bool $power_alert_threshold) + sum(kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool $cost_alert_threshold) + sum(kasa:consumption_cost:anomaly{version=~\"${version:regex}\"}))",
+          "expr": "(sum(kasa:current_consumption:total{version=~\"${version}\"} > bool $power_alert_threshold) + sum(kasa:consumption_cost:total{version=~\"${version}\"} > bool $cost_alert_threshold) + sum(kasa:consumption_cost:anomaly{version=~\"${version}\"}))",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -1362,7 +1362,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:rate_class:numeric{version=~\"${version:regex}\"} == bool 3",
+          "expr": "kasa:rate_class:numeric{version=~\"${version}\"} == bool 3",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -1468,7 +1468,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:rate_class:numeric{version=~\"${version:regex}\"}",
+          "expr": "kasa:rate_class:numeric{version=~\"${version}\"}",
           "legendFormat": "Rate Class",
           "refId": "A",
           "instant": false,
@@ -1614,7 +1614,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(max by(device_id,alias,version)(state{job=\"kasa-exporter\",state=\"on\",version=~\"${version:regex}\"})) + 0",
+          "expr": "(max by(device_id,alias,version)(state{job=\"kasa-exporter\",state=\"on\",version=~\"${version}\"})) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -1628,7 +1628,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(kasa:current_consumption:by_device{version=~\"${version:regex}\"}) + 0",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "B",
@@ -1642,7 +1642,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(max by(device_id,alias,version)(rssi{job=\"kasa-exporter\",version=~\"${version:regex}\"})) + 0",
+          "expr": "(max by(device_id,alias,version)(rssi{job=\"kasa-exporter\",version=~\"${version}\"})) + 0",
           "format": "table",
           "instant": true,
           "refId": "C",
@@ -1748,7 +1748,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(state{job=\"kasa-exporter\",state=\"on\",version=~\"${version:regex}\"} == bool 0)",
+          "expr": "sum(state{job=\"kasa-exporter\",state=\"on\",version=~\"${version}\"} == bool 0)",
           "legendFormat": "🔌 Offline",
           "refId": "A",
           "instant": true,
@@ -1763,7 +1763,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(rssi{job=\"kasa-exporter\",version=~\"${version:regex}\"} < bool -70)",
+          "expr": "sum(rssi{job=\"kasa-exporter\",version=~\"${version}\"} < bool -70)",
           "legendFormat": "📶 WiFi Alert",
           "refId": "B",
           "instant": true,
@@ -1778,7 +1778,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(kasa:current_consumption:by_device{version=~\"${version:regex}\"} > bool $power_alert_threshold)",
+          "expr": "sum(kasa:current_consumption:by_device{version=~\"${version}\"} > bool $power_alert_threshold)",
           "legendFormat": "⚡ Power Alert",
           "refId": "C",
           "instant": true,
@@ -1853,7 +1853,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[24h]) * 730",
+          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version}\"}[24h]) * 730",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -1929,7 +1929,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s])) * 30 / 3600) / 100 * 100",
+          "expr": "((sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[30d:30s])) * 30 / 3600) / 100 * 100",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -2003,7 +2003,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_min(100 - ((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s])) * 30 / 3600), 0) / (((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600) > 0)",
+          "expr": "clamp_min(100 - ((sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[30d:30s])) * 30 / 3600), 0) / (((sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[24h:30s])) * 30 / 3600) > 0)",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -2146,7 +2146,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s])) * 30 / 3600",
+          "expr": "(sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[30d:30s])) * 30 / 3600",
           "legendFormat": "Actual Cost",
           "refId": "A",
           "instant": false,
@@ -2307,7 +2307,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold) + 0",
+          "expr": "(kasa:current_consumption:total{version=~\"${version}\"} > $power_alert_threshold) + 0",
           "format": "table",
           "instant": true,
           "legendFormat": "Power Alert",
@@ -2322,7 +2322,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(kasa:consumption_cost:total{version=~\"${version:regex}\"} > $cost_alert_threshold) + 0",
+          "expr": "(kasa:consumption_cost:total{version=~\"${version}\"} > $cost_alert_threshold) + 0",
           "format": "table",
           "instant": true,
           "legendFormat": "Cost Alert",
@@ -2337,7 +2337,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == 1) + 0",
+          "expr": "(kasa:consumption_cost:anomaly{version=~\"${version}\"} == 1) + 0",
           "format": "table",
           "instant": true,
           "legendFormat": "Anomaly",
@@ -2448,7 +2448,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum_over_time((kasa:current_consumption:total{version=~\"${version:regex}\"} > bool $power_alert_threshold)[7d:30s])",
+          "expr": "sum_over_time((kasa:current_consumption:total{version=~\"${version}\"} > bool $power_alert_threshold)[7d:30s])",
           "legendFormat": "📊 Alerts/Week",
           "refId": "A",
           "instant": true,
@@ -2463,7 +2463,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool $cost_alert_threshold)[7d:30s])",
+          "expr": "sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"} > bool $cost_alert_threshold)[7d:30s])",
           "legendFormat": "🔍 Anomalies/Week",
           "refId": "B",
           "instant": true,
@@ -2478,7 +2478,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum_over_time((kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == bool 1)[7d:30s])",
+          "expr": "sum_over_time((kasa:consumption_cost:anomaly{version=~\"${version}\"} == bool 1)[7d:30s])",
           "legendFormat": "🔌 Offline/Week",
           "refId": "C",
           "instant": true,
@@ -2560,7 +2560,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum((kasa:current_consumption:total{version=~\"${version:regex}\"} > bool ($power_alert_threshold * 0.8))) + sum((kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool ($cost_alert_threshold * 0.8)))",
+          "expr": "sum((kasa:current_consumption:total{version=~\"${version}\"} > bool ($power_alert_threshold * 0.8))) + sum((kasa:consumption_cost:total{version=~\"${version}\"} > bool ($cost_alert_threshold * 0.8)))",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -2703,7 +2703,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum_over_time((kasa:current_consumption:total{version=~\"${version:regex}\"} > bool $power_alert_threshold)[1h:30s])",
+          "expr": "sum_over_time((kasa:current_consumption:total{version=~\"${version}\"} > bool $power_alert_threshold)[1h:30s])",
           "legendFormat": "Power Alerts",
           "refId": "A",
           "instant": false,
@@ -2718,7 +2718,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool $cost_alert_threshold)[1h:30s])",
+          "expr": "sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"} > bool $cost_alert_threshold)[1h:30s])",
           "legendFormat": "Cost Alerts",
           "refId": "B",
           "instant": false,
@@ -2733,7 +2733,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum_over_time((kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == bool 1)[1h:30s])",
+          "expr": "sum_over_time((kasa:consumption_cost:anomaly{version=~\"${version}\"} == bool 1)[1h:30s])",
           "legendFormat": "Anomalies",
           "refId": "C",
           "instant": false,
@@ -2800,7 +2800,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "topk(1, sum_over_time((kasa:current_consumption:by_device{version=~\"${version:regex}\"} > bool $power_alert_threshold)[7d:30s]))",
+          "expr": "topk(1, sum_over_time((kasa:current_consumption:by_device{version=~\"${version}\"} > bool $power_alert_threshold)[7d:30s]))",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -2960,7 +2960,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "time() - max(max_over_time((timestamp(kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold))[$__range:30s]))",
+          "expr": "time() - max(max_over_time((timestamp(kasa:current_consumption:total{version=~\"${version}\"} > $power_alert_threshold))[$__range:30s]))",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -3046,7 +3046,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool $cost_alert_threshold",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"} > bool $cost_alert_threshold",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -3199,7 +3199,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"}",
           "legendFormat": "Current Cost",
           "refId": "A",
           "instant": false,
@@ -3301,7 +3301,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:anomaly{version=~\"${version}\"}",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -3401,7 +3401,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool $cost_alert_threshold",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"} > bool $cost_alert_threshold",
           "legendFormat": "Cost Alert Status",
           "refId": "A",
           "instant": false,
@@ -3471,7 +3471,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "clamp_max(min(count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[24h])) / 2880 * 100, 100)",
+          "expr": "clamp_max(min(count_over_time(kasa:consumption_cost:total{version=~\"${version}\"}[24h])) / 2880 * 100, 100)",
           "instant": true,
           "range": false,
           "audit": {

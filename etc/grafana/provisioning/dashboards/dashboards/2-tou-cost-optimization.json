@@ -61,7 +61,7 @@
   "timezone": "America/Los_Angeles",
   "title": "⚡ TOU Cost Optimization",
   "uid": "kasa-tou-opt-v2",
-  "version": 5,
+  "version": 6,
   "panels": [
     {
       "datasource": {
@@ -132,7 +132,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:rate_class:numeric{version=~\"${version:regex}\"}",
+          "expr": "kasa:rate_class:numeric{version=~\"${version}\"}",
           "legendFormat": "{{rate_class}}",
           "range": false,
           "refId": "A",
@@ -269,7 +269,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "sum by(rate_class,version) (kasa:current_consumption:by_device{version=~\"${version:regex}\"} * on(device_id,version) group_left(rate_class) (max by(device_id,version,rate_class)(current_energy_rate{job=\"kasa-exporter\",version=~\"${version:regex}\"}) * 0 + 1))",
+          "expr": "sum by(rate_class,version) (kasa:current_consumption:by_device{version=~\"${version}\"} * on(device_id,version) group_left(rate_class) (max by(device_id,version,rate_class)(current_energy_rate{job=\"kasa-exporter\",version=~\"${version}\"}) * 0 + 1))",
           "legendFormat": "{{rate_class}}",
           "range": false,
           "refId": "A",
@@ -351,7 +351,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\", rate_class=\"super_off_peak\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\", rate_class=\"super_off_peak\"})[$__range:30s])) * 30 / 3600) / (sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s])) * 30 / 3600) > 0) * 100",
+          "expr": "sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\", rate_class=\"super_off_peak\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\", rate_class=\"super_off_peak\"})[$__range:30s])) * 30 / 3600) / (sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\"})[$__range:30s])) * 30 / 3600) > 0) * 100",
           "legendFormat": "Super Off-Peak Usage %",
           "range": false,
           "refId": "A",
@@ -439,7 +439,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\", rate_class=\"super_off_peak\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\", rate_class=\"super_off_peak\"})[$__range:30s])) * 30 / 3600) / (sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s])) * 30 / 3600) > 0) * 100",
+          "expr": "sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\", rate_class=\"super_off_peak\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\", rate_class=\"super_off_peak\"})[$__range:30s])) * 30 / 3600) / (sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\"})[$__range:30s])) * 30 / 3600) > 0) * 100",
           "legendFormat": "Super Off-Peak %",
           "range": false,
           "refId": "A",
@@ -515,7 +515,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"super_off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"super_off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version}\"})) * 730",
           "legendFormat": "Monthly Cost (All Super Off-Peak)",
           "range": false,
           "refId": "A",
@@ -589,7 +589,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version}\"})) * 730",
           "legendFormat": "Monthly Cost (All Off-Peak)",
           "range": false,
           "refId": "A",
@@ -663,7 +663,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"on_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"on_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version}\"})) * 730",
           "legendFormat": "Monthly Cost (All On-Peak)",
           "range": false,
           "refId": "A",
@@ -828,7 +828,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"super_off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"super_off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version}\"})) * 730",
           "legendFormat": "Super Off-Peak",
           "range": true,
           "refId": "A",
@@ -844,7 +844,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version}\"})) * 730",
           "legendFormat": "Off-Peak",
           "range": true,
           "refId": "B",
@@ -860,7 +860,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"on_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"on_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version}\"})) * 730",
           "legendFormat": "On-Peak",
           "range": true,
           "refId": "C",
@@ -876,7 +876,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:projected_month{version=~\"${version}\"}",
           "legendFormat": "Current-tariff projection",
           "range": true,
           "refId": "D",
@@ -1041,7 +1041,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:consumption_cost:total{version=~\"${version:regex}\"}) + 0",
+          "expr": "(kasa:consumption_cost:total{version=~\"${version}\"}) + 0",
           "format": "table",
           "legendFormat": "Current Cost Rate",
           "range": false,
@@ -1057,7 +1057,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:consumption_cost:projected_day{version=~\"${version:regex}\"}) + 0",
+          "expr": "(kasa:consumption_cost:projected_day{version=~\"${version}\"}) + 0",
           "format": "table",
           "legendFormat": "Projected Daily Cost",
           "range": false,
@@ -1073,7 +1073,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}) + 0",
+          "expr": "(kasa:consumption_cost:projected_month{version=~\"${version}\"}) + 0",
           "format": "table",
           "legendFormat": "Projected Monthly Cost",
           "range": false,
@@ -1089,7 +1089,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version:regex}\"}) + 0",
+          "expr": "(kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version}\"}) + 0",
           "format": "table",
           "legendFormat": "Potential Savings (Super Off-Peak)",
           "range": false,
@@ -1105,7 +1105,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"}) + 0",
+          "expr": "(kasa:current_consumption:total{version=~\"${version}\"}) + 0",
           "format": "table",
           "legendFormat": "Current Power Draw",
           "range": false,
@@ -1214,7 +1214,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\"}",
+          "expr": "kasa:current_consumption:by_device{version=~\"${version}\"}",
           "legendFormat": "{{alias}}",
           "range": false,
           "refId": "A",
@@ -1292,7 +1292,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:current_energy_rate:current{version=~\"${version:regex}\"}",
+          "expr": "kasa:current_energy_rate:current{version=~\"${version}\"}",
           "legendFormat": "Rate ($/kWh)",
           "range": false,
           "refId": "A",
@@ -1433,7 +1433,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:rate_class:numeric{version=~\"${version:regex}\"}",
+          "expr": "kasa:rate_class:numeric{version=~\"${version}\"}",
           "legendFormat": "Rate Class",
           "range": true,
           "refId": "A",
@@ -1562,7 +1562,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s])) * 30 / 3600)",
+          "expr": "sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\"})[$__range:30s])) * 30 / 3600)",
           "legendFormat": "{{rate_class}}",
           "range": false,
           "refId": "A",
@@ -1686,7 +1686,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s])) * 30 / 3600)) + 0",
+          "expr": "(sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\"})[$__range:30s])) * 30 / 3600)) + 0",
           "format": "table",
           "legendFormat": "{{rate_class}}",
           "range": false,
@@ -1874,7 +1874,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[1h:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[1h:30s])) * 30 / 3600)",
+          "expr": "sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\"})[1h:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version}\"})[1h:30s])) * 30 / 3600)",
           "legendFormat": "{{rate_class}}",
           "range": true,
           "refId": "A",
@@ -1968,7 +1968,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version}\"}",
           "legendFormat": "Potential Savings (Super Off-Peak)",
           "range": false,
           "refId": "A",
@@ -2058,7 +2058,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:consumption_cost:potential_savings_off_peak{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:potential_savings_off_peak{version=~\"${version}\"}",
           "legendFormat": "Potential Savings (Off-Peak)",
           "range": false,
           "refId": "A",
@@ -2189,7 +2189,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version}\"}",
           "legendFormat": "Super Off-Peak Savings",
           "range": true,
           "refId": "A",
@@ -2205,7 +2205,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:consumption_cost:potential_savings_off_peak{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:potential_savings_off_peak{version=~\"${version}\"}",
           "legendFormat": "Off-Peak Savings",
           "range": true,
           "refId": "B",
@@ -2275,7 +2275,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "clamp_max(min(count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[24h])) / 2880 * 100, 100)",
+          "expr": "clamp_max(min(count_over_time(kasa:consumption_cost:total{version=~\"${version}\"}[24h])) / 2880 * 100, 100)",
           "instant": true,
           "range": false,
           "audit": {

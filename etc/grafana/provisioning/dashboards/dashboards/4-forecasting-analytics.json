@@ -75,7 +75,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🔮 Forecasting & Predictions",
   "uid": "kasa-forecast-v2",
-  "version": 5,
+  "version": 6,
   "weekStart": "",
   "panels": [
     {
@@ -148,7 +148,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:projected_month{version=~\"${version}\"}",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -316,7 +316,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "100 - (kasa:consumption_cost:projected_month{version=~\"${version:regex}\"})",
+          "expr": "100 - (kasa:consumption_cost:projected_month{version=~\"${version}\"})",
           "legendFormat": "Budget Remaining",
           "refId": "A",
           "instant": true,
@@ -435,7 +435,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:avg_24h{version=~\"${version}\"}",
           "legendFormat": "24h Avg Cost",
           "refId": "A",
           "instant": false,
@@ -450,7 +450,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[6h], 3600), 0)) and on(version) (count_over_time(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[6h]) >= 576)",
+          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:avg_24h{version=~\"${version}\"}[6h], 3600), 0)) and on(version) (count_over_time(kasa:consumption_cost:avg_24h{version=~\"${version}\"}[6h]) >= 576)",
           "legendFormat": "Trend Line",
           "refId": "B",
           "instant": false,
@@ -572,7 +572,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"}",
+          "expr": "kasa:current_consumption:total{version=~\"${version}\"}",
           "legendFormat": "Current Power",
           "refId": "A",
           "instant": false,
@@ -587,7 +587,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(clamp_min(predict_linear(kasa:current_consumption:total{version=~\"${version:regex}\"}[1h], 3600), 0)) and on(version) (count_over_time(kasa:current_consumption:total{version=~\"${version:regex}\"}[1h]) >= 96)",
+          "expr": "(clamp_min(predict_linear(kasa:current_consumption:total{version=~\"${version}\"}[1h], 3600), 0)) and on(version) (count_over_time(kasa:current_consumption:total{version=~\"${version}\"}[1h]) >= 96)",
           "legendFormat": "Prediction +1h",
           "refId": "B",
           "instant": false,
@@ -602,7 +602,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(clamp_min(predict_linear(kasa:current_consumption:total{version=~\"${version:regex}\"}[6h], 21600), 0)) and on(version) (count_over_time(kasa:current_consumption:total{version=~\"${version:regex}\"}[6h]) >= 576)",
+          "expr": "(clamp_min(predict_linear(kasa:current_consumption:total{version=~\"${version}\"}[6h], 21600), 0)) and on(version) (count_over_time(kasa:current_consumption:total{version=~\"${version}\"}[6h]) >= 576)",
           "legendFormat": "Prediction +6h",
           "refId": "C",
           "instant": false,
@@ -724,7 +724,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"}",
           "legendFormat": "Current Cost",
           "refId": "A",
           "instant": false,
@@ -739,7 +739,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:total{version=~\"${version:regex}\"}[1h], 3600), 0)) and on(version) (count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[1h]) >= 96)",
+          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:total{version=~\"${version}\"}[1h], 3600), 0)) and on(version) (count_over_time(kasa:consumption_cost:total{version=~\"${version}\"}[1h]) >= 96)",
           "legendFormat": "Prediction +1h",
           "refId": "B",
           "instant": false,
@@ -754,7 +754,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:total{version=~\"${version:regex}\"}[6h], 21600), 0)) and on(version) (count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[6h]) >= 576)",
+          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:total{version=~\"${version}\"}[6h], 21600), 0)) and on(version) (count_over_time(kasa:consumption_cost:total{version=~\"${version}\"}[6h]) >= 576)",
           "legendFormat": "Prediction +6h",
           "refId": "C",
           "instant": false,
@@ -888,7 +888,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"}",
           "legendFormat": "This Week",
           "refId": "A",
           "instant": false,
@@ -903,7 +903,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} offset 7d",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"} offset 7d",
           "legendFormat": "Last Week",
           "refId": "B",
           "instant": false,
@@ -1037,7 +1037,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"}",
           "legendFormat": "This Month",
           "refId": "A",
           "instant": false,
@@ -1052,7 +1052,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} offset 30d",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"} offset 30d",
           "legendFormat": "Last Month",
           "refId": "B",
           "instant": false,
@@ -1144,7 +1144,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:anomaly{version=~\"${version}\"}",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -1258,7 +1258,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:zscore{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:zscore{version=~\"${version}\"}",
           "legendFormat": "Z-Score",
           "refId": "A",
           "instant": false,
@@ -1357,7 +1357,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:stddev_1h{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:stddev_1h{version=~\"${version}\"}",
           "legendFormat": "Std Dev (1h)",
           "refId": "A",
           "instant": false,
@@ -1513,7 +1513,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"}",
           "legendFormat": "Current Cost",
           "refId": "A",
           "instant": false,
@@ -1528,7 +1528,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:avg_1h{version=~\"${version:regex}\"} + (2 * kasa:consumption_cost:stddev_1h{version=~\"${version:regex}\"})",
+          "expr": "kasa:consumption_cost:avg_1h{version=~\"${version}\"} + (2 * kasa:consumption_cost:stddev_1h{version=~\"${version}\"})",
           "legendFormat": "Upper Bound (2σ)",
           "refId": "B",
           "instant": false,
@@ -1543,7 +1543,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:avg_1h{version=~\"${version:regex}\"} - (2 * kasa:consumption_cost:stddev_1h{version=~\"${version:regex}\"})",
+          "expr": "kasa:consumption_cost:avg_1h{version=~\"${version}\"} - (2 * kasa:consumption_cost:stddev_1h{version=~\"${version}\"})",
           "legendFormat": "Lower Bound (2σ)",
           "refId": "C",
           "instant": false,
@@ -1660,7 +1660,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[1h])",
+          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version}\"}[1h])",
           "format": "time_series",
           "legendFormat": "Hour {{hour}}",
           "refId": "A",
@@ -1759,7 +1759,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[1d])",
+          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version}\"}[1d])",
           "legendFormat": "{{day_of_week}}",
           "refId": "A",
           "instant": false,
@@ -1858,7 +1858,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"}",
           "legendFormat": "Week 0 (Current)",
           "refId": "A",
           "instant": false,
@@ -1873,7 +1873,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} offset 7d",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"} offset 7d",
           "legendFormat": "Week -1",
           "refId": "B",
           "instant": false,
@@ -1888,7 +1888,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} offset 14d",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"} offset 14d",
           "legendFormat": "Week -2",
           "refId": "C",
           "instant": false,
@@ -1903,7 +1903,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} offset 21d",
+          "expr": "kasa:consumption_cost:total{version=~\"${version}\"} offset 21d",
           "legendFormat": "Week -3",
           "refId": "D",
           "instant": false,
@@ -2002,7 +2002,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[30d])",
+          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version}\"}[30d])",
           "legendFormat": "30-Day Rolling Average",
           "refId": "A",
           "instant": false,
@@ -2087,7 +2087,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:avg_1h{version=~\"${version:regex}\"}[1h], 3600), 0)) and on(version) (count_over_time(kasa:consumption_cost:avg_1h{version=~\"${version:regex}\"}[1h]) >= 96)",
+          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:avg_1h{version=~\"${version}\"}[1h], 3600), 0)) and on(version) (count_over_time(kasa:consumption_cost:avg_1h{version=~\"${version}\"}[1h]) >= 96)",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -2171,7 +2171,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[24h], 86400), 0)) and on(version) (count_over_time(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[24h]) >= 2304)",
+          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:avg_24h{version=~\"${version}\"}[24h], 86400), 0)) and on(version) (count_over_time(kasa:consumption_cost:avg_24h{version=~\"${version}\"}[24h]) >= 2304)",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -2259,7 +2259,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}",
+          "expr": "kasa:consumption_cost:projected_month{version=~\"${version}\"}",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -2335,7 +2335,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "2 * kasa:consumption_cost:stddev_1h{version=~\"${version:regex}\"}",
+          "expr": "2 * kasa:consumption_cost:stddev_1h{version=~\"${version}\"}",
           "legendFormat": "±2σ Range",
           "refId": "A",
           "instant": true,
@@ -2458,7 +2458,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "deriv(kasa:current_consumption:total{version=~\"${version:regex}\"}[5m])",
+          "expr": "deriv(kasa:current_consumption:total{version=~\"${version}\"}[5m])",
           "legendFormat": "Current Power",
           "refId": "A",
           "instant": false,
@@ -2599,7 +2599,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600) + 0",
+          "expr": "((sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[24h:30s])) * 30 / 3600) + 0",
           "format": "table",
           "legendFormat": "Daily Cost",
           "refId": "A",
@@ -2728,7 +2728,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s])) * 30 / 3600",
+          "expr": "(sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[1d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[1d:30s])) * 30 / 3600",
           "legendFormat": "Daily Total",
           "refId": "A",
           "instant": false,
@@ -2813,7 +2813,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s])) * 30 / 3600)[30d:1d])",
+          "expr": "max_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[1d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[1d:30s])) * 30 / 3600)[30d:1d])",
           "legendFormat": "Highest Day",
           "refId": "A",
           "instant": true,
@@ -2890,7 +2890,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "min_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s])) * 30 / 3600)[30d:1d])",
+          "expr": "min_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[1d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[1d:30s])) * 30 / 3600)[30d:1d])",
           "legendFormat": "Lowest Day",
           "refId": "A",
           "instant": true,
@@ -2975,7 +2975,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[7d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[7d:30s])) * 30 / 3600)[30d:7d])",
+          "expr": "max_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[7d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[7d:30s])) * 30 / 3600)[30d:7d])",
           "legendFormat": "Highest Week",
           "refId": "A",
           "instant": true,
@@ -3060,7 +3060,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s])) * 30 / 3600)[365d:30d])",
+          "expr": "max_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version}\"})[30d:30s])) * 30 / 3600)[365d:30d])",
           "legendFormat": "Highest Month",
           "refId": "A",
           "instant": true,
@@ -3130,7 +3130,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "clamp_max(min(count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[24h])) / 2880 * 100, 100)",
+          "expr": "clamp_max(min(count_over_time(kasa:consumption_cost:total{version=~\"${version}\"}[24h])) / 2880 * 100, 100)",
           "instant": true,
           "range": false,
           "audit": {
