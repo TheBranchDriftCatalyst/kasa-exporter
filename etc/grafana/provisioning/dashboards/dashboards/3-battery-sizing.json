@@ -15,14 +15,14 @@
       }
     ]
   },
-  "description": "Battery capacity sizing, runtime analysis, and load profiling for backup system design",
+  "description": "Kasa measured power and modeled costs. Missing readings are unknown, not zero. Costs use configured tariffs, not a verified utility bill. Historical integrals are 30-second sampled estimates over available data; gaps reduce coverage. Battery/solar panels are scenarios, not battery telemetry.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 2,
   "id": 1,
   "links": [],
   "preload": false,
-  "refresh": "10s",
+  "refresh": "30s",
   "schemaVersion": 42,
   "tags": ["kasa", "battery", "sizing", "runtime", "backup", "cyberpunk"],
   "templating": {
@@ -36,20 +36,20 @@
           "type": "prometheus",
           "uid": "mimir"
         },
-        "definition": "label_values(version)",
+        "definition": "label_values(current_consumption{job=\"kasa-exporter\"}, version)",
         "includeAll": true,
         "label": "Version",
         "name": "version",
         "options": [],
         "query": {
-          "qryType": 1,
-          "query": "label_values(version)",
+          "query": "label_values(current_consumption{job=\"kasa-exporter\"}, version)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
         "sort": 1,
-        "type": "query"
+        "type": "query",
+        "allValue": ".*"
       },
       {
         "current": {
@@ -60,15 +60,14 @@
           "type": "prometheus",
           "uid": "mimir"
         },
-        "definition": "label_values(alias)",
+        "definition": "label_values(current_consumption{job=\"kasa-exporter\"}, alias)",
         "includeAll": true,
         "label": "Device",
         "multi": true,
         "name": "device",
         "options": [],
         "query": {
-          "qryType": 1,
-          "query": "label_values(alias)",
+          "query": "label_values(current_consumption{job=\"kasa-exporter\"}, alias)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -273,10 +272,10 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "America/Denver",
+  "timezone": "America/Los_Angeles",
   "title": "🔋 Battery Sizing & Analysis",
   "uid": "kasa-battery-v2",
-  "version": 2,
+  "version": 3,
   "panels": [
     {
       "datasource": {
@@ -310,7 +309,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -344,13 +344,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "sum(current_consumption{alias=~\"$device\", version=~\"$version\"})",
-          "range": true,
-          "refId": "A"
+          "expr": "sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"}))",
+          "range": false,
+          "refId": "A",
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "⚡ Total Load",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -372,7 +379,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -405,12 +413,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(avg_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[1h]))",
-          "refId": "A"
+          "expr": "avg_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[1h:30s])",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "🔌 Average Load (1h)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -432,7 +448,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -465,12 +482,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(max_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h]))",
-          "refId": "A"
+          "expr": "max_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s])",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "📊 Peak Load (24h)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -492,7 +517,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -525,12 +551,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(min_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h]))",
-          "refId": "A"
+          "expr": "min_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s])",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "📉 Min Load (24h)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -564,7 +598,8 @@
               }
             ]
           },
-          "unit": "h"
+          "unit": "h",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -597,12 +632,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
-          "refId": "A"
+          "expr": "(($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "⏱️ Runtime @ Current Load",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -636,7 +679,8 @@
               }
             ]
           },
-          "unit": "h"
+          "unit": "h",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -669,12 +713,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / sum(avg_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[1h])))",
-          "refId": "A"
+          "expr": "(($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / (avg_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[1h:30s]) > 0))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "⏱️ Runtime @ Average Load",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -708,7 +760,8 @@
               }
             ]
           },
-          "unit": "h"
+          "unit": "h",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -741,12 +794,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / sum(max_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h])))",
-          "refId": "A"
+          "expr": "(($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / (max_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s]) > 0))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "⏱️ Runtime @ Peak Load",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -768,7 +829,8 @@
               }
             ]
           },
-          "unit": "amph"
+          "unit": "amph",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -801,31 +863,53 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((sum(max_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h])) * 8) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
+          "expr": "((max_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s]) * 8) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
           "legendFormat": "8h Backup",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((sum(max_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h])) * 12) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
+          "expr": "((max_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s]) * 12) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
           "legendFormat": "12h Backup",
-          "refId": "B"
+          "refId": "B",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((sum(max_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h])) * 24) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
+          "expr": "((max_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s]) * 24) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
           "legendFormat": "24h Backup",
-          "refId": "C"
+          "refId": "C",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "🎯 Recommended Capacity",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -873,27 +957,39 @@
               }
             ]
           },
-          "unit": "h"
+          "unit": "h",
+          "noValue": "—"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Configuration"
+              "options": "Device"
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "auto"
-                }
+                "id": "unit",
+                "value": "none"
               },
               {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#00E5FF",
-                  "mode": "fixed"
-                }
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device ID"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "custom.width",
+                "value": 280
               }
             ]
           }
@@ -923,102 +1019,208 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((12 * 100 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "((12 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
           "legendFormat": "12V @ 100Ah",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((12 * 200 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "((12 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
           "legendFormat": "12V @ 200Ah",
-          "refId": "B"
+          "refId": "B",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((12 * 400 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "((12 * 400 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
           "legendFormat": "12V @ 400Ah",
-          "refId": "C"
+          "refId": "C",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((24 * 100 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "((24 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
           "legendFormat": "24V @ 100Ah",
-          "refId": "D"
+          "refId": "D",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((24 * 200 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "((24 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
           "legendFormat": "24V @ 200Ah",
-          "refId": "E"
+          "refId": "E",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((24 * 400 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "((24 * 400 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
           "legendFormat": "24V @ 400Ah",
-          "refId": "F"
+          "refId": "F",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((48 * 100 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "((48 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
           "legendFormat": "48V @ 100Ah",
-          "refId": "G"
+          "refId": "G",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((48 * 200 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "((48 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
           "legendFormat": "48V @ 200Ah",
-          "refId": "H"
+          "refId": "H",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((48 * 400 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "((48 * 400 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
           "legendFormat": "48V @ 400Ah",
-          "refId": "I"
+          "refId": "I",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((48 * 800 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "((48 * 800 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
           "legendFormat": "48V @ 800Ah",
-          "refId": "J"
+          "refId": "J",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "📊 Runtime Comparison Table",
       "transformations": [
         {
-          "id": "seriesToColumns",
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
           "options": {
-            "byField": "Time"
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "instance": true,
+              "job": true,
+              "model": true,
+              "version": true,
+              "pod": true,
+              "service": true,
+              "endpoint": true,
+              "namespace": true,
+              "cluster": true,
+              "container": true
+            },
+            "renameByName": {
+              "Value #A": "12V @ 100Ah",
+              "Value #B": "12V @ 200Ah",
+              "Value #C": "12V @ 400Ah",
+              "Value #D": "24V @ 100Ah",
+              "Value #E": "24V @ 200Ah",
+              "Value #F": "24V @ 400Ah",
+              "Value #G": "48V @ 100Ah",
+              "Value #H": "48V @ 200Ah",
+              "Value #I": "48V @ 400Ah",
+              "Value #J": "48V @ 800Ah",
+              "alias": "Device",
+              "device_id": "Device ID"
+            },
+            "indexByName": {
+              "alias": 0,
+              "device_id": 1
+            }
           }
         }
       ],
-      "type": "table"
+      "type": "table",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -1036,7 +1238,9 @@
             "scaleDistribution": {
               "type": "linear"
             }
-          }
+          },
+          "noValue": "—",
+          "unit": "h"
         },
         "overrides": []
       },
@@ -1091,64 +1295,101 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((12 * 100 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
-          "format": "heatmap",
+          "expr": "((12 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "format": "time_series",
           "legendFormat": "12V/100Ah",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((12 * 200 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
-          "format": "heatmap",
+          "expr": "((12 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "format": "time_series",
           "legendFormat": "12V/200Ah",
-          "refId": "B"
+          "refId": "B",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((24 * 100 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
-          "format": "heatmap",
+          "expr": "((24 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "format": "time_series",
           "legendFormat": "24V/100Ah",
-          "refId": "C"
+          "refId": "C",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((24 * 200 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
-          "format": "heatmap",
+          "expr": "((24 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "format": "time_series",
           "legendFormat": "24V/200Ah",
-          "refId": "D"
+          "refId": "D",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((48 * 100 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
-          "format": "heatmap",
+          "expr": "((48 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "format": "time_series",
           "legendFormat": "48V/100Ah",
-          "refId": "E"
+          "refId": "E",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((48 * 200 * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
-          "format": "heatmap",
+          "expr": "((48 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "format": "time_series",
           "legendFormat": "48V/200Ah",
-          "refId": "F"
+          "refId": "F",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
-      "title": "🔋 Capacity Heatmap",
-      "type": "heatmap"
+      "title": "Runtime by battery configuration",
+      "type": "bargauge",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -1202,7 +1443,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1232,13 +1474,21 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "current_consumption{alias=~\"$device\", version=~\"$version\"}",
+          "expr": "current_consumption{alias=~\"${device:regex}\", version=~\"${version:regex}\"}",
           "legendFormat": "{{alias}}",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "📈 Power Consumption Timeline",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -1292,7 +1542,8 @@
               }
             ]
           },
-          "unit": "watth"
+          "unit": "watth",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1322,13 +1573,21 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum by(alias) (avg_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[1h])) * $__range_s / 3600",
+          "expr": "(sum_over_time((kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[$__range:30s]) - last_over_time((kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[$__range:30s])) * 30 / 3600",
           "legendFormat": "{{alias}} - Cumulative Wh",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
-      "title": "🌊 Cumulative Energy Draw",
-      "type": "timeseries"
+      "title": "Observed energy in rolling selected window",
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -1382,7 +1641,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1412,13 +1672,21 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sort_desc(sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
+          "expr": "sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"}))",
           "legendFormat": "Load Duration Curve",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
-      "title": "⚡ Load Duration Curve",
-      "type": "timeseries"
+      "title": "Aggregate load over time",
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -1439,7 +1707,8 @@
               }
             ]
           },
-          "unit": "amph"
+          "unit": "amph",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1476,12 +1745,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((sum(max_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h])) * 8) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
-          "refId": "A"
+          "expr": "((max_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s]) * 8) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "💡 Minimum Battery Size (8h @ Peak)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -1502,7 +1779,8 @@
               }
             ]
           },
-          "unit": "amph"
+          "unit": "amph",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1539,12 +1817,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((sum(max_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h])) * 8 * 1.5) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
-          "refId": "A"
+          "expr": "((max_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s]) * 8 * 1.5) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "💡 Recommended Battery Size (1.5x)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -1565,7 +1851,8 @@
               }
             ]
           },
-          "unit": "amph"
+          "unit": "amph",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1602,12 +1889,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((sum(max_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h])) * 8 * 2.0) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
-          "refId": "A"
+          "expr": "((max_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s]) * 8 * 2.0) / ($battery_voltage * $depth_of_discharge * $inverter_efficiency))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "💡 Optimal Battery Size (2x degradation)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -1628,7 +1923,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1665,12 +1961,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(max_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h])) * 1.25",
-          "refId": "A"
+          "expr": "max_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s]) * 1.25",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "🔌 Required Inverter Size (1.25x peak)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -1699,7 +2003,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1732,12 +2037,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(increase(consumption_cost{alias=~\"$device\", version=~\"$version\"}[24h]))",
-          "refId": "A"
+          "expr": "sum((sum_over_time((consumption_cost{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s]) - last_over_time((consumption_cost{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600)",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
-      "title": "💰 Daily Energy Cost",
-      "type": "stat"
+      "title": "Observed 24h cost estimate",
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -1758,7 +2071,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1791,12 +2105,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(increase(consumption_cost{alias=~\"$device\", version=~\"$version\"}[24h])) * 0.3",
-          "refId": "A"
+          "expr": "sum((sum_over_time((consumption_cost{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s]) - last_over_time((consumption_cost{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600) * 0.3",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
-      "title": "💰 Potential Battery Savings (30% on-peak)",
-      "type": "stat"
+      "title": "Hypothetical savings: 30% of observed 24h cost",
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -1829,7 +2151,8 @@
               }
             ]
           },
-          "unit": "d"
+          "unit": "d",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1866,12 +2189,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(($battery_voltage * $battery_capacity_ah * 0.50) / (sum(consumption_cost{alias=~\"$device\", version=~\"$version\"}) * 8760))",
-          "refId": "A"
+          "expr": "($battery_voltage * $battery_capacity_ah * 0.50) / ((sum((sum_over_time((kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[24h:30s])) * 30 / 3600)) * 0.3 > 0)",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
-      "title": "📊 ROI Payback Period",
-      "type": "stat"
+      "title": "Illustrative payback · $0.50/Wh, 30% savings",
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -1906,7 +2237,8 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1938,12 +2270,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(avg_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h])) / sum(max_over_time(current_consumption{alias=~\"$device\", version=~\"$version\"}[24h]))",
-          "refId": "A"
+          "expr": "avg_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s]) / (max_over_time((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})))[24h:30s]) > 0)",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "📉 Load Factor (avg/peak - higher is better)",
-      "type": "gauge"
+      "type": "gauge",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -1978,7 +2318,8 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2010,12 +2351,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "($battery_voltage * $battery_capacity_ah * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"})",
-          "refId": "A"
+          "expr": "sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) / ($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency)",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
-      "title": "⚡ Capacity Factor (usage vs battery)",
-      "type": "gauge"
+      "title": "Usable battery fraction consumed per hour",
+      "type": "gauge",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
@@ -2052,7 +2401,8 @@
               }
             ]
           },
-          "unit": "h"
+          "unit": "h",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2089,19 +2439,27 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"}))",
-          "refId": "A"
+          "expr": "(($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "🎯 Autonomy Time @ Current Settings",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "mimir"
       },
-      "description": "Effective charging power after inverter losses",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2121,7 +2479,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2155,7 +2514,14 @@
             "uid": "mimir"
           },
           "expr": "$solar_panel_watts * $inverter_efficiency",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "☀️ Solar Charge Rate",
@@ -2166,7 +2532,7 @@
         "type": "prometheus",
         "uid": "mimir"
       },
-      "description": "Hours to charge from 0% to 100%",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2194,7 +2560,8 @@
               }
             ]
           },
-          "unit": "h"
+          "unit": "h",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2228,7 +2595,14 @@
             "uid": "mimir"
           },
           "expr": "($battery_voltage * $battery_capacity_ah) / ($solar_panel_watts * $inverter_efficiency)",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "⏱️ Time to Full Charge (Empty → Full)",
@@ -2239,7 +2613,7 @@
         "type": "prometheus",
         "uid": "mimir"
       },
-      "description": "Hours to charge to 80% DoD from empty",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2267,7 +2641,8 @@
               }
             ]
           },
-          "unit": "h"
+          "unit": "h",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2301,7 +2676,14 @@
             "uid": "mimir"
           },
           "expr": "($battery_voltage * $battery_capacity_ah * 0.8) / ($solar_panel_watts * $inverter_efficiency)",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "⏱️ Time to Usable (0% → 80%)",
@@ -2312,7 +2694,7 @@
         "type": "prometheus",
         "uid": "mimir"
       },
-      "description": "Solar generation minus load (positive = charging, negative = discharging)",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2340,7 +2722,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2373,8 +2756,14 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "($solar_panel_watts * $inverter_efficiency) - sum(current_consumption{alias=~\"$device\", version=~\"$version\"})",
-          "refId": "A"
+          "expr": "($solar_panel_watts * $inverter_efficiency) - sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"}))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "⚡ Net Energy Balance",
@@ -2385,7 +2774,7 @@
         "type": "prometheus",
         "uid": "mimir"
       },
-      "description": "Estimated daily energy production (5 peak sun hours)",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2405,7 +2794,8 @@
               }
             ]
           },
-          "unit": "kwatth"
+          "unit": "kwatth",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2438,11 +2828,18 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "($solar_panel_watts * 5) / 1000",
-          "refId": "A"
+          "expr": "($solar_panel_watts * $inverter_efficiency * 5) / 1000",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
-      "title": "☀️ Daily Solar Production (5 sun hours)",
+      "title": "Modeled usable solar energy · 5 sun hours",
       "type": "stat"
     },
     {
@@ -2450,14 +2847,13 @@
         "type": "prometheus",
         "uid": "mimir"
       },
-      "description": "Percentage of daily load covered by solar",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry.",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 150,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -2480,7 +2876,8 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percent",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2512,8 +2909,15 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(($solar_panel_watts * 5) / (sum(current_consumption{alias=~\"$device\", version=~\"$version\"}) * 24)) * 100",
-          "refId": "A"
+          "expr": "($solar_panel_watts * $inverter_efficiency * 5) / ((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"}))) * 24 > 0) * 100",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "📊 Daily Load Coverage %",
@@ -2524,7 +2928,7 @@
         "type": "prometheus",
         "uid": "mimir"
       },
-      "description": "Runtime with 50% derating for solar variability",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry. Assumes five equivalent full-output solar hours per day. No finite runtime is shown when modeled average generation covers the load.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2552,7 +2956,8 @@
               }
             ]
           },
-          "unit": "h"
+          "unit": "h",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2585,11 +2990,18 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / clamp_min(sum(current_consumption{alias=~\"$device\", version=~\"$version\"}) - ($solar_panel_watts * $inverter_efficiency * 0.5), 1)",
-          "refId": "A"
+          "expr": "($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / ((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"}))) - ($solar_panel_watts * $inverter_efficiency * 5 / 24) > 0)",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
-      "title": "🔋 Runtime with Solar Recharge",
+      "title": "Runtime with average solar · 5 sun hours/day",
       "type": "stat"
     },
     {
@@ -2597,7 +3009,7 @@
         "type": "prometheus",
         "uid": "mimir"
       },
-      "description": "Theoretical SoC over time (simplified model)",
+      "description": "Modeled charge using sampled observed load since range start. Missing load data understates discharge. Starts full for discharge/net curves and empty for solar-only charge. Solar assumes continuous configured output, not actual irradiance. This is not battery telemetry.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2652,7 +3064,8 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percent",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -2732,30 +3145,54 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "100 - ((sum(current_consumption{alias=~\"$device\", version=~\"$version\"}) / ($battery_voltage * $battery_capacity_ah * $inverter_efficiency)) * 100 * (time() % 86400) / 3600)",
+          "expr": "clamp_min(100 - ((sum_over_time((sum(max by(device_id,alias,version)(current_consumption{job=\"kasa-exporter\",alias=~\"${device:regex}\",version=~\"${version:regex}\"})) and on() (vector(time()) >= ${__from:date:seconds}))[$__range:30s]) - last_over_time((sum(max by(device_id,alias,version)(current_consumption{job=\"kasa-exporter\",alias=~\"${device:regex}\",version=~\"${version:regex}\"})) and on() (vector(time()) >= ${__from:date:seconds}))[$__range:30s])) * 30 / 3600) / ($battery_voltage * $battery_capacity_ah * $inverter_efficiency) * 100, 0)",
           "legendFormat": "Battery Discharge (Load Only)",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0,
+            "max": 100
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_max(vector((($solar_panel_watts * $inverter_efficiency) / ($battery_voltage * $battery_capacity_ah)) * 100 * (time() % 86400) / 3600), 100)",
+          "expr": "clamp_max((($solar_panel_watts * $inverter_efficiency) * clamp_min(vector(time() - ${__from:date:seconds}), 0) / 3600) / ($battery_voltage * $battery_capacity_ah * $inverter_efficiency) * 100, 100)",
           "legendFormat": "Battery Charge (Solar Only)",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0,
+            "max": 100
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_max(clamp_min(100 + ((($solar_panel_watts * $inverter_efficiency) - sum(current_consumption{alias=~\"$device\", version=~\"$version\"})) / ($battery_voltage * $battery_capacity_ah * $inverter_efficiency)) * 100 * (time() % 86400) / 3600, 0), 100)",
+          "expr": "clamp_max(clamp_min(100 + ((($solar_panel_watts * $inverter_efficiency) * clamp_min(vector(time() - ${__from:date:seconds}), 0) / 3600) - ((sum_over_time((sum(max by(device_id,alias,version)(current_consumption{job=\"kasa-exporter\",alias=~\"${device:regex}\",version=~\"${version:regex}\"})) and on() (vector(time()) >= ${__from:date:seconds}))[$__range:30s]) - last_over_time((sum(max by(device_id,alias,version)(current_consumption{job=\"kasa-exporter\",alias=~\"${device:regex}\",version=~\"${version:regex}\"})) and on() (vector(time()) >= ${__from:date:seconds}))[$__range:30s])) * 30 / 3600)) / ($battery_voltage * $battery_capacity_ah * $inverter_efficiency) * 100, 0),100)",
           "legendFormat": "Net Battery State",
-          "refId": "C"
+          "refId": "C",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0,
+            "max": 100
+          }
         }
       ],
-      "title": "📈 Battery State of Charge Timeline",
+      "title": "Illustrative charge scenarios since range start",
       "type": "timeseries"
     },
     {
@@ -2796,31 +3233,39 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Metric"
+              "options": "Device"
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "auto"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#00E5FF",
-                  "mode": "fixed"
-                }
+                "id": "unit",
+                "value": "none"
               },
               {
                 "id": "custom.width",
-                "value": 300
+                "value": 220
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device ID"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "custom.width",
+                "value": 280
               }
             ]
           }
@@ -2850,65 +3295,113 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(current_consumption{alias=~\"$device\", version=~\"$version\"})",
+          "expr": "sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"}))",
           "legendFormat": "Current Load",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum(current_consumption{alias=~\"$device\", version=~\"$version\"}) * 24) / 5",
+          "expr": "(sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) * 24) / (5 * $inverter_efficiency)",
           "legendFormat": "100% Coverage (Match Daily Load)",
-          "refId": "B"
+          "refId": "B",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum(current_consumption{alias=~\"$device\", version=~\"$version\"}) * 24 * 1.5) / 5",
+          "expr": "(sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) * 24 * 1.5) / (5 * $inverter_efficiency)",
           "legendFormat": "150% Coverage (Faster Charging)",
-          "refId": "C"
+          "refId": "C",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum(current_consumption{alias=~\"$device\", version=~\"$version\"}) * 24 * 2) / 5",
+          "expr": "(sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) * 24 * 2) / (5 * $inverter_efficiency)",
           "legendFormat": "200% Coverage (Winter/Cloudy)",
-          "refId": "D"
+          "refId": "D",
+          "instant": true,
+          "range": false,
+          "format": "table",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "☀️ Recommended Solar Panel Sizes",
       "transformations": [
         {
-          "id": "seriesToColumns",
-          "options": {
-            "byField": "Time"
-          }
+          "id": "merge",
+          "options": {}
         },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Time": true
+              "Time": true,
+              "__name__": true,
+              "instance": true,
+              "job": true,
+              "model": true,
+              "version": true,
+              "pod": true,
+              "service": true,
+              "endpoint": true,
+              "namespace": true,
+              "cluster": true,
+              "container": true
             },
-            "indexByName": {},
-            "renameByName": {}
+            "renameByName": {
+              "Value #A": "Current Load",
+              "Value #B": "100% Coverage (Match Daily Load)",
+              "Value #C": "150% Coverage (Faster Charging)",
+              "Value #D": "200% Coverage (Winter/Cloudy)",
+              "alias": "Device",
+              "device_id": "Device ID"
+            },
+            "indexByName": {
+              "alias": 0,
+              "device_id": 1
+            }
           }
         }
       ],
-      "type": "table"
+      "type": "table",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry."
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "mimir"
       },
-      "description": "Days battery can run load with zero solar input",
+      "description": "Missing readings are unknown. Battery and solar values are illustrative scenarios using the selected settings, not battery telemetry.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2936,7 +3429,8 @@
               }
             ]
           },
-          "unit": "d"
+          "unit": "d",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2969,12 +3463,57 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / sum(current_consumption{alias=~\"$device\", version=~\"$version\"})) / 24",
-          "refId": "A"
+          "expr": "(($battery_voltage * $battery_capacity_ah * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0)) / 24",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0
+          }
         }
       ],
       "title": "📅 Days of Autonomy (No Sun)",
       "type": "stat"
+    },
+    {
+      "id": 9901,
+      "type": "stat",
+      "title": "Fresh device readings",
+      "gridPos": {
+        "x": 0,
+        "y": 104,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(kasa_fresh_devices{job=\"kasa-exporter\"})",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "min": 0
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "UNKNOWN"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "description": "Devices with a successful power reading in the last 60 seconds. Zero or missing data requires investigation."
     }
   ]
 }

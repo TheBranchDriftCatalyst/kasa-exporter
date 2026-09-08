@@ -1,4 +1,3 @@
----
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -7,134 +6,100 @@ metadata:
   labels:
     app: kasa-exporter
     app.kubernetes.io/name: kasa-exporter
-    # Required for Prometheus Operator to pick up rules
     release: prometheus
     prometheus: kube-prometheus-stack
 spec:
   groups:
     - name: kasa_tou_metrics
-      interval: 5s
+      interval: 30s
       rules:
-        # =============================================================================
-        # Cost with Rate Class (for TOU analysis)
-        # =============================================================================
-        - record: consumption_cost_with_rate_class
-          expr: |
-            consumption_cost
-            * on(device_id) group_left(rate_class, season)
-            (
-              current_energy_rate
-              == on(device_id) group_left()
-              max by(device_id) (current_energy_rate)
-            )
-
-        # =============================================================================
-        # Aggregated Cost Metrics (using max per device to handle duplicate scrapes)
-        # =============================================================================
-        - record: consumption_cost:total
-          expr: sum(max by (alias) (consumption_cost))
-
-        - record: consumption_cost:by_rate_class
-          expr: sum by (rate_class) (consumption_cost_with_rate_class)
-
-        - record: consumption_cost:by_device
-          expr: sum by (alias) (consumption_cost)
-
-        - record: consumption_cost:by_device_and_rate_class
-          expr: sum by (alias, rate_class) (consumption_cost_with_rate_class)
-
-        # =============================================================================
-        # Power Consumption Metrics (using max per device to handle duplicate scrapes)
-        # =============================================================================
-        - record: current_consumption:total
-          expr: sum(max by (alias) (current_consumption))
-
-        - record: current_consumption:by_device
-          expr: max by (alias) (current_consumption)
-
-        # =============================================================================
-        # Efficiency & Ratio Metrics
-        # =============================================================================
-        - record: cost_efficiency:by_device
-          expr: |
-            (consumption_cost / current_consumption)
-            * 1000
-
-        - record: power_utilization:by_device
-          expr: |
-            (current_consumption:by_device / consumption_cost:total)
-            * 100
-
-        # =============================================================================
-        # Time-Based Aggregations (for forecasting)
-        # =============================================================================
-        - record: consumption_cost:avg_5m
-          expr: avg_over_time(consumption_cost:total[5m])
-
-        - record: consumption_cost:avg_1h
-          expr: avg_over_time(consumption_cost:total[1h])
-
-        - record: consumption_cost:avg_24h
-          expr: avg_over_time(consumption_cost:total[24h])
-
-        - record: current_consumption:avg_5m
-          expr: avg_over_time(current_consumption:total[5m])
-
-        - record: current_consumption:avg_1h
-          expr: avg_over_time(current_consumption:total[1h])
-
-        # =============================================================================
-        # Rate Class Metrics
-        # =============================================================================
-        - record: current_energy_rate:current
-          expr: max(current_energy_rate)
-
-        - record: rate_class:numeric
-          expr: |
-            (
-              (max(current_energy_rate{rate_class="super_off_peak"}) by (rate_class, season) * 0 + 1)
-              or
-              (max(current_energy_rate{rate_class="off_peak"}) by (rate_class, season) * 0 + 2)
-              or
-              (max(current_energy_rate{rate_class="on_peak"}) by (rate_class, season) * 0 + 3)
-            )
-
-        # =============================================================================
-        # Cost Projections & Budgets
-        # =============================================================================
-        - record: consumption_cost:projected_hour
-          expr: consumption_cost:total * 1
-
-        - record: consumption_cost:projected_day
-          expr: consumption_cost:total * 24
-
-        - record: consumption_cost:projected_month
-          expr: consumption_cost:total * 730
-
-        # =============================================================================
-        # Savings Calculations
-        # =============================================================================
-        - record: consumption_cost:potential_savings_super_off_peak
-          expr: |
-            consumption_cost:total -
-            (current_consumption:total / 1000 * max(current_energy_rate{rate_class="super_off_peak"}))
-
-        - record: consumption_cost:potential_savings_off_peak
-          expr: |
-            consumption_cost:total -
-            (current_consumption:total / 1000 * max(current_energy_rate{rate_class="off_peak"}))
-
-        # =============================================================================
-        # Anomaly Detection Helpers
-        # =============================================================================
-        - record: consumption_cost:stddev_1h
-          expr: stddev_over_time(consumption_cost:total[1h])
-
-        - record: consumption_cost:zscore
-          expr: |
-            (
-              consumption_cost:total - consumption_cost:avg_1h
-            ) / consumption_cost:stddev_1h
-
-        - record: consumption_cost:anomaly
-          expr: abs(consumption_cost:zscore) > 2
+        - record: kasa:consumption_cost_with_rate_class
+          expr:
+            max by (device_id, alias, version) (consumption_cost{job="kasa-exporter"}) * on(device_id, version)
+            group_left(rate_class, season) (max by (device_id, alias, version, season, rate_class) (current_energy_rate{job="kasa-exporter"})
+            * 0 + 1)
+        - record: kasa:consumption_cost:total
+          expr: sum by(version) (max by (device_id, alias, version) (consumption_cost{job="kasa-exporter"}))
+        - record: kasa:consumption_cost:by_rate_class
+          expr: sum by(version, rate_class) (kasa:consumption_cost_with_rate_class)
+        - record: kasa:consumption_cost:by_device
+          expr: max by (device_id, alias, version) (consumption_cost{job="kasa-exporter"})
+        - record: kasa:consumption_cost:by_device_and_rate_class
+          expr: sum by(device_id, alias, version, rate_class) (kasa:consumption_cost_with_rate_class)
+        - record: kasa:current_consumption:total
+          expr: sum by(version) (max by (device_id, alias, version) (current_consumption{job="kasa-exporter"}))
+        - record: kasa:current_consumption:by_device
+          expr: max by (device_id, alias, version) (current_consumption{job="kasa-exporter"})
+        - record: kasa:cost_efficiency:by_device
+          expr: kasa:consumption_cost:by_device / (kasa:current_consumption:by_device > 0) * 1000
+        - record: kasa:power_utilization:by_device
+          expr: kasa:current_consumption:by_device / on(version) group_left() (kasa:current_consumption:total > 0) * 100
+        - record: kasa:consumption_cost:avg_5m
+          expr: avg_over_time(kasa:consumption_cost:total[5m])
+        - record: kasa:consumption_cost:avg_1h
+          expr: avg_over_time(kasa:consumption_cost:total[1h])
+        - record: kasa:consumption_cost:avg_24h
+          expr: avg_over_time(kasa:consumption_cost:total[24h])
+        - record: kasa:current_consumption:avg_5m
+          expr: avg_over_time(kasa:current_consumption:total[5m])
+        - record: kasa:current_consumption:avg_1h
+          expr: avg_over_time(kasa:current_consumption:total[1h])
+        - record: kasa:current_energy_rate:current
+          expr: max by(version, season, rate_class) (current_energy_rate{job="kasa-exporter"})
+        - record: kasa:rate_class:numeric
+          expr:
+            (kasa:current_energy_rate:current{rate_class="super_off_peak"} * 0 + 1) or (kasa:current_energy_rate:current{rate_class="off_peak"}
+            * 0 + 2) or (kasa:current_energy_rate:current{rate_class="on_peak"} * 0 + 3)
+        - record: kasa:consumption_cost:projected_hour
+          expr: kasa:consumption_cost:total * 1
+        - record: kasa:consumption_cost:projected_day
+          expr: kasa:consumption_cost:total * 24
+        - record: kasa:consumption_cost:projected_month
+          expr: kasa:consumption_cost:total * 730
+        - record: kasa:consumption_cost:potential_savings_super_off_peak
+          expr:
+            clamp_min(kasa:consumption_cost:total - kasa:current_consumption:total / 1000 * scalar((max by(season) (kasa_tariff_usd_per_kwh{job="kasa-exporter",rate_class="super_off_peak"})
+            and on(season) kasa:current_energy_rate:current)), 0)
+        - record: kasa:consumption_cost:potential_savings_off_peak
+          expr:
+            clamp_min(kasa:consumption_cost:total - kasa:current_consumption:total / 1000 * scalar((max by(season) (kasa_tariff_usd_per_kwh{job="kasa-exporter",rate_class="off_peak"})
+            and on(season) kasa:current_energy_rate:current)), 0)
+        - record: kasa:consumption_cost:stddev_1h
+          expr: stddev_over_time(kasa:consumption_cost:total[1h])
+        - record: kasa:consumption_cost:zscore
+          expr:
+            ((kasa:consumption_cost:total - kasa:consumption_cost:avg_1h) / (kasa:consumption_cost:stddev_1h > 0)) or (kasa:consumption_cost:stddev_1h
+            == 0)
+        - record: kasa:consumption_cost:anomaly
+          expr: abs(kasa:consumption_cost:zscore) > bool 2
+    - name: kasa_exporter_health
+      interval: 30s
+      rules:
+        - alert: KasaExporterScrapeMissing
+          expr: absent(up{job="kasa-exporter"}) or (max(up{job="kasa-exporter"}) == 0)
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: Kasa exporter is not being scraped
+            description: No working Kasa scrape target exists; power and cost readings are unavailable.
+        - alert: KasaExporterNoFreshDevices
+          expr:
+            (max(kasa_fresh_devices{job="kasa-exporter"}) == 0) or (time() - max(kasa_last_measurement_timestamp_seconds{job="kasa-exporter"})
+            > 90)
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: Kasa exporter has no fresh device measurements
+            description:
+              An HTTP200 metrics response does not prove device collection works. Check discovery, credentials,
+              protocol support and LAN connectivity.
+        - alert: KasaUnsupportedDeviceProtocol
+          expr: max(kasa_discovery_unsupported_devices{job="kasa-exporter"}) > 0
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: Kasa device firmware uses an unsupported protocol
+            description: Discovery receives devices that the installed library cannot handle.

@@ -15,39 +15,40 @@
       }
     ]
   },
-  "description": "Live power consumption and cost monitoring with synthwave cyberpunk styling",
+  "description": "Kasa measured power and modeled costs. Missing readings are unknown, not zero. Costs use configured tariffs, not a verified utility bill. Historical integrals are 30-second sampled estimates over available data; gaps reduce coverage. Battery/solar panels are scenarios, not battery telemetry.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 2,
   "id": null,
   "links": [],
-  "refresh": "10s",
+  "refresh": "30s",
   "schemaVersion": 39,
   "tags": ["kasa", "real-time", "monitoring", "cyberpunk"],
   "templating": {
     "list": [
       {
         "current": {
-          "text": "v2",
-          "value": "v2"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
           "uid": "mimir"
         },
-        "definition": "label_values(current_consumption, version)",
+        "definition": "label_values(current_consumption{job=\"kasa-exporter\"}, version)",
         "includeAll": true,
         "label": "Version",
         "multi": true,
         "name": "version",
         "options": [],
         "query": {
-          "query": "label_values(current_consumption, version)",
+          "query": "label_values(current_consumption{job=\"kasa-exporter\"}, version)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
-        "type": "query"
+        "type": "query",
+        "allValue": ".*"
       }
     ]
   },
@@ -69,10 +70,10 @@
       "1d"
     ]
   },
-  "timezone": "America/Denver",
+  "timezone": "America/Los_Angeles",
   "title": "🌊 Real-Time Monitoring",
   "uid": "kasa-realtime-v2",
-  "version": 1,
+  "version": 2,
   "weekStart": "",
   "panels": [
     {
@@ -107,7 +108,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -140,12 +142,19 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "current_consumption:total",
-          "refId": "A"
+          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "⚡ Total Power Draw",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
@@ -179,7 +188,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -216,12 +226,19 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total",
-          "refId": "A"
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "💰 Current Cost Rate (per hour)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -233,28 +250,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "0.314": {
-                  "color": "#00FF41",
-                  "index": 0,
-                  "text": "Super Off-Peak"
-                },
-                "0.351": {
-                  "color": "#FFD600",
-                  "index": 1,
-                  "text": "Off-Peak"
-                },
-                "0.634": {
-                  "color": "#FF007F",
-                  "index": 2,
-                  "text": "On-Peak"
-                }
-              },
-              "type": "value"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -272,7 +268,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/kWh",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -309,12 +306,19 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max(current_energy_rate) by (season, rate_class)",
-          "refId": "A"
+          "expr": "kasa:current_energy_rate:current{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "⚡ Energy Rate ($/kWh)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -348,7 +352,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -385,12 +390,19 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:projected_day",
-          "refId": "A"
+          "expr": "kasa:consumption_cost:projected_day{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "📊 Projected Daily Cost",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
@@ -445,7 +457,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -490,13 +503,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "current_consumption:by_device",
+          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\"}",
           "legendFormat": "{{alias}}",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["device_id", "alias", "version"]
+          }
         }
       ],
       "title": "🌊 Power Consumption Over Time",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
@@ -515,7 +535,8 @@
               "legend": false
             }
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -553,14 +574,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "current_consumption:by_device",
+          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\"}",
           "instant": true,
           "legendFormat": "{{alias}}",
-          "refId": "A"
+          "refId": "A",
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["device_id", "alias", "version"]
+          }
         }
       ],
       "title": "🥧 Power Distribution",
-      "type": "piechart"
+      "type": "piechart",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
@@ -615,7 +642,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -660,13 +688,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:by_device",
+          "expr": "kasa:consumption_cost:by_device{version=~\"${version:regex}\"}",
           "legendFormat": "{{alias}}",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["device_id", "alias", "version"]
+          }
         }
       ],
       "title": "💵 Cost Rate History ($/hr by Device)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -721,7 +756,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -797,31 +833,50 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:projected_hour",
+          "expr": "kasa:consumption_cost:projected_hour{version=~\"${version:regex}\"}",
           "legendFormat": "Hourly",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:projected_day",
+          "expr": "kasa:consumption_cost:projected_day{version=~\"${version:regex}\"}",
           "legendFormat": "Daily",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:projected_month",
+          "expr": "kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}",
           "legendFormat": "Monthly",
-          "refId": "C"
+          "refId": "C",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "📈 Projected Costs (Hour/Day/Month)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
@@ -840,23 +895,7 @@
             },
             "inspect": false
           },
-          "mappings": [
-            {
-              "options": {
-                "0": {
-                  "color": "#FF007F",
-                  "index": 0,
-                  "text": "OFF"
-                },
-                "1": {
-                  "color": "#00FF41",
-                  "index": 1,
-                  "text": "ON"
-                }
-              },
-              "type": "value"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -865,39 +904,11 @@
                 "value": null
               }
             ]
-          }
+          },
+          "noValue": "—",
+          "unit": "none"
         },
         "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Device"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 200
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "State"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 80
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
           {
             "matcher": {
               "id": "byName",
@@ -907,31 +918,6 @@
               {
                 "id": "unit",
                 "value": "watt"
-              },
-              {
-                "id": "custom.width",
-                "value": 100
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "continuous-GrYlRd"
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "gauge"
-                }
-              },
-              {
-                "id": "max",
-                "value": 2000
-              },
-              {
-                "id": "min",
-                "value": 0
               }
             ]
           },
@@ -943,24 +929,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "custom.width",
-                "value": 100
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "continuous-RdYlGr"
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "gauge"
-                }
+                "value": "suffix:USD/hour"
               }
             ]
           },
@@ -973,14 +942,6 @@
               {
                 "id": "unit",
                 "value": "kwatth"
-              },
-              {
-                "id": "custom.width",
-                "value": 130
-              },
-              {
-                "id": "decimals",
-                "value": 2
               }
             ]
           },
@@ -993,14 +954,6 @@
               {
                 "id": "unit",
                 "value": "kwatth"
-              },
-              {
-                "id": "custom.width",
-                "value": 130
-              },
-              {
-                "id": "decimals",
-                "value": 2
               }
             ]
           },
@@ -1012,11 +965,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "s"
-              },
-              {
-                "id": "custom.width",
-                "value": 120
+                "value": "h"
               }
             ]
           },
@@ -1028,37 +977,75 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "dB"
+                "value": "dBm"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "State"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
               },
               {
                 "id": "custom.width",
-                "value": 80
+                "value": 220
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device ID"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
               },
               {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "#FF007F",
-                      "value": null
-                    },
-                    {
-                      "color": "#FFD600",
-                      "value": -70
-                    },
-                    {
-                      "color": "#00FF41",
-                      "value": -50
+                "id": "custom.width",
+                "value": 280
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "State"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "OFF"
+                      },
+                      "1": {
+                        "text": "ON"
+                      }
                     }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
+                  }
+                ]
               }
             ]
           }
@@ -1094,70 +1081,98 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max without (state) (state{version=\"$version\"})",
+          "expr": "max by(device_id,alias,version) (state{job=\"kasa-exporter\",state=\"on\",version=~\"${version:regex}\"})",
           "format": "table",
           "instant": true,
-          "refId": "State"
+          "refId": "State",
+          "range": false,
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "current_consumption{version=\"$version\"}",
+          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\"}",
           "format": "table",
           "instant": true,
-          "refId": "Power"
+          "refId": "Power",
+          "range": false,
+          "audit": {
+            "required_labels": ["device_id", "alias", "version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost{version=\"$version\"}",
+          "expr": "kasa:consumption_cost:by_device{version=~\"${version:regex}\"}",
           "format": "table",
           "instant": true,
-          "refId": "Cost"
+          "refId": "Cost",
+          "range": false,
+          "audit": {
+            "required_labels": ["device_id", "alias", "version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_today{version=\"$version\"}",
+          "expr": "max by(device_id,alias,version)(consumption_today{job=\"kasa-exporter\",version=~\"${version:regex}\"})",
           "format": "table",
           "instant": true,
-          "refId": "EnergyToday"
+          "refId": "EnergyToday",
+          "range": false,
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_this_month{version=\"$version\"}",
+          "expr": "max by(device_id,alias,version)(consumption_this_month{job=\"kasa-exporter\",version=~\"${version:regex}\"})",
           "format": "table",
           "instant": true,
-          "refId": "EnergyMonth"
+          "refId": "EnergyMonth",
+          "range": false,
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "on_since{version=\"$version\"}",
+          "expr": "max by(device_id,alias,version)(on_since{job=\"kasa-exporter\",version=~\"${version:regex}\"})",
           "format": "table",
           "instant": true,
-          "refId": "Uptime"
+          "refId": "Uptime",
+          "range": false,
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "rssi{version=\"$version\"}",
+          "expr": "max by(device_id,alias,version)(rssi{job=\"kasa-exporter\",version=~\"${version:regex}\"})",
           "format": "table",
           "instant": true,
-          "refId": "RSSI"
+          "refId": "RSSI",
+          "range": false,
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "📊 Device Status Table",
@@ -1170,25 +1185,18 @@
           "id": "organize",
           "options": {
             "excludeByName": {
+              "Time": true,
               "__name__": true,
-              "device_id": true,
-              "device_model": true,
               "instance": true,
               "job": true,
-              "rate_class": true,
-              "season": true,
-              "version": true
-            },
-            "includeByName": {},
-            "indexByName": {
-              "Value #Cost": 3,
-              "Value #EnergyMonth": 5,
-              "Value #EnergyToday": 4,
-              "Value #Power": 2,
-              "Value #RSSI": 7,
-              "Value #State": 1,
-              "Value #Uptime": 6,
-              "alias": 0
+              "model": true,
+              "version": true,
+              "pod": true,
+              "service": true,
+              "endpoint": true,
+              "namespace": true,
+              "cluster": true,
+              "container": true
             },
             "renameByName": {
               "Value #Cost": "Cost ($/hr)",
@@ -1198,12 +1206,56 @@
               "Value #RSSI": "RSSI",
               "Value #State": "State",
               "Value #Uptime": "Uptime",
-              "alias": "Device"
+              "alias": "Device",
+              "device_id": "Device ID"
+            },
+            "indexByName": {
+              "alias": 0,
+              "device_id": 1
             }
           }
         }
       ],
-      "type": "table"
+      "type": "table",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
+    },
+    {
+      "id": 9901,
+      "type": "stat",
+      "title": "Fresh device readings",
+      "gridPos": {
+        "x": 0,
+        "y": 46,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(kasa_fresh_devices{job=\"kasa-exporter\"})",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "min": 0
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "UNKNOWN"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "description": "Devices with a successful power reading in the last 60 seconds. Zero or missing data requires investigation."
     }
   ]
 }

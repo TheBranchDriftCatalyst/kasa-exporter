@@ -19,7 +19,7 @@
           "uid": "${DS_PROMETHEUS}"
         },
         "enable": true,
-        "expr": "changes(current_consumption:total[5m]) > 100",
+        "expr": "changes(kasa:current_consumption:total[5m]) > 100",
         "iconColor": "#FF1694",
         "name": "Power Spikes",
         "tagKeys": "alert",
@@ -32,7 +32,7 @@
           "uid": "${DS_PROMETHEUS}"
         },
         "enable": true,
-        "expr": "consumption_cost:anomaly == 1",
+        "expr": "kasa:consumption_cost:anomaly == 1",
         "iconColor": "#FFEA00",
         "name": "Cost Anomalies",
         "tagKeys": "anomaly",
@@ -41,7 +41,7 @@
       }
     ]
   },
-  "description": "Real-time threshold monitoring, cost spike detection, and alert status dashboard",
+  "description": "Kasa measured power and modeled costs. Missing readings are unknown, not zero. Costs use configured tariffs, not a verified utility bill. Historical integrals are 30-second sampled estimates over available data; gaps reduce coverage. Battery/solar panels are scenarios, not battery telemetry.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -61,7 +61,7 @@
     }
   ],
   "liveNow": true,
-  "refresh": "5s",
+  "refresh": "30s",
   "schemaVersion": 39,
   "tags": ["kasa", "alerts", "monitoring", "thresholds", "cyberpunk"],
   "templating": {
@@ -86,15 +86,14 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
           "text": "All",
           "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "mimir"
         },
-        "definition": "label_values(current_consumption, version)",
+        "definition": "label_values(current_consumption{job=\"kasa-exporter\"}, version)",
         "hide": 0,
         "includeAll": true,
         "label": "Version",
@@ -102,7 +101,7 @@
         "name": "version",
         "options": [],
         "query": {
-          "query": "label_values(current_consumption, version)",
+          "query": "label_values(current_consumption{job=\"kasa-exporter\"}, version)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -193,10 +192,10 @@
   "timepicker": {
     "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m"]
   },
-  "timezone": "America/Denver",
+  "timezone": "America/Los_Angeles",
   "title": "🚨 Alerts & Thresholds",
   "uid": "kasa-alerts-v2",
-  "version": 1,
+  "version": 2,
   "weekStart": "",
   "panels": [
     {
@@ -212,22 +211,23 @@
       },
       "id": 1,
       "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "<div style=\"text-align: center; font-family: 'Courier New', monospace; padding: 10px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 2px solid #FF1694; border-radius: 5px;\">\n  <h1 style=\"color: #FF1694; font-size: 48px; margin: 0; text-shadow: 0 0 20px #FF1694, 0 0 40px #FF1694;\">🚨 ALERTS & THRESHOLDS 🚨</h1>\n  <p style=\"color: #00F0FF; font-size: 18px; margin: 10px 0 0 0; text-shadow: 0 0 10px #00F0FF;\">REAL-TIME MONITORING • ANOMALY DETECTION • THRESHOLD ENFORCEMENT</p>\n</div>",
-        "mode": "html"
+        "mode": "markdown",
+        "content": "These are evaluated conditions and sampled histories, not an incident log. Missing device data does not mean zero alerts. Exporter collection health appears below. Threshold controls affect these panels; deployed alert rules have their own definitions."
       },
       "pluginVersion": "10.2.0",
       "transparent": true,
-      "type": "text"
+      "type": "text",
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "—"
+        }
+      },
+      "description": "Kasa measured power and modeled costs. Missing readings are unknown, not zero. Costs use configured tariffs, not a verified utility bill. Historical integrals are 30-second sampled estimates over available data; gaps reduce coverage. Battery/solar panels are scenarios, not battery telemetry. "
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -264,7 +264,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -293,19 +294,28 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "current_consumption:total{version=~\"$version\"} > bool $power_alert_threshold",
-          "refId": "A"
+          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"} > bool $power_alert_threshold",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"],
+            "min": 0,
+            "max": 1
+          }
         }
       ],
       "title": "⚡ Power Alert Status",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -358,7 +368,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -436,29 +447,42 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "current_consumption:total{version=~\"$version\"}",
+          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"}",
           "legendFormat": "Current Power",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
           "expr": "vector($power_alert_threshold)",
           "legendFormat": "Alert Threshold",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "📈 Power vs Threshold",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -483,7 +507,8 @@
               }
             ]
           },
-          "unit": "percentunit"
+          "unit": "percentunit",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -512,19 +537,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "max_over_time(current_consumption:total{version=~\"$version\"}[1h]) / $power_alert_threshold",
-          "refId": "A"
+          "expr": "max_over_time(kasa:current_consumption:total{version=~\"${version:regex}\"}[1h]) / $power_alert_threshold",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "🔥 Peak Power Alert (% of Threshold)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -551,60 +583,40 @@
                 "value": 1
               }
             ]
-          }
+          },
+          "noValue": "—",
+          "unit": "none"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Time"
+              "options": "Device"
             },
             "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
               {
                 "id": "custom.width",
-                "value": 200
+                "value": 220
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "Power (W)"
+              "options": "Device ID"
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
+                "id": "unit",
+                "value": "none"
               },
               {
-                "id": "color",
-                "value": {
-                  "mode": "continuous-GrYlRd"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Duration (s)"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "continuous-GrYlRd"
-                }
+                "id": "custom.width",
+                "value": 280
               }
             ]
           }
@@ -638,12 +650,16 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "current_consumption:total{version=~\"$version\"} > $power_alert_threshold",
+          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold",
           "format": "table",
-          "instant": false,
-          "refId": "A"
+          "instant": true,
+          "refId": "A",
+          "range": false,
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "📊 Power Threshold Breaches",
@@ -652,24 +668,39 @@
           "id": "organize",
           "options": {
             "excludeByName": {
+              "Time": true,
               "__name__": true,
+              "instance": true,
               "job": true,
-              "version": true
+              "model": true,
+              "version": true,
+              "pod": true,
+              "service": true,
+              "endpoint": true,
+              "namespace": true,
+              "cluster": true,
+              "container": true
             },
-            "indexByName": {},
             "renameByName": {
               "Time": "Time",
-              "Value": "Power (W)"
+              "Value": "Power (W)",
+              "alias": "Device",
+              "device_id": "Device ID"
+            },
+            "indexByName": {
+              "alias": 0,
+              "device_id": 1
             }
           }
         }
       ],
-      "type": "table"
+      "type": "table",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -706,7 +737,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -735,19 +767,28 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "consumption_cost:anomaly{version=~\"$version\"}",
-          "refId": "A"
+          "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0,
+            "max": 1
+          }
         }
       ],
       "title": "🔍 Anomaly Detection",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -774,7 +815,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -803,19 +845,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "consumption_cost:zscore{version=~\"$version\"}",
-          "refId": "A"
+          "expr": "kasa:consumption_cost:zscore{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "📊 Z-Score Monitor",
-      "type": "gauge"
+      "type": "gauge",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -864,7 +913,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -939,29 +989,42 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
           "legendFormat": "Cost",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "consumption_cost:anomaly{version=~\"$version\"} * consumption_cost:total{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} * kasa:consumption_cost:total{version=~\"${version:regex}\"}",
           "legendFormat": "Anomaly Periods",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "📈 Anomaly Timeline",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -986,7 +1049,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1015,19 +1079,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "sum(count_over_time((consumption_cost:anomaly == 1)[$__range:])) or vector(0)",
-          "refId": "A"
+          "expr": "sum(sum_over_time((kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == bool 1)[$__range:30s]))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🚨 Anomaly Count (Time Range)",
-      "type": "stat"
+      "title": "Anomalous 30-second samples (selected window)",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1036,24 +1107,21 @@
           },
           "mappings": [
             {
+              "type": "value",
               "options": {
-                "mid_peak": {
-                  "color": "#FFEA00",
-                  "index": 1,
-                  "text": "⚠️ MID-PEAK"
+                "1": {
+                  "text": "Super off-peak",
+                  "color": "green"
                 },
-                "off_peak": {
-                  "color": "#00FF9F",
-                  "index": 0,
-                  "text": "✅ OFF-PEAK"
+                "2": {
+                  "text": "Off-peak",
+                  "color": "yellow"
                 },
-                "on_peak": {
-                  "color": "#FF1694",
-                  "index": 2,
-                  "text": "🚨 ON-PEAK"
+                "3": {
+                  "text": "On-peak",
+                  "color": "red"
                 }
-              },
-              "type": "value"
+              }
             }
           ],
           "thresholds": {
@@ -1065,7 +1133,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1094,19 +1163,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "rate_class{version=~\"$version\"}",
-          "refId": "A"
+          "expr": "kasa:rate_class:numeric{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version", "rate_class", "season"]
+          }
         }
       ],
       "title": "⚡ Current Rate Class",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1131,7 +1207,8 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "s",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1160,19 +1237,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "# Placeholder - calculate seconds to next TOU boundary\n# This would require custom recording rules based on your TOU schedule\nvector(1800)",
-          "refId": "A"
+          "expr": "max(kasa_tariff_seconds_until_change{job=\"kasa-exporter\"})",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "⏰ Time to Next Rate Change",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1208,7 +1292,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1237,19 +1322,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "(\n  count(current_consumption:total > $power_alert_threshold) or vector(0)\n) + (\n  count(consumption_cost:total > $cost_alert_threshold) or vector(0)\n) + (\n  count(consumption_cost:anomaly == 1) or vector(0)\n) + (\n  count(rate_class:numeric == 3) or vector(0)\n) + (\n  count(state{version=~\"$version\"} != 1) or vector(0)\n)",
-          "refId": "A"
+          "expr": "(sum(kasa:current_consumption:total{version=~\"${version:regex}\"} > bool $power_alert_threshold) + sum(kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool $cost_alert_threshold) + sum(kasa:consumption_cost:anomaly{version=~\"${version:regex}\"}))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🚨 Active Alerts",
-      "type": "stat"
+      "title": "Active power, cost and anomaly conditions",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1286,7 +1378,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1315,19 +1408,28 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "rate_class{version=~\"$version\"} == bool 2",
-          "refId": "A"
+          "expr": "kasa:rate_class:numeric{version=~\"${version:regex}\"} == bool 3",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version", "rate_class", "season"],
+            "min": 0,
+            "max": 1
+          }
         }
       ],
       "title": "🔔 High Rate Alert",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1347,24 +1449,21 @@
           },
           "mappings": [
             {
+              "type": "value",
               "options": {
-                "0": {
-                  "color": "#00FF9F",
-                  "index": 0,
-                  "text": "Off-Peak"
-                },
                 "1": {
-                  "color": "#FFEA00",
-                  "index": 1,
-                  "text": "Mid-Peak"
+                  "text": "Super off-peak",
+                  "color": "green"
                 },
                 "2": {
-                  "color": "#FF1694",
-                  "index": 2,
-                  "text": "On-Peak"
+                  "text": "Off-peak",
+                  "color": "yellow"
+                },
+                "3": {
+                  "text": "On-peak",
+                  "color": "red"
                 }
-              },
-              "type": "value"
+              }
             }
           ],
           "thresholds": {
@@ -1383,7 +1482,8 @@
                 "value": 2
               }
             ]
-          }
+          },
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1414,20 +1514,27 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "rate_class{version=~\"$version\"}",
+          "expr": "kasa:rate_class:numeric{version=~\"${version:regex}\"}",
           "legendFormat": "Rate Class",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version", "rate_class", "season"]
+          }
         }
       ],
       "title": "📊 Rate Class Timeline",
-      "type": "state-timeline"
+      "type": "state-timeline",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1450,52 +1557,20 @@
                 "value": null
               }
             ]
-          }
+          },
+          "noValue": "—",
+          "unit": "none"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Device"
+              "options": "Relay state"
             },
             "properties": [
               {
-                "id": "custom.width",
-                "value": 200
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "State"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "#FF1694",
-                        "index": 0,
-                        "text": "🔴 OFF"
-                      },
-                      "1": {
-                        "color": "#00FF9F",
-                        "index": 1,
-                        "text": "✅ ON"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
+                "id": "unit",
+                "value": "none"
               }
             ]
           },
@@ -1505,19 +1580,6 @@
               "options": "Power (W)"
             },
             "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "continuous-GrYlRd"
-                }
-              },
               {
                 "id": "unit",
                 "value": "watt"
@@ -1531,71 +1593,40 @@
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "continuous-RdYlGr"
-                }
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "#FF1694",
-                      "value": null
-                    },
-                    {
-                      "color": "#FFEA00",
-                      "value": -70
-                    },
-                    {
-                      "color": "#00FF9F",
-                      "value": -50
-                    }
-                  ]
-                }
+                "id": "unit",
+                "value": "dBm"
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "Alert"
+              "options": "Device"
             },
             "properties": [
               {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "#00FF9F",
-                        "index": 0,
-                        "text": "✅"
-                      },
-                      "1": {
-                        "color": "#FF1694",
-                        "index": 1,
-                        "text": "🚨"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
+                "id": "unit",
+                "value": "none"
               },
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device ID"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "custom.width",
+                "value": 280
               }
             ]
           }
@@ -1629,42 +1660,51 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "state{version=~\"$version\"}",
+          "expr": "max by(device_id,alias,version)(state{job=\"kasa-exporter\",state=\"on\",version=~\"${version:regex}\"})",
           "format": "table",
           "instant": true,
-          "refId": "A"
+          "refId": "A",
+          "range": false,
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "current_consumption{version=~\"$version\"}",
+          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\"}",
           "format": "table",
           "instant": true,
-          "refId": "B"
+          "refId": "B",
+          "range": false,
+          "audit": {
+            "required_labels": ["device_id", "alias", "version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "rssi{version=~\"$version\"}",
+          "expr": "max by(device_id,alias,version)(rssi{job=\"kasa-exporter\",version=~\"${version:regex}\"})",
           "format": "table",
           "instant": true,
-          "refId": "C"
+          "refId": "C",
+          "range": false,
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📊 Device Alert Table",
+      "title": "Relay state, power and WiFi signal",
       "transformations": [
         {
-          "id": "joinByField",
-          "options": {
-            "byField": "alias",
-            "mode": "outer"
-          }
+          "id": "merge",
+          "options": {}
         },
         {
           "id": "organize",
@@ -1674,56 +1714,36 @@
               "__name__": true,
               "instance": true,
               "job": true,
-              "version": true
+              "model": true,
+              "version": true,
+              "pod": true,
+              "service": true,
+              "endpoint": true,
+              "namespace": true,
+              "cluster": true,
+              "container": true
             },
-            "indexByName": {},
             "renameByName": {
-              "Value #A": "State",
+              "Value #A": "Relay state",
               "Value #B": "Power (W)",
               "Value #C": "RSSI",
-              "alias": "Device"
-            }
-          }
-        },
-        {
-          "id": "calculateField",
-          "options": {
-            "binary": {
-              "left": "State",
-              "operator": "==",
-              "reducer": "sum",
-              "right": "0"
+              "alias": "Device",
+              "device_id": "Device ID"
             },
-            "mode": "binary",
-            "reduce": {
-              "reducer": "sum"
-            },
-            "replaceFields": false
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
             "indexByName": {
-              "Device": 0,
-              "State": 1,
-              "Power (W)": 2,
-              "RSSI": 3,
-              "State == 0": 4
-            },
-            "renameByName": {
-              "State == 0": "Alert"
+              "alias": 0,
+              "device_id": 1
             }
           }
         }
       ],
-      "type": "table"
+      "type": "table",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1744,7 +1764,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1773,38 +1794,57 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "count(state{version=~\"$version\"} == 0) or vector(0)",
+          "expr": "sum(state{job=\"kasa-exporter\",state=\"on\",version=~\"${version:regex}\"} == bool 0)",
           "legendFormat": "🔌 Offline",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "count(rssi{version=~\"$version\"} < -70) or vector(0)",
+          "expr": "sum(rssi{job=\"kasa-exporter\",version=~\"${version:regex}\"} < bool -70)",
           "legendFormat": "📶 WiFi Alert",
-          "refId": "B"
+          "refId": "B",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "count(current_consumption{version=~\"$version\"} > $power_alert_threshold) or vector(0)",
+          "expr": "sum(kasa:current_consumption:by_device{version=~\"${version:regex}\"} > bool $power_alert_threshold)",
           "legendFormat": "⚡ Power Alert",
-          "refId": "C"
+          "refId": "C",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🚨 Device Alerts Summary",
-      "type": "stat"
+      "title": "Off relays, weak signals and high-power devices",
+      "type": "stat",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1829,7 +1869,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1858,19 +1899,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "# Projected monthly cost based on current daily average\nsum_over_time(consumption_cost:total{version=~\"$version\"}[24h]) / 24 * 730",
-          "refId": "A"
+          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[24h]) * 730",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "💰 Projected Monthly Cost",
-      "type": "stat"
+      "title": "Monthly scenario from available 24h average",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -1897,7 +1945,8 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percent",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1926,38 +1975,33 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "# Budget utilization (assuming $100 monthly budget)\n(sum_over_time(consumption_cost:total{version=~\"$version\"}[30d]) / 100) * 100",
-          "refId": "A"
+          "expr": "((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s])) * 30 / 3600) / 100 * 100",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📈 Budget Utilization",
-      "type": "gauge"
+      "title": "Observed trailing-30d cost / $100 budget",
+      "type": "gauge",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "color": "#00FF9F",
-                  "index": 0,
-                  "text": "✅ Under Budget"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1975,7 +2019,8 @@
               }
             ]
           },
-          "unit": "d"
+          "unit": "d",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2004,19 +2049,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "# Days until budget breach (assuming $100 monthly budget)\n(100 - sum_over_time(consumption_cost:total{version=~\"$version\"}[30d])) / (sum_over_time(consumption_cost:total{version=~\"$version\"}[24h]) / 24 / 3600)",
-          "refId": "A"
+          "expr": "clamp_min(100 - ((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s])) * 30 / 3600), 0) / (((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600) > 0)",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🚨 Days Until Budget Exceeded",
-      "type": "stat"
+      "title": "Additional days to $100 at observed daily cost",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2069,7 +2121,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -2139,29 +2192,42 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "sum_over_time(consumption_cost:total{version=~\"$version\"}[30d])",
+          "expr": "(sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s])) * 30 / 3600",
           "legendFormat": "Actual Cost",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
           "expr": "vector(100)",
           "legendFormat": "Budget Threshold",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📊 Budget Timeline (30d)",
-      "type": "timeseries"
+      "title": "Observed trailing-30d cost and budget",
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2184,71 +2250,76 @@
                 "value": null
               }
             ]
-          }
+          },
+          "noValue": "—",
+          "unit": "none"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Time"
+              "options": "Power breach (W)"
             },
             "properties": [
+              {
+                "id": "unit",
+                "value": "watt"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cost breach (USD/hour)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "suffix:USD/hour"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Anomaly active"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
               {
                 "id": "custom.width",
-                "value": 200
+                "value": 220
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "Alert Type"
+              "options": "Device ID"
             },
             "properties": [
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-background"
-                }
+                "id": "unit",
+                "value": "none"
               },
               {
-                "id": "color",
-                "value": {
-                  "mode": "thresholds"
-                }
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "#FF1694",
-                      "value": null
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value"
-            },
-            "properties": [
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "continuous-RdYlGr"
-                }
+                "id": "custom.width",
+                "value": 280
               }
             ]
           }
@@ -2282,62 +2353,93 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "current_consumption:total{version=~\"$version\"} > $power_alert_threshold",
+          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold",
           "format": "table",
-          "instant": false,
+          "instant": true,
           "legendFormat": "Power Alert",
-          "refId": "A"
+          "refId": "A",
+          "range": false,
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"} > $cost_alert_threshold",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} > $cost_alert_threshold",
           "format": "table",
-          "instant": false,
+          "instant": true,
           "legendFormat": "Cost Alert",
-          "refId": "B"
+          "refId": "B",
+          "range": false,
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "consumption_cost:anomaly{version=~\"$version\"} == 1",
+          "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == 1",
           "format": "table",
-          "instant": false,
+          "instant": true,
           "legendFormat": "Anomaly",
-          "refId": "C"
+          "refId": "C",
+          "range": false,
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📜 Alert Log",
+      "title": "Current threshold breaches · not an alert log",
       "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
+              "Time": true,
               "__name__": true,
+              "instance": true,
               "job": true,
-              "version": true
+              "model": true,
+              "version": true,
+              "pod": true,
+              "service": true,
+              "endpoint": true,
+              "namespace": true,
+              "cluster": true,
+              "container": true
             },
-            "indexByName": {},
             "renameByName": {
-              "Time": "Time",
-              "Value": "Value",
-              "__name__": "Alert Type"
+              "Value #A": "Power breach (W)",
+              "Value #B": "Cost breach (USD/hour)",
+              "Value #C": "Anomaly active",
+              "alias": "Device",
+              "device_id": "Device ID"
+            },
+            "indexByName": {
+              "alias": 0,
+              "device_id": 1
             }
           }
         }
       ],
-      "type": "table"
+      "type": "table",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2362,7 +2464,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2391,38 +2494,57 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "count_over_time((current_consumption:total{version=~\"$version\"} > bool $power_alert_threshold)[7d:])",
+          "expr": "sum_over_time((kasa:current_consumption:total{version=~\"${version:regex}\"} > bool $power_alert_threshold)[7d:30s])",
           "legendFormat": "📊 Alerts/Week",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "count_over_time((consumption_cost:anomaly{version=~\"$version\"} == bool 1)[7d:])",
+          "expr": "sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool $cost_alert_threshold)[7d:30s])",
           "legendFormat": "🔍 Anomalies/Week",
-          "refId": "B"
+          "refId": "B",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "count_over_time((state{version=~\"$version\"} == bool 0)[7d:])",
+          "expr": "sum_over_time((kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == bool 1)[7d:30s])",
           "legendFormat": "🔌 Offline/Week",
-          "refId": "C"
+          "refId": "C",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📊 Alert Frequency",
-      "type": "stat"
+      "title": "Breaching 30-second samples · 7d",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2454,7 +2576,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2483,19 +2606,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "(\n  count(current_consumption:total{version=~\"$version\"} > ($power_alert_threshold * 0.8)) or vector(0)\n) + (\n  count(consumption_cost:total{version=~\"$version\"} > ($cost_alert_threshold * 0.8)) or vector(0)\n) + (\n  count(rssi{version=~\"$version\"} < -70) or vector(0)\n)",
-          "refId": "A"
+          "expr": "sum((kasa:current_consumption:total{version=~\"${version:regex}\"} > bool ($power_alert_threshold * 0.8))) + sum((kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool ($cost_alert_threshold * 0.8)))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "⚠️ Warnings",
-      "type": "stat"
+      "title": "Power and cost warning conditions",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2544,7 +2674,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -2618,38 +2749,57 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "count_over_time((current_consumption:total{version=~\"$version\"} > bool $power_alert_threshold)[1h:])",
+          "expr": "sum_over_time((kasa:current_consumption:total{version=~\"${version:regex}\"} > bool $power_alert_threshold)[1h:30s])",
           "legendFormat": "Power Alerts",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "count_over_time((consumption_cost:total{version=~\"$version\"} > bool $cost_alert_threshold)[1h:])",
+          "expr": "sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool $cost_alert_threshold)[1h:30s])",
           "legendFormat": "Cost Alerts",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "count_over_time((consumption_cost:anomaly{version=~\"$version\"} == bool 1)[1h:])",
+          "expr": "sum_over_time((kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == bool 1)[1h:30s])",
           "legendFormat": "Anomalies",
-          "refId": "C"
+          "refId": "C",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📈 Alert Trend (Hourly)",
-      "type": "timeseries"
+      "title": "Breaching 30-second samples · 1h",
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2666,7 +2816,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2695,19 +2846,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "topk(1, \n  sum by (alias) (\n    count_over_time((current_consumption{version=~\"$version\"} > $power_alert_threshold)[7d:])\n  )\n)",
-          "refId": "A"
+          "expr": "topk(1, sum_over_time((kasa:current_consumption:by_device{version=~\"${version:regex}\"} > bool $power_alert_threshold)[7d:30s]))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🎯 Most Problematic Device",
-      "type": "stat"
+      "title": "Most high-power samples over 7d",
+      "type": "stat",
+      "description": "Missing readings are unknown. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2716,19 +2874,17 @@
           },
           "mappings": [
             {
+              "type": "value",
               "options": {
                 "0": {
-                  "color": "#00FF9F",
-                  "index": 0,
-                  "text": "✅ ALL SYSTEMS OK"
+                  "text": "NO FRESH DATA",
+                  "color": "red"
                 },
                 "1": {
-                  "color": "#FF1694",
-                  "index": 1,
-                  "text": "🚨 ALERTS ACTIVE"
+                  "text": "COLLECTING",
+                  "color": "green"
                 }
-              },
-              "type": "value"
+              }
             }
           ],
           "thresholds": {
@@ -2744,7 +2900,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2773,19 +2930,28 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "clamp_max(\n  (\n    count(current_consumption:total{version=~\"$version\"} > $power_alert_threshold) or vector(0)\n  ) + (\n    count(consumption_cost:total{version=~\"$version\"} > $cost_alert_threshold) or vector(0)\n  ) + (\n    count(consumption_cost:anomaly{version=~\"$version\"} == 1) or vector(0)\n  ),\n  1\n)",
-          "refId": "A"
+          "expr": "min(kasa_fresh_devices{job=\"kasa-exporter\"}) > bool 0",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0,
+            "max": 1
+          }
         }
       ],
-      "title": "✅ System Status",
-      "type": "stat"
+      "title": "Fresh device collection",
+      "type": "stat",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2810,7 +2976,8 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "s",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2839,19 +3006,26 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "time() - max(max_over_time(timestamp(current_consumption:total > $power_alert_threshold)[$__range:])) or vector(86400)",
-          "refId": "A"
+          "expr": "time() - max(max_over_time((timestamp(kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold))[$__range:30s]))",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🔔 Last Alert Time",
-      "type": "stat"
+      "title": "Seconds since last observed power breach",
+      "type": "stat",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2888,7 +3062,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2917,19 +3092,28 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"} > bool $cost_alert_threshold",
-          "refId": "A"
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool $cost_alert_threshold",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"],
+            "min": 0,
+            "max": 1
+          }
         }
       ],
       "title": "💰 Cost Alert Status",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -2982,7 +3166,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -3060,29 +3245,42 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
           "legendFormat": "Current Cost",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
           "expr": "vector($cost_alert_threshold)",
           "legendFormat": "Alert Threshold",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "📈 Cost vs Threshold",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -3119,7 +3317,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -3148,19 +3347,28 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "consumption_cost:anomaly{version=~\"$version\"}",
-          "refId": "A"
+          "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0,
+            "max": 1
+          }
         }
       ],
       "title": "🚨 Cost Spike Detection",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -3207,7 +3415,8 @@
                 "value": 1
               }
             ]
-          }
+          },
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -3238,15 +3447,60 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"} > bool $cost_alert_threshold",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} > bool $cost_alert_threshold",
           "legendFormat": "Cost Alert Status",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "📊 Cost Threshold History",
-      "type": "state-timeline"
+      "type": "state-timeline",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
+    },
+    {
+      "id": 9901,
+      "type": "stat",
+      "title": "Fresh device readings",
+      "gridPos": {
+        "x": 0,
+        "y": 89,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(kasa_fresh_devices{job=\"kasa-exporter\"})",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "min": 0
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "UNKNOWN"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "description": "Devices with a successful power reading in the last 60 seconds. Zero or missing data requires investigation."
     }
   ]
 }

@@ -15,20 +15,19 @@
       }
     ]
   },
-  "description": "Cost projections, anomaly detection, trend analysis, and predictive analytics",
+  "description": "Kasa measured power and modeled costs. Missing readings are unknown, not zero. Costs use configured tariffs, not a verified utility bill. Historical integrals are 30-second sampled estimates over available data; gaps reduce coverage. Battery/solar panels are scenarios, not battery telemetry.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 2,
   "id": null,
   "links": [],
-  "refresh": "1m",
+  "refresh": "30s",
   "schemaVersion": 40,
   "tags": ["kasa", "forecasting", "predictions", "analytics", "cyberpunk"],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
           "text": "All",
           "value": "$__all"
         },
@@ -36,7 +35,7 @@
           "type": "prometheus",
           "uid": "mimir"
         },
-        "definition": "label_values(current_consumption, version)",
+        "definition": "label_values(current_consumption{job=\"kasa-exporter\"}, version)",
         "hide": 0,
         "includeAll": true,
         "label": "Version",
@@ -44,14 +43,15 @@
         "name": "version",
         "options": [],
         "query": {
-          "query": "label_values(current_consumption, version)",
+          "query": "label_values(current_consumption{job=\"kasa-exporter\"}, version)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
-        "type": "query"
+        "type": "query",
+        "allValue": ".*"
       },
       {
         "current": {
@@ -105,10 +105,10 @@
       "1d"
     ]
   },
-  "timezone": "America/Denver",
+  "timezone": "America/Los_Angeles",
   "title": "🔮 Forecasting & Predictions",
   "uid": "kasa-forecast-v2",
-  "version": 1,
+  "version": 2,
   "weekStart": "",
   "panels": [
     {
@@ -147,7 +147,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -180,12 +181,19 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:projected_month{version=~\"$version\"}",
-          "refId": "A"
+          "expr": "kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "💰 Projected Monthly Cost",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
@@ -221,7 +229,8 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percent",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -252,12 +261,19 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(day_of_month() / 30.44) * 100",
-          "refId": "A"
+          "expr": "((day_of_month() - 1) + (time() % 86400) / 86400) / days_in_month() * 100",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📊 Month Progress",
-      "type": "gauge"
+      "title": "Calendar month elapsed (UTC)",
+      "type": "gauge",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
@@ -295,7 +311,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -332,13 +349,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "100 - (consumption_cost:projected_month{version=~\"$version\"})",
+          "expr": "100 - (kasa:consumption_cost:projected_month{version=~\"${version:regex}\"})",
           "legendFormat": "Budget Remaining",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "🎯 Budget Status (vs $100)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
@@ -397,7 +421,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -443,22 +468,35 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:avg_24h{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}",
           "legendFormat": "24h Avg Cost",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "predict_linear(consumption_cost:avg_24h{version=~\"$version\"}[6h], 3600)",
+          "expr": "clamp_min(predict_linear(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[6h], 3600), 0)",
           "legendFormat": "Trend Line",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "📈 Cost Trend (24h with Prediction)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -513,7 +551,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -566,31 +605,50 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "current_consumption:total{version=~\"$version\"}",
+          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"}",
           "legendFormat": "Current Power",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "predict_linear(current_consumption:total{version=~\"$version\"}[1h], 3600)",
+          "expr": "clamp_min(predict_linear(kasa:current_consumption:total{version=~\"${version:regex}\"}[1h], 3600), 0)",
           "legendFormat": "Prediction +1h",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "predict_linear(current_consumption:total{version=~\"$version\"}[6h], 21600)",
+          "expr": "clamp_min(predict_linear(kasa:current_consumption:total{version=~\"${version:regex}\"}[6h], 21600), 0)",
           "legendFormat": "Prediction +6h",
-          "refId": "C"
+          "refId": "C",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "📈 Power Consumption Trend",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
@@ -645,7 +703,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -698,31 +757,50 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
           "legendFormat": "Current Cost",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "predict_linear(consumption_cost:total{version=~\"$version\"}[1h], 3600)",
+          "expr": "clamp_min(predict_linear(kasa:consumption_cost:total{version=~\"${version:regex}\"}[1h], 3600), 0)",
           "legendFormat": "Prediction +1h",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "predict_linear(consumption_cost:total{version=~\"$version\"}[6h], 21600)",
+          "expr": "clamp_min(predict_linear(kasa:consumption_cost:total{version=~\"${version:regex}\"}[6h], 21600), 0)",
           "legendFormat": "Prediction +6h",
-          "refId": "C"
+          "refId": "C",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "💵 Cost Rate Trend",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -777,7 +855,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -842,22 +921,35 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
           "legendFormat": "This Week",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"} offset 7d",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} offset 7d",
           "legendFormat": "Last Week",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "📊 Week-over-Week Comparison",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Offset comparisons need history since the corrected recording rules were deployed."
     },
     {
       "datasource": {
@@ -912,7 +1004,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -977,22 +1070,35 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
           "legendFormat": "This Month",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"} offset 30d",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} offset 30d",
           "legendFormat": "Last Month",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "📊 Month-over-Month Comparison",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Offset comparisons need history since the corrected recording rules were deployed."
     },
     {
       "datasource": {
@@ -1033,7 +1139,8 @@
                 "value": 1
               }
             ]
-          }
+          },
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1070,12 +1177,19 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:anomaly{version=~\"$version\"}",
-          "refId": "A"
+          "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "🚨 Anomaly Indicator",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -1146,7 +1260,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1176,13 +1291,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:zscore{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:zscore{version=~\"${version:regex}\"}",
           "legendFormat": "Z-Score",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "📊 Z-Score (Anomaly Detection)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -1237,7 +1359,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1267,13 +1390,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:stddev_1h{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:stddev_1h{version=~\"${version:regex}\"}",
           "legendFormat": "Std Dev (1h)",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "⚠️ Standard Deviation",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -1332,7 +1462,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -1415,31 +1546,50 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
           "legendFormat": "Current Cost",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:avg_1h{version=~\"$version\"} + (2 * consumption_cost:stddev_1h{version=~\"$version\"})",
+          "expr": "kasa:consumption_cost:avg_1h{version=~\"${version:regex}\"} + (2 * kasa:consumption_cost:stddev_1h{version=~\"${version:regex}\"})",
           "legendFormat": "Upper Bound (2σ)",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:avg_1h{version=~\"$version\"} - (2 * consumption_cost:stddev_1h{version=~\"$version\"})",
+          "expr": "kasa:consumption_cost:avg_1h{version=~\"${version:regex}\"} - (2 * kasa:consumption_cost:stddev_1h{version=~\"${version:regex}\"})",
           "legendFormat": "Lower Bound (2σ)",
-          "refId": "C"
+          "refId": "C",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "🔍 Outlier Detection (2σ Bounds)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -1487,7 +1637,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1542,14 +1693,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "avg_over_time(consumption_cost:total{version=~\"$version\"}[1h])",
+          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[1h])",
           "format": "time_series",
           "legendFormat": "Hour {{hour}}",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🌡️ Cost by Hour of Day",
-      "type": "heatmap"
+      "title": "Rolling hourly average cost rate",
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -1604,7 +1761,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1634,13 +1792,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "avg_over_time(consumption_cost:total{version=~\"$version\"}[1d])",
+          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[1d])",
           "legendFormat": "{{day_of_week}}",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📅 Cost by Day of Week",
-      "type": "timeseries"
+      "title": "Rolling 24h average cost rate",
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -1695,7 +1860,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1725,40 +1891,65 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
           "legendFormat": "Week 0 (Current)",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"} offset 7d",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} offset 7d",
           "legendFormat": "Week -1",
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"} offset 14d",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} offset 14d",
           "legendFormat": "Week -2",
-          "refId": "C"
+          "refId": "C",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:total{version=~\"$version\"} offset 21d",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} offset 21d",
           "legendFormat": "Week -3",
-          "refId": "D"
+          "refId": "D",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "🌊 Weekly Pattern Overlay",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Offset comparisons need history since the corrected recording rules were deployed."
     },
     {
       "datasource": {
@@ -1813,7 +2004,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1843,13 +2035,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "avg_over_time(consumption_cost:total{version=~\"$version\"}[30d])",
+          "expr": "avg_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[30d])",
           "legendFormat": "30-Day Rolling Average",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📊 Monthly Pattern",
-      "type": "timeseries"
+      "title": "Rolling 30d average cost rate",
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -1883,7 +2082,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1920,12 +2120,19 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "predict_linear(consumption_cost:avg_1h{version=~\"$version\"}[1h], 3600)",
-          "refId": "A"
+          "expr": "clamp_min(predict_linear(kasa:consumption_cost:avg_1h{version=~\"${version:regex}\"}[1h], 3600), 0)",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🔮 Next Hour Prediction",
-      "type": "stat"
+      "title": "Projected hourly cost rate at 1h horizon",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -1959,7 +2166,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1996,12 +2204,19 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "predict_linear(consumption_cost:avg_24h{version=~\"$version\"}[24h], 86400)",
-          "refId": "A"
+          "expr": "clamp_min(predict_linear(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[24h], 86400), 0)",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🔮 Next Day Prediction",
-      "type": "stat"
+      "title": "Projected hourly cost rate at 24h horizon",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -2039,7 +2254,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2076,12 +2292,19 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "consumption_cost:projected_month{version=~\"$version\"}",
-          "refId": "A"
+          "expr": "kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}",
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
-      "title": "🔮 End of Month Projection",
-      "type": "stat"
+      "title": "Flat-load 730-hour cost projection",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
@@ -2107,7 +2330,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2144,13 +2368,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "2 * consumption_cost:stddev_1h{version=~\"$version\"}",
+          "expr": "2 * kasa:consumption_cost:stddev_1h{version=~\"${version:regex}\"}",
           "legendFormat": "±2σ Range",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📈 Confidence Interval (±2σ)",
-      "type": "stat"
+      "title": "Observed cost-rate spread (2× standard deviation)",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -2205,7 +2436,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "suffix:W/s",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -2259,22 +2491,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "current_consumption:total{version=~\"$version\"}",
+          "expr": "deriv(kasa:current_consumption:total{version=~\"${version:regex}\"}[5m])",
           "legendFormat": "Current Power",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "mimir"
-          },
-          "expr": "deriv(current_consumption:total{version=~\"$version\"}[5m])",
-          "legendFormat": "Rate of Change",
-          "refId": "B"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "📊 Power Derivative (Rate of Change)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
@@ -2302,7 +2532,9 @@
                 "value": null
               }
             ]
-          }
+          },
+          "noValue": "—",
+          "unit": "none"
         },
         "overrides": [
           {
@@ -2314,19 +2546,6 @@
               {
                 "id": "unit",
                 "value": "currencyUSD"
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "continuous-BlPu"
-                }
               }
             ]
           },
@@ -2339,6 +2558,50 @@
               {
                 "id": "unit",
                 "value": "kwatth"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Observed cost (USD)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device ID"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "custom.width",
+                "value": 280
               }
             ]
           }
@@ -2369,26 +2632,50 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum_over_time(consumption_cost:total{version=~\"$version\"}[24h])",
+          "expr": "(sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600",
           "format": "table",
           "legendFormat": "Daily Cost",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📊 Cost History Table",
+      "title": "Observed rolling 24h cost estimate",
       "transformations": [
         {
           "id": "organize",
           "options": {
-            "excludeByName": {},
-            "indexByName": {},
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "instance": true,
+              "job": true,
+              "model": true,
+              "version": true,
+              "pod": true,
+              "service": true,
+              "endpoint": true,
+              "namespace": true,
+              "cluster": true,
+              "container": true
+            },
             "renameByName": {
-              "Value": "Cost"
+              "Value": "Observed cost (USD)",
+              "alias": "Device",
+              "device_id": "Device ID"
+            },
+            "indexByName": {
+              "alias": 0,
+              "device_id": 1
             }
           }
         }
       ],
-      "type": "table"
+      "type": "table",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -2443,7 +2730,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2473,13 +2761,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum_over_time(consumption_cost:total{version=~\"$version\"}[1d])",
+          "expr": "(sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s])) * 30 / 3600",
           "legendFormat": "Daily Total",
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "range": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📈 YTD Cost Trend",
-      "type": "timeseries"
+      "title": "Observed rolling daily cost estimate",
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -2513,7 +2808,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2550,13 +2846,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max_over_time(sum_over_time(consumption_cost:total{version=~\"$version\"}[1d])[30d:1d])",
+          "expr": "max_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s])) * 30 / 3600)[30d:1d])",
           "legendFormat": "Highest Day",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🏆 Record: Highest Day",
-      "type": "stat"
+      "title": "🏆 Record: Highest Day · sampled rolling windows",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -2582,7 +2885,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2619,13 +2923,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "min_over_time(sum_over_time(consumption_cost:total{version=~\"$version\"}[1d])[30d:1d])",
+          "expr": "min_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[1d:30s])) * 30 / 3600)[30d:1d])",
           "legendFormat": "Lowest Day",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🏅 Record: Lowest Day",
-      "type": "stat"
+      "title": "🏅 Record: Lowest Day · sampled rolling windows",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -2659,7 +2970,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2696,13 +3008,20 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max_over_time(sum_over_time(consumption_cost:total{version=~\"$version\"}[7d])[30d:7d])",
+          "expr": "max_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[7d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[7d:30s])) * 30 / 3600)[30d:7d])",
           "legendFormat": "Highest Week",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🏆 Record: Highest Week",
-      "type": "stat"
+      "title": "🏆 Record: Highest Week · sampled rolling windows",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -2736,7 +3055,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -2773,13 +3093,58 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max_over_time(sum_over_time(consumption_cost:total{version=~\"$version\"}[30d])[365d:30d])",
+          "expr": "max_over_time(((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[30d:30s])) * 30 / 3600)[365d:30d])",
           "legendFormat": "Highest Month",
-          "refId": "A"
+          "refId": "A",
+          "instant": true,
+          "range": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🏆 Record: Highest Month",
-      "type": "stat"
+      "title": "🏆 Record: Highest Month · sampled rolling windows",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
+    },
+    {
+      "id": 9901,
+      "type": "stat",
+      "title": "Fresh device readings",
+      "gridPos": {
+        "x": 0,
+        "y": 76,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(kasa_fresh_devices{job=\"kasa-exporter\"})",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "min": 0
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "UNKNOWN"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "description": "Devices with a successful power reading in the last 60 seconds. Zero or missing data requires investigation."
     }
   ]
 }

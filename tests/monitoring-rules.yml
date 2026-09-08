@@ -1,0 +1,73 @@
+rule_files:
+  - ../etc/prometheus/rules/kasa_rules.yml
+evaluation_interval: 30s
+tests:
+  - interval: 30s
+    input_series:
+      - series: current_consumption{device_id="a",alias="same-name",version="v1",job="kasa-exporter",instance="one"}
+        values: 1000+0x120
+      - series: consumption_cost{device_id="a",alias="same-name",version="v1",job="kasa-exporter",instance="one"}
+        values: 0.3+0x120
+      - series: current_energy_rate{device_id="a",alias="same-name",version="v1",job="kasa-exporter",instance="one",season="summer",rate_class="off_peak"}
+        values: 0.3+0x120
+      - series: current_consumption{device_id="a",alias="same-name",version="v1",job="kasa-exporter",instance="duplicate"}
+        values: 1000+0x120
+      - series: consumption_cost{device_id="a",alias="same-name",version="v1",job="kasa-exporter",instance="duplicate"}
+        values: 0.3+0x120
+      - series: current_energy_rate{device_id="a",alias="same-name",version="v1",job="kasa-exporter",instance="duplicate",season="summer",rate_class="off_peak"}
+        values: 0.3+0x120
+      - series: current_consumption{device_id="b",alias="same-name",version="v1",job="kasa-exporter",instance="one"}
+        values: 2000+0x120
+      - series: consumption_cost{device_id="b",alias="same-name",version="v1",job="kasa-exporter",instance="one"}
+        values: 0.6+0x120
+      - series: current_energy_rate{device_id="b",alias="same-name",version="v1",job="kasa-exporter",instance="one",season="summer",rate_class="off_peak"}
+        values: 0.3+0x120
+      - series: current_consumption{device_id="b",alias="same-name",version="v1",job="kasa-exporter",instance="duplicate"}
+        values: 2000+0x120
+      - series: consumption_cost{device_id="b",alias="same-name",version="v1",job="kasa-exporter",instance="duplicate"}
+        values: 0.6+0x120
+      - series: current_energy_rate{device_id="b",alias="same-name",version="v1",job="kasa-exporter",instance="duplicate",season="summer",rate_class="off_peak"}
+        values: 0.3+0x120
+      - series: kasa_tariff_usd_per_kwh{job="kasa-exporter",season="summer",rate_class="super_off_peak"}
+        values: 0.1+0x120
+    promql_expr_test:
+      - expr: kasa:current_consumption:total
+        eval_time: 1h
+        exp_samples:
+          - labels: kasa:current_consumption:total{version="v1"}
+            value: 3000
+      - expr: kasa:consumption_cost:total
+        eval_time: 1h
+        exp_samples:
+          - labels: kasa:consumption_cost:total{version="v1"}
+            value: 0.8999999999999999
+      - expr: sum(kasa:consumption_cost_with_rate_class)
+        eval_time: 1h
+        exp_samples:
+          - labels: "{}"
+            value: 0.8999999999999999
+      - expr: round(sum(kasa:power_utilization:by_device), 0.000001)
+        eval_time: 1h
+        exp_samples:
+          - labels: "{}"
+            value: 100
+      - expr: min(kasa:cost_efficiency:by_device)
+        eval_time: 1h
+        exp_samples:
+          - labels: "{}"
+            value: 0.3
+      - expr: kasa:consumption_cost:anomaly
+        eval_time: 1h
+        exp_samples:
+          - labels: kasa:consumption_cost:anomaly{version="v1"}
+            value: 0
+      - expr:
+          (sum_over_time(kasa:consumption_cost:total[1h:30s]) - last_over_time(kasa:consumption_cost:total[1h:30s]))
+          * 30 / 3600
+        eval_time: 1h
+        exp_samples:
+          - labels: '{version="v1"}'
+            value: 0.8999999999999999
+      - expr: count(kasa:consumption_cost:zscore != kasa:consumption_cost:zscore)
+        eval_time: 1h
+        exp_samples: []

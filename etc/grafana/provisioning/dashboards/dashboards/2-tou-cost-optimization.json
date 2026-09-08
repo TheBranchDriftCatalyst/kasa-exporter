@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Time-of-Use rate analysis, load-shift savings, and cost optimization insights",
+  "description": "Kasa measured power and modeled costs. Missing readings are unknown, not zero. Costs use configured tariffs, not a verified utility bill. Historical integrals are 30-second sampled estimates over available data; gaps reduce coverage. Battery/solar panels are scenarios, not battery telemetry.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 2,
@@ -36,19 +36,20 @@
           "type": "prometheus",
           "uid": "mimir"
         },
-        "definition": "label_values(consumption_cost, version)",
+        "definition": "label_values(current_consumption{job=\"kasa-exporter\"}, version)",
         "includeAll": true,
         "label": "Version",
         "name": "version",
         "options": [],
         "query": {
-          "query": "label_values(consumption_cost, version)",
+          "query": "label_values(current_consumption{job=\"kasa-exporter\"}, version)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
         "sort": 1,
-        "type": "query"
+        "type": "query",
+        "allValue": ".*"
       },
       {
         "current": {
@@ -103,10 +104,10 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "America/Denver",
+  "timezone": "America/Los_Angeles",
   "title": "⚡ TOU Cost Optimization",
   "uid": "kasa-tou-opt-v2",
-  "version": 1,
+  "version": 2,
   "panels": [
     {
       "datasource": {
@@ -158,7 +159,9 @@
                 "value": null
               }
             ]
-          }
+          },
+          "noValue": "—",
+          "displayName": "${__field.labels.rate_class}"
         },
         "overrides": []
       },
@@ -181,7 +184,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "value",
+        "textMode": "name",
         "wideLayout": true
       },
       "pluginVersion": "12.2.1",
@@ -192,15 +195,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "label_replace(max(current_energy_rate{version=~\"$version\"}), \"rate_class\", \"$1\", \"rate_class\", \"(.*)\")",
+          "expr": "kasa:current_energy_rate:current{version=~\"${version:regex}\"}",
           "legendFormat": "{{rate_class}}",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "🌟 Current Rate Class",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -230,7 +238,8 @@
               }
             ]
           },
-          "unit": "watt"
+          "unit": "watt",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -323,15 +332,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "avg by (rate_class) (\n  current_consumption{version=~\"$version\"}\n  * on(device_id) group_left(rate_class, season)\n  current_energy_rate{version=~\"$version\"}\n)",
+          "expr": "sum by(rate_class,version) (kasa:current_consumption:by_device{version=~\"${version:regex}\"} * on(device_id,version) group_left(rate_class) (max by(device_id,version,rate_class)(current_energy_rate{job=\"kasa-exporter\",version=~\"${version:regex}\"}) * 0 + 1))",
           "legendFormat": "{{rate_class}}",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "⚡ Power by Rate Class",
-      "type": "bargauge"
+      "type": "bargauge",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -343,38 +357,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "from": 0,
-                "result": {
-                  "text": "🌙 Wait for Off-Peak (after 8pm)"
-                },
-                "to": 20
-              },
-              "type": "range"
-            },
-            {
-              "options": {
-                "from": 20,
-                "result": {
-                  "text": "⚡ BEST TIME - Super Off-Peak Active!"
-                },
-                "to": 60
-              },
-              "type": "range"
-            },
-            {
-              "options": {
-                "from": 60,
-                "result": {
-                  "text": "✅ Good Time - Off-Peak Rates"
-                },
-                "to": 100
-              },
-              "type": "range"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "percentage",
             "steps": [
@@ -392,7 +375,8 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percent",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -430,15 +414,22 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(\n  sum(increase(consumption_cost_with_rate_class{rate_class=\"super_off_peak\", version=~\"$version\"}[$__range]))\n  /\n  sum(increase(consumption_cost_with_rate_class{version=~\"$version\"}[$__range]))\n) * 100",
+          "expr": "sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\", rate_class=\"super_off_peak\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\", rate_class=\"super_off_peak\"})[$__range:30s])) * 30 / 3600) / (sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s])) * 30 / 3600) > 0) * 100",
           "legendFormat": "Super Off-Peak Usage %",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0,
+            "max": 100
+          }
         }
       ],
-      "title": "🎯 Optimal Usage Recommendations",
-      "type": "stat"
+      "title": "Observed cost share during super off-peak (%)",
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -478,7 +469,8 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percent",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -510,15 +502,22 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(\n  sum(increase(consumption_cost_with_rate_class{rate_class=\"super_off_peak\", version=~\"$version\"}[$__range]))\n  /\n  sum(increase(consumption_cost_with_rate_class{version=~\"$version\"}[$__range]))\n) * 100",
+          "expr": "sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\", rate_class=\"super_off_peak\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\", rate_class=\"super_off_peak\"})[$__range:30s])) * 30 / 3600) / (sum((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s])) * 30 / 3600) > 0) * 100",
           "legendFormat": "Super Off-Peak %",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": [],
+            "min": 0,
+            "max": 100
+          }
         }
       ],
-      "title": "📊 Super Off-Peak Utilization",
-      "type": "gauge"
+      "title": "Observed cost share during super off-peak (%)",
+      "type": "gauge",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -540,7 +539,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -578,15 +578,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(current_consumption:total{version=~\"$version\"} / 1000) * 0.314 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.314 * 730",
           "legendFormat": "Monthly Cost (All Super Off-Peak)",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "💡 What-If: All Super Off-Peak ($0.314/kWh)",
-      "type": "stat"
+      "title": "💡 What-If: All Super Off-Peak · flat-load monthly scenario",
+      "type": "stat",
+      "description": "Missing readings are unknown. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
@@ -608,7 +613,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -646,15 +652,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(current_consumption:total{version=~\"$version\"} / 1000) * 0.351 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.351 * 730",
           "legendFormat": "Monthly Cost (All Off-Peak)",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "💡 What-If: All Off-Peak ($0.351/kWh)",
-      "type": "stat"
+      "title": "💡 What-If: All Off-Peak · flat-load monthly scenario",
+      "type": "stat",
+      "description": "Missing readings are unknown. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
@@ -676,7 +687,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -714,15 +726,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(current_consumption:total{version=~\"$version\"} / 1000) * 0.634 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.634 * 730",
           "legendFormat": "Monthly Cost (All On-Peak)",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "💡 What-If: All On-Peak ($0.634/kWh)",
-      "type": "stat"
+      "title": "💡 What-If: All On-Peak · flat-load monthly scenario",
+      "type": "stat",
+      "description": "Missing readings are unknown. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
@@ -777,7 +794,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -873,10 +891,15 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(current_consumption:total{version=~\"$version\"} / 1000) * 0.314 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.314 * 730",
           "legendFormat": "Super Off-Peak",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
@@ -884,10 +907,15 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(current_consumption:total{version=~\"$version\"} / 1000) * 0.351 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.351 * 730",
           "legendFormat": "Off-Peak",
           "range": true,
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
@@ -895,10 +923,15 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(current_consumption:total{version=~\"$version\"} / 1000) * 0.634 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.634 * 730",
           "legendFormat": "On-Peak",
           "range": true,
-          "refId": "C"
+          "refId": "C",
+          "instant": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
@@ -906,14 +939,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "consumption_cost:projected_month{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}",
           "legendFormat": "Current Actual",
           "range": true,
-          "refId": "D"
+          "refId": "D",
+          "instant": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "📊 Scenario Comparison - Monthly Cost Projection",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
@@ -941,42 +980,100 @@
                 "value": null
               }
             ]
-          }
+          },
+          "noValue": "—",
+          "unit": "none"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "Metric"
+              "options": "Current Cost Rate ($/hr)"
             },
             "properties": [
               {
-                "id": "custom.width",
-                "value": 300
+                "id": "unit",
+                "value": "suffix:USD/hour"
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "Value"
+              "options": "Projected Daily Cost ($)"
             },
             "properties": [
               {
-                "id": "custom.width",
-                "value": 150
+                "id": "unit",
+                "value": "currencyUSD"
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "Unit"
+              "options": "Projected Monthly Cost ($)"
             },
             "properties": [
               {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Potential Savings ($/hr)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "suffix:USD/hour"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Current Power (W)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "watt"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
                 "id": "custom.width",
-                "value": 100
+                "value": 220
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device ID"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "custom.width",
+                "value": 280
               }
             ]
           }
@@ -1007,12 +1104,15 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "consumption_cost:total{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
           "format": "table",
           "legendFormat": "Current Cost Rate",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
@@ -1020,12 +1120,15 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "consumption_cost:projected_day{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:projected_day{version=~\"${version:regex}\"}",
           "format": "table",
           "legendFormat": "Projected Daily Cost",
-          "range": true,
+          "range": false,
           "refId": "B",
-          "instant": true
+          "instant": true,
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
@@ -1033,12 +1136,15 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "consumption_cost:projected_month{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}",
           "format": "table",
           "legendFormat": "Projected Monthly Cost",
-          "range": true,
+          "range": false,
           "refId": "C",
-          "instant": true
+          "instant": true,
+          "audit": {
+            "required_labels": ["version"]
+          }
         },
         {
           "datasource": {
@@ -1046,12 +1152,15 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "consumption_cost:potential_savings_super_off_peak{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version:regex}\"}",
           "format": "table",
           "legendFormat": "Potential Savings (Super Off-Peak)",
-          "range": true,
+          "range": false,
           "refId": "D",
-          "instant": true
+          "instant": true,
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
@@ -1059,21 +1168,22 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "current_consumption:total{version=~\"$version\"}",
+          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"}",
           "format": "table",
           "legendFormat": "Current Power Draw",
-          "range": true,
+          "range": false,
           "refId": "E",
-          "instant": true
+          "instant": true,
+          "audit": {
+            "required_labels": ["version"]
+          }
         }
       ],
       "title": "📋 Key Optimization Metrics",
       "transformations": [
         {
-          "id": "seriesToColumns",
-          "options": {
-            "byField": "Time"
-          }
+          "id": "merge",
+          "options": {}
         },
         {
           "id": "organize",
@@ -1081,24 +1191,35 @@
             "excludeByName": {
               "Time": true,
               "__name__": true,
-              "device_id": true,
               "instance": true,
               "job": true,
-              "version": true
+              "model": true,
+              "version": true,
+              "pod": true,
+              "service": true,
+              "endpoint": true,
+              "namespace": true,
+              "cluster": true,
+              "container": true
             },
-            "includeByName": {},
-            "indexByName": {},
             "renameByName": {
               "Value #A": "Current Cost Rate ($/hr)",
               "Value #B": "Projected Daily Cost ($)",
               "Value #C": "Projected Monthly Cost ($)",
               "Value #D": "Potential Savings ($/hr)",
-              "Value #E": "Current Power (W)"
+              "Value #E": "Current Power (W)",
+              "alias": "Device",
+              "device_id": "Device ID"
+            },
+            "indexByName": {
+              "alias": 0,
+              "device_id": 1
             }
           }
         }
       ],
-      "type": "table"
+      "type": "table",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
     },
     {
       "datasource": {
@@ -1117,7 +1238,8 @@
               "viz": false
             }
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1155,15 +1277,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "max by (alias) (current_consumption{version=~\"$version\"})",
+          "expr": "max by (alias) (current_consumption{version=~\"${version:regex}\"})",
           "legendFormat": "{{alias}}",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "🔌 Current Power Distribution by Device",
-      "type": "piechart"
+      "type": "piechart",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
@@ -1193,7 +1320,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/kWh",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1227,15 +1355,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "current_energy_rate:current",
+          "expr": "kasa:current_energy_rate:current",
           "legendFormat": "Rate ($/kWh)",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "💲 Current Rate ($/kWh)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -1331,7 +1464,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1362,14 +1496,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "rate_class:numeric",
+          "expr": "kasa:rate_class:numeric",
           "legendFormat": "Rate Class",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": ["version", "rate_class", "season"]
+          }
         }
       ],
       "title": "⏰ Rate Class Timeline",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown."
     },
     {
       "datasource": {
@@ -1388,7 +1528,8 @@
               "viz": false
             }
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -1484,14 +1625,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "sum by (rate_class) (increase(consumption_cost_with_rate_class{version=~\"$version\"}[$__range]))",
+          "expr": "sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s])) * 30 / 3600)",
           "legendFormat": "{{rate_class}}",
-          "range": true,
-          "refId": "A"
+          "range": false,
+          "refId": "A",
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "🥧 Cost by Rate Class",
-      "type": "piechart"
+      "title": "🥧 Cost by Rate Class · sampled cost estimate",
+      "type": "piechart",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -1520,79 +1667,51 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "none",
+          "noValue": "—"
         },
         "overrides": [
           {
             "matcher": {
               "id": "byName",
-              "options": "rate_class"
+              "options": "Observed cost (USD)"
             },
             "properties": [
               {
-                "id": "custom.width",
-                "value": 200
-              },
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "super_off_peak": {
-                        "color": "#00E5FF",
-                        "index": 0,
-                        "text": "⚡ Super Off-Peak"
-                      }
-                    },
-                    "type": "value"
-                  },
-                  {
-                    "options": {
-                      "off_peak": {
-                        "color": "#9D00FF",
-                        "index": 1,
-                        "text": "🌙 Off-Peak"
-                      }
-                    },
-                    "type": "value"
-                  },
-                  {
-                    "options": {
-                      "on_peak": {
-                        "color": "#FF00FF",
-                        "index": 2,
-                        "text": "☀️ On-Peak"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "basic",
-                  "type": "color-background"
-                }
+                "id": "unit",
+                "value": "currencyUSD"
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "Value"
+              "options": "Device"
             },
             "properties": [
               {
-                "id": "displayName",
-                "value": "Total Cost"
+                "id": "unit",
+                "value": "none"
               },
               {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "gauge"
-                }
+                "id": "custom.width",
+                "value": 220
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Device ID"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "custom.width",
+                "value": 280
               }
             ]
           }
@@ -1630,29 +1749,50 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "sum by (rate_class) (increase(consumption_cost_with_rate_class{version=~\"$version\"}[$__range]))",
+          "expr": "sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s])) * 30 / 3600)",
           "format": "table",
           "legendFormat": "{{rate_class}}",
-          "range": true,
+          "range": false,
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "📊 Cost Distribution Table",
+      "title": "📊 Cost Distribution Table · sampled cost estimate",
       "transformations": [
         {
           "id": "organize",
           "options": {
             "excludeByName": {
-              "Time": true
+              "Time": true,
+              "__name__": true,
+              "instance": true,
+              "job": true,
+              "model": true,
+              "version": true,
+              "pod": true,
+              "service": true,
+              "endpoint": true,
+              "namespace": true,
+              "cluster": true,
+              "container": true
             },
-            "includeByName": {},
-            "indexByName": {},
-            "renameByName": {}
+            "renameByName": {
+              "Value": "Observed cost (USD)",
+              "alias": "Device",
+              "device_id": "Device ID"
+            },
+            "indexByName": {
+              "alias": 0,
+              "device_id": 1
+            }
           }
         }
       ],
-      "type": "table"
+      "type": "table",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -1707,7 +1847,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "currencyUSD",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -1796,14 +1937,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "sum by (rate_class) (increase(consumption_cost_with_rate_class{version=~\"$version\"}[1h]))",
+          "expr": "sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[1h:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[1h:30s])) * 30 / 3600)",
           "legendFormat": "{{rate_class}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
-      "title": "💵 Hourly Cost Trends by Rate Class",
-      "type": "timeseries"
+      "title": "💵 Hourly Cost Trends by Rate Class · sampled cost estimate",
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Integrals use 30-second samples over available history; missing periods are not extrapolated and reduce the estimate."
     },
     {
       "datasource": {
@@ -1845,7 +1992,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1883,14 +2031,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "consumption_cost:potential_savings_super_off_peak{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version:regex}\"}",
           "legendFormat": "Potential Savings (Super Off-Peak)",
-          "range": true,
-          "refId": "A"
+          "range": false,
+          "refId": "A",
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "💰 Potential Savings - Super Off-Peak",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -1928,7 +2082,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -1966,14 +2121,20 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "consumption_cost:potential_savings_off_peak{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:potential_savings_off_peak{version=~\"${version:regex}\"}",
           "legendFormat": "Potential Savings (Off-Peak)",
-          "range": true,
-          "refId": "A"
+          "range": false,
+          "refId": "A",
+          "instant": true,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "💰 Potential Savings - Off-Peak",
-      "type": "stat"
+      "type": "stat",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
     },
     {
       "datasource": {
@@ -2028,7 +2189,8 @@
               }
             ]
           },
-          "unit": "currencyUSD"
+          "unit": "suffix:USD/hour",
+          "noValue": "—"
         },
         "overrides": [
           {
@@ -2090,10 +2252,15 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "consumption_cost:potential_savings_super_off_peak{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version:regex}\"}",
           "legendFormat": "Super Off-Peak Savings",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "instant": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         },
         {
           "datasource": {
@@ -2101,14 +2268,58 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "consumption_cost:potential_savings_off_peak{version=~\"$version\"}",
+          "expr": "kasa:consumption_cost:potential_savings_off_peak{version=~\"${version:regex}\"}",
           "legendFormat": "Off-Peak Savings",
           "range": true,
-          "refId": "B"
+          "refId": "B",
+          "instant": false,
+          "format": "time_series",
+          "audit": {
+            "required_labels": []
+          }
         }
       ],
       "title": "📈 Savings Over Time",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
+    },
+    {
+      "id": 9901,
+      "type": "stat",
+      "title": "Fresh device readings",
+      "gridPos": {
+        "x": 0,
+        "y": 62,
+        "w": 6,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(kasa_fresh_devices{job=\"kasa-exporter\"})",
+          "instant": true,
+          "range": false,
+          "audit": {
+            "min": 0
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "UNKNOWN"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "description": "Devices with a successful power reading in the last 60 seconds. Zero or missing data requires investigation."
     }
   ]
 }

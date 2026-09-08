@@ -92,6 +92,12 @@ jobs:
       - name: Run tests with coverage
         run: poetry run pytest -v --cov=kasa_exporter --cov-report=xml --cov-report=term-missing
 
+      - name: Verify monitoring rule mathematics
+        run: >-
+          docker run --rm --entrypoint promtool
+          --volume "$PWD:/work" --workdir /work
+          prom/prometheus:v2.54.1 test rules tests/monitoring-rules.yml
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
