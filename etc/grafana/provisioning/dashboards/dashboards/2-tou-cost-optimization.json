@@ -61,7 +61,7 @@
   "timezone": "America/Los_Angeles",
   "title": "⚡ TOU Cost Optimization",
   "uid": "kasa-tou-opt-v2",
-  "version": 4,
+  "version": 5,
   "panels": [
     {
       "datasource": {
@@ -1214,14 +1214,14 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "max by (alias) (current_consumption{version=~\"${version:regex}\"})",
+          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\"}",
           "legendFormat": "{{alias}}",
           "range": false,
           "refId": "A",
           "instant": true,
           "format": "time_series",
           "audit": {
-            "required_labels": []
+            "required_labels": ["device_id", "alias", "version"]
           }
         }
       ],

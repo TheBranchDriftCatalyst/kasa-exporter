@@ -275,7 +275,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🔋 Battery Sizing & Analysis",
   "uid": "kasa-battery-v2",
-  "version": 6,
+  "version": 7,
   "panels": [
     {
       "datasource": {
@@ -1474,14 +1474,14 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "current_consumption{alias=~\"${device:regex}\", version=~\"${version:regex}\"}",
+          "expr": "kasa:current_consumption:by_device{alias=~\"${device:regex}\", version=~\"${version:regex}\"}",
           "legendFormat": "{{alias}}",
           "refId": "A",
           "instant": false,
           "range": true,
           "format": "time_series",
           "audit": {
-            "required_labels": [],
+            "required_labels": ["device_id", "alias", "version"],
             "min": 0
           }
         }
@@ -2037,7 +2037,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum((sum_over_time((consumption_cost{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s]) - last_over_time((consumption_cost{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600)",
+          "expr": "sum((sum_over_time((kasa:consumption_cost:by_device{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:by_device{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600)",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -2105,7 +2105,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum((sum_over_time((consumption_cost{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s]) - last_over_time((consumption_cost{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600) * 0.3",
+          "expr": "sum((sum_over_time((kasa:consumption_cost:by_device{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:by_device{alias=~\"${device:regex}\", version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600) * 0.3",
           "refId": "A",
           "instant": true,
           "range": false,

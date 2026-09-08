@@ -38,3 +38,25 @@ def test_every_visualization_has_reviewed_query_contracts():
                 ), "Missing data must not map to healthy"
         assert len(ids) == len(set(ids))
     assert count == 157  # 145 original query panels plus twelve health/coverage panels
+
+
+def test_raw_device_sources_are_scoped_to_the_exporter():
+    for path in DASHBOARDS.glob("*.json"):
+        dashboard = json.loads(path.read_text())
+        for panel in dashboard["panels"]:
+            for target in panel.get("targets", []):
+                expression = target.get("expr", "")
+                selectors = re.findall(
+                    r"(?<![\w:])(?:current_consumption|consumption_cost|consumption_today|consumption_this_month|state|rssi)\{([^}]*)\}",
+                    expression,
+                )
+                assert all('job="kasa-exporter"' in selector for selector in selectors), (
+                    path,
+                    panel["id"],
+                    expression,
+                )
+                assert not re.search(r"by\s*\(\s*alias\s*\)", expression), (
+                    "Aliases are not unique device identities",
+                    path,
+                    panel["id"],
+                )
