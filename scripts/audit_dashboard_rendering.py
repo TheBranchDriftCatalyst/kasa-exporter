@@ -17,7 +17,7 @@ from urllib.request import urlopen
 from playwright.async_api import async_playwright
 
 
-async def inspect_panel(page, base, dashboard, panel, output):
+async def inspect_panel(page, base, dashboard, panel, output, variables=None):
     errors, frames, pending = [], [], []
     device_ids = set()
 
@@ -61,7 +61,15 @@ async def inspect_panel(page, base, dashboard, panel, output):
     page.on("pageerror", page_error)
     item = {"uid": dashboard["uid"], "panel_id": panel["id"], "title": panel.get("title", "")}
     try:
-        query = urlencode({"viewPanel": panel["id"], "from": "now-6h", "to": "now", "refresh": ""})
+        query = urlencode(
+            {
+                "viewPanel": panel["id"],
+                "from": "now-6h",
+                "to": "now",
+                "refresh": "",
+                **{f"var-{name}": value for name, value in (variables or {}).items()},
+            }
+        )
         await page.goto(
             f"{base}/d/{dashboard['uid']}?{query}", wait_until="networkidle", timeout=60000
         )
@@ -134,7 +142,14 @@ async def run(args):
             page = await browser.new_page(viewport={"width": 1920, "height": 1080})
             while not queue.empty():
                 dashboard, panel = queue.get_nowait()
-                item = await inspect_panel(page, args.grafana_url, dashboard, panel, args.output)
+                item = await inspect_panel(
+                    page,
+                    args.grafana_url,
+                    dashboard,
+                    panel,
+                    args.output,
+                    dict(v.split("=", 1) for v in args.var),
+                )
                 results.append(item)
                 print(item["uid"], item["panel_id"], item["status"], flush=True)
                 queue.task_done()
@@ -156,6 +171,7 @@ def main():
         / "etc/grafana/provisioning/dashboards/dashboards",
     )
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--var", action="append", default=[])
     parser.add_argument("--workers", type=int, default=3, choices=range(1, 5))
     return asyncio.run(run(parser.parse_args()))
 

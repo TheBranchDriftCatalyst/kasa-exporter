@@ -6,6 +6,8 @@ import pytest
 spec = importlib.util.spec_from_file_location(
     "dashboard_auditor", Path(__file__).parents[1] / "scripts/audit_dashboard_queries.py"
 )
+assert spec is not None
+assert spec.loader is not None
 audit = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(audit)
 
