@@ -1,8 +1,3 @@
----
-# GrafanaDashboard CRs for kasa-exporter
-# These fetch dashboard JSON from raw GitHub URLs
-# This approach avoids path issues with ArgoCD and keeps dashboards in their source location
-
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
@@ -13,9 +8,9 @@ metadata:
 spec:
   instanceSelector:
     matchLabels:
-      dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/1-real-time-monitoring.json?v=20260908-audit5"
-  folder: "Kasa"
+      dashboards: grafana
+  url: https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/d190b14f1b6058d946d3b544122ceaa71545b1ac/etc/grafana/provisioning/dashboards/dashboards/1-real-time-monitoring.json
+  folder: Kasa
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -27,9 +22,9 @@ metadata:
 spec:
   instanceSelector:
     matchLabels:
-      dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/2-tou-cost-optimization.json?v=20260908-audit5"
-  folder: "Kasa"
+      dashboards: grafana
+  url: https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/d190b14f1b6058d946d3b544122ceaa71545b1ac/etc/grafana/provisioning/dashboards/dashboards/2-tou-cost-optimization.json
+  folder: Kasa
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -41,9 +36,9 @@ metadata:
 spec:
   instanceSelector:
     matchLabels:
-      dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/3-battery-sizing.json?v=20260908-audit5"
-  folder: "Kasa"
+      dashboards: grafana
+  url: https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/d190b14f1b6058d946d3b544122ceaa71545b1ac/etc/grafana/provisioning/dashboards/dashboards/3-battery-sizing.json
+  folder: Kasa
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -55,9 +50,9 @@ metadata:
 spec:
   instanceSelector:
     matchLabels:
-      dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/4-forecasting-analytics.json?v=20260908-audit5"
-  folder: "Kasa"
+      dashboards: grafana
+  url: https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/d190b14f1b6058d946d3b544122ceaa71545b1ac/etc/grafana/provisioning/dashboards/dashboards/4-forecasting-analytics.json
+  folder: Kasa
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -69,9 +64,9 @@ metadata:
 spec:
   instanceSelector:
     matchLabels:
-      dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/5-comparative-analytics.json?v=20260908-audit5"
-  folder: "Kasa"
+      dashboards: grafana
+  url: https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/d190b14f1b6058d946d3b544122ceaa71545b1ac/etc/grafana/provisioning/dashboards/dashboards/5-comparative-analytics.json
+  folder: Kasa
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -83,6 +78,6 @@ metadata:
 spec:
   instanceSelector:
     matchLabels:
-      dashboards: "grafana"
-  url: "https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/main/etc/grafana/provisioning/dashboards/dashboards/6-alerts-monitoring.json?v=20260908-audit5"
-  folder: "Kasa"
+      dashboards: grafana
+  url: https://raw.githubusercontent.com/TheBranchDriftCatalyst/kasa-exporter/d190b14f1b6058d946d3b544122ceaa71545b1ac/etc/grafana/provisioning/dashboards/dashboards/6-alerts-monitoring.json
+  folder: Kasa
