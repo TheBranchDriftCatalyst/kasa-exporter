@@ -75,7 +75,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🔮 Forecasting & Predictions",
   "uid": "kasa-forecast-v2",
-  "version": 4,
+  "version": 5,
   "weekStart": "",
   "panels": [
     {
@@ -450,7 +450,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_min(predict_linear(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[6h], 3600), 0)",
+          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[6h], 3600), 0)) and on(version) (count_over_time(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[6h]) >= 576)",
           "legendFormat": "Trend Line",
           "refId": "B",
           "instant": false,
@@ -463,7 +463,7 @@
       ],
       "title": "📈 Cost Trend (24h with Prediction)",
       "type": "timeseries",
-      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Linear projections require at least 80% of the expected samples in their training window; otherwise no projection is shown."
     },
     {
       "datasource": {
@@ -587,7 +587,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_min(predict_linear(kasa:current_consumption:total{version=~\"${version:regex}\"}[1h], 3600), 0)",
+          "expr": "(clamp_min(predict_linear(kasa:current_consumption:total{version=~\"${version:regex}\"}[1h], 3600), 0)) and on(version) (count_over_time(kasa:current_consumption:total{version=~\"${version:regex}\"}[1h]) >= 96)",
           "legendFormat": "Prediction +1h",
           "refId": "B",
           "instant": false,
@@ -602,7 +602,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_min(predict_linear(kasa:current_consumption:total{version=~\"${version:regex}\"}[6h], 21600), 0)",
+          "expr": "(clamp_min(predict_linear(kasa:current_consumption:total{version=~\"${version:regex}\"}[6h], 21600), 0)) and on(version) (count_over_time(kasa:current_consumption:total{version=~\"${version:regex}\"}[6h]) >= 576)",
           "legendFormat": "Prediction +6h",
           "refId": "C",
           "instant": false,
@@ -615,7 +615,7 @@
       ],
       "title": "📈 Power Consumption Trend",
       "type": "timeseries",
-      "description": "Missing readings are unknown."
+      "description": "Missing readings are unknown. Linear projections require at least 80% of the expected samples in their training window; otherwise no projection is shown. Linear projections require at least 80% of the expected samples in their training window; otherwise no projection is shown."
     },
     {
       "datasource": {
@@ -739,7 +739,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_min(predict_linear(kasa:consumption_cost:total{version=~\"${version:regex}\"}[1h], 3600), 0)",
+          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:total{version=~\"${version:regex}\"}[1h], 3600), 0)) and on(version) (count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[1h]) >= 96)",
           "legendFormat": "Prediction +1h",
           "refId": "B",
           "instant": false,
@@ -754,7 +754,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_min(predict_linear(kasa:consumption_cost:total{version=~\"${version:regex}\"}[6h], 21600), 0)",
+          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:total{version=~\"${version:regex}\"}[6h], 21600), 0)) and on(version) (count_over_time(kasa:consumption_cost:total{version=~\"${version:regex}\"}[6h]) >= 576)",
           "legendFormat": "Prediction +6h",
           "refId": "C",
           "instant": false,
@@ -767,7 +767,7 @@
       ],
       "title": "💵 Cost Rate Trend",
       "type": "timeseries",
-      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Linear projections require at least 80% of the expected samples in their training window; otherwise no projection is shown. Linear projections require at least 80% of the expected samples in their training window; otherwise no projection is shown."
     },
     {
       "datasource": {
@@ -2087,7 +2087,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_min(predict_linear(kasa:consumption_cost:avg_1h{version=~\"${version:regex}\"}[1h], 3600), 0)",
+          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:avg_1h{version=~\"${version:regex}\"}[1h], 3600), 0)) and on(version) (count_over_time(kasa:consumption_cost:avg_1h{version=~\"${version:regex}\"}[1h]) >= 96)",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -2099,7 +2099,7 @@
       ],
       "title": "Projected hourly cost rate at 1h horizon",
       "type": "stat",
-      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Linear projections require at least 80% of the expected samples in their training window; otherwise no projection is shown."
     },
     {
       "datasource": {
@@ -2171,7 +2171,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "clamp_min(predict_linear(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[24h], 86400), 0)",
+          "expr": "(clamp_min(predict_linear(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[24h], 86400), 0)) and on(version) (count_over_time(kasa:consumption_cost:avg_24h{version=~\"${version:regex}\"}[24h]) >= 2304)",
           "refId": "A",
           "instant": true,
           "range": false,
@@ -2183,7 +2183,7 @@
       ],
       "title": "Projected hourly cost rate at 24h horizon",
       "type": "stat",
-      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded."
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Linear projections require at least 80% of the expected samples in their training window; otherwise no projection is shown."
     },
     {
       "datasource": {

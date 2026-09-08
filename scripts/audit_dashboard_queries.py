@@ -244,6 +244,28 @@ def main():
         ]
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
             checks = list(pool.map(audit_target, jobs))
+        annotation_checks = [
+            audit_target(
+                (
+                    {
+                        "id": f"annotation:{index}",
+                        "title": annotation["name"],
+                        "type": "annotation",
+                    },
+                    {
+                        "refId": "A",
+                        "expr": annotation["expr"],
+                        "instant": False,
+                        "audit": {"required_labels": ["version"]},
+                    },
+                    variables,
+                    args,
+                )
+            )
+            for index, annotation in enumerate(dashboard.get("annotations", {}).get("list", []))
+            if annotation.get("enable")
+            and annotation.get("datasource", {}).get("type") == "prometheus"
+        ]
         item = {
             "file": str(file),
             "uid": dashboard.get("uid"),
@@ -252,6 +274,7 @@ def main():
             "variable_checks": variable_checks,
             "panels": len(all_panels),
             "query_checks": checks,
+            "annotation_checks": annotation_checks,
             "non_query_panels": [
                 {"id": p["id"], "type": p["type"]}
                 for p in all_panels
@@ -302,6 +325,34 @@ def main():
         "measurement_age": check_result(age, instant=True, minimum=0, maximum=90),
         "unsupported_devices": check_result(unsupported, instant=True, minimum=0, maximum=0),
     }
+    invariant_queries = {
+        "one_scrape_target": ('count(up{job="kasa-exporter"} == 1)', 1, 1),
+        "one_raw_series_per_device": (
+            'count by(device_id, version)(current_consumption{job="kasa-exporter"})',
+            1,
+            1,
+        ),
+        "power_share_totals": (
+            "sum by(version)(kasa:power_utilization:by_device)",
+            99.999,
+            100.001,
+        ),
+        "cost_rate_rounding_error": (
+            "max(abs(kasa:consumption_cost:by_device - "
+            "kasa:current_consumption:by_device / 1000 * on(version) group_left() "
+            "max by(version)(kasa:current_energy_rate:current)))",
+            0,
+            0.000001,
+        ),
+        "recording_age": ("time() - timestamp(kasa:current_consumption:total)", 0, 120),
+    }
+    invariants = {}
+    for name, (query, lower, upper) in invariant_queries.items():
+        result = api(args.prometheus_url, "/api/v1/query", {"query": query})
+        invariants[name] = {
+            "query": query,
+            **check_result(result, instant=True, minimum=lower, maximum=upper),
+        }
     report = {
         "generated_at": args.end,
         "window_seconds": args.end - args.start,
@@ -310,6 +361,7 @@ def main():
         "scrape": scrape,
         "freshness": fresh,
         "health_checks": health_checks,
+        "live_invariants": invariants,
         "limitations": [
             "Query success does not prove units or semantics; use formula review and rule fixtures.",
             "Empty histories are reported, never silently counted as passing.",
@@ -320,9 +372,11 @@ def main():
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     failed = (
         any(c["status"] != "PASS" for d in results for c in d["query_checks"])
+        or any(c["status"] != "PASS" for d in results for c in d["annotation_checks"])
         or not results
         or any(c["status"] != "PASS" for d in results for c in d["variable_checks"])
         or any(c["status"] != "PASS" for c in health_checks.values())
+        or any(c["status"] != "PASS" for c in invariants.values())
         or not rule_checks
         or any(r["health"] != "ok" or r["state"] == "firing" for r in rule_checks)
     )

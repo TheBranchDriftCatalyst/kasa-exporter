@@ -16,23 +16,23 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "mimir"
         },
         "enable": true,
-        "expr": "changes(kasa:current_consumption:total[5m]) > 100",
+        "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold",
         "iconColor": "#FF1694",
-        "name": "Power Spikes",
+        "name": "Power threshold samples",
         "tagKeys": "alert",
-        "textFormat": "Power spike detected",
-        "titleFormat": "⚡ Alert"
+        "textFormat": "Power threshold exceeded",
+        "titleFormat": "Power threshold"
       },
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "mimir"
         },
         "enable": true,
-        "expr": "kasa:consumption_cost:anomaly == 1",
+        "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == 1",
         "iconColor": "#FFEA00",
         "name": "Cost Anomalies",
         "tagKeys": "anomaly",
@@ -66,23 +66,6 @@
   "tags": ["kasa", "alerts", "monitoring", "thresholds", "cyberpunk"],
   "templating": {
     "list": [
-      {
-        "current": {
-          "selected": false,
-          "text": "Prometheus",
-          "value": "prometheus"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "multi": false,
-        "name": "DS_PROMETHEUS",
-        "options": [],
-        "query": "prometheus",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "type": "datasource"
-      },
       {
         "allValue": ".*",
         "current": {
@@ -164,7 +147,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🚨 Alerts & Thresholds",
   "uid": "kasa-alerts-v2",
-  "version": 4,
+  "version": 5,
   "weekStart": "",
   "panels": [
     {
