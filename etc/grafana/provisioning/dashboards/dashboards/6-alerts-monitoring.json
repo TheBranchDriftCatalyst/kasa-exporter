@@ -151,37 +151,6 @@
         "query": "500",
         "skipUrlSync": false,
         "type": "textbox"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": "3",
-          "value": "3"
-        },
-        "description": "Anomaly detection sensitivity (standard deviations)",
-        "hide": 0,
-        "label": "Anomaly Sensitivity (σ)",
-        "name": "anomaly_sensitivity",
-        "options": [
-          {
-            "selected": false,
-            "text": "1",
-            "value": "1"
-          },
-          {
-            "selected": false,
-            "text": "2",
-            "value": "2"
-          },
-          {
-            "selected": true,
-            "text": "3",
-            "value": "3"
-          }
-        ],
-        "query": "1,2,3",
-        "skipUrlSync": false,
-        "type": "custom"
       }
     ]
   },
@@ -195,7 +164,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🚨 Alerts & Thresholds",
   "uid": "kasa-alerts-v2",
-  "version": 2,
+  "version": 3,
   "weekStart": "",
   "panels": [
     {
@@ -652,7 +621,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -1662,7 +1631,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max by(device_id,alias,version)(state{job=\"kasa-exporter\",state=\"on\",version=~\"${version:regex}\"})",
+          "expr": "(max by(device_id,alias,version)(state{job=\"kasa-exporter\",state=\"on\",version=~\"${version:regex}\"})) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -1676,7 +1645,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\"}",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version:regex}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "B",
@@ -1690,7 +1659,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max by(device_id,alias,version)(rssi{job=\"kasa-exporter\",version=~\"${version:regex}\"})",
+          "expr": "(max by(device_id,alias,version)(rssi{job=\"kasa-exporter\",version=~\"${version:regex}\"})) + 0",
           "format": "table",
           "instant": true,
           "refId": "C",
@@ -2355,7 +2324,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} > $power_alert_threshold) + 0",
           "format": "table",
           "instant": true,
           "legendFormat": "Power Alert",
@@ -2370,7 +2339,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"} > $cost_alert_threshold",
+          "expr": "(kasa:consumption_cost:total{version=~\"${version:regex}\"} > $cost_alert_threshold) + 0",
           "format": "table",
           "instant": true,
           "legendFormat": "Cost Alert",
@@ -2385,7 +2354,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == 1",
+          "expr": "(kasa:consumption_cost:anomaly{version=~\"${version:regex}\"} == 1) + 0",
           "format": "table",
           "instant": true,
           "legendFormat": "Anomaly",

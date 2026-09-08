@@ -50,52 +50,6 @@
         "sort": 1,
         "type": "query",
         "allValue": ".*"
-      },
-      {
-        "current": {
-          "text": "24h",
-          "value": "24h"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Time Range",
-        "multi": false,
-        "name": "timerange",
-        "options": [
-          {
-            "selected": false,
-            "text": "1h",
-            "value": "1h"
-          },
-          {
-            "selected": false,
-            "text": "6h",
-            "value": "6h"
-          },
-          {
-            "selected": false,
-            "text": "12h",
-            "value": "12h"
-          },
-          {
-            "selected": true,
-            "text": "24h",
-            "value": "24h"
-          },
-          {
-            "selected": false,
-            "text": "7d",
-            "value": "7d"
-          },
-          {
-            "selected": false,
-            "text": "30d",
-            "value": "30d"
-          }
-        ],
-        "query": "1h, 6h, 12h, 24h, 7d, 30d",
-        "skipUrlSync": false,
-        "type": "custom"
       }
     ]
   },
@@ -107,7 +61,7 @@
   "timezone": "America/Los_Angeles",
   "title": "⚡ TOU Cost Optimization",
   "uid": "kasa-tou-opt-v2",
-  "version": 2,
+  "version": 3,
   "panels": [
     {
       "datasource": {
@@ -121,34 +75,18 @@
           },
           "mappings": [
             {
+              "type": "value",
               "options": {
-                "super_off_peak": {
-                  "color": "#00E5FF",
-                  "index": 0,
-                  "text": "⚡ Super Off-Peak"
+                "1": {
+                  "text": "Super Off-Peak"
+                },
+                "2": {
+                  "text": "Off-Peak"
+                },
+                "3": {
+                  "text": "On-Peak"
                 }
-              },
-              "type": "value"
-            },
-            {
-              "options": {
-                "off_peak": {
-                  "color": "#9D00FF",
-                  "index": 1,
-                  "text": "🌙 Off-Peak"
-                }
-              },
-              "type": "value"
-            },
-            {
-              "options": {
-                "on_peak": {
-                  "color": "#FF00FF",
-                  "index": 2,
-                  "text": "☀️ On-Peak"
-                }
-              },
-              "type": "value"
+              }
             }
           ],
           "thresholds": {
@@ -160,8 +98,7 @@
               }
             ]
           },
-          "noValue": "—",
-          "displayName": "${__field.labels.rate_class}"
+          "noValue": "—"
         },
         "overrides": []
       },
@@ -184,7 +121,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "name",
+        "textMode": "value",
         "wideLayout": true
       },
       "pluginVersion": "12.2.1",
@@ -195,7 +132,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:current_energy_rate:current{version=~\"${version:regex}\"}",
+          "expr": "kasa:rate_class:numeric{version=~\"${version:regex}\"}",
           "legendFormat": "{{rate_class}}",
           "range": false,
           "refId": "A",
@@ -578,7 +515,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.314 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"super_off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
           "legendFormat": "Monthly Cost (All Super Off-Peak)",
           "range": false,
           "refId": "A",
@@ -591,7 +528,7 @@
       ],
       "title": "💡 What-If: All Super Off-Peak · flat-load monthly scenario",
       "type": "stat",
-      "description": "Missing readings are unknown. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
+      "description": "Missing readings are unknown. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month). Uses the configured tariff for the current season."
     },
     {
       "datasource": {
@@ -652,7 +589,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.351 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
           "legendFormat": "Monthly Cost (All Off-Peak)",
           "range": false,
           "refId": "A",
@@ -665,7 +602,7 @@
       ],
       "title": "💡 What-If: All Off-Peak · flat-load monthly scenario",
       "type": "stat",
-      "description": "Missing readings are unknown. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
+      "description": "Missing readings are unknown. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month). Uses the configured tariff for the current season."
     },
     {
       "datasource": {
@@ -726,7 +663,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.634 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"on_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
           "legendFormat": "Monthly Cost (All On-Peak)",
           "range": false,
           "refId": "A",
@@ -739,7 +676,7 @@
       ],
       "title": "💡 What-If: All On-Peak · flat-load monthly scenario",
       "type": "stat",
-      "description": "Missing readings are unknown. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
+      "description": "Missing readings are unknown. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month). Uses the configured tariff for the current season."
     },
     {
       "datasource": {
@@ -891,7 +828,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.314 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"super_off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
           "legendFormat": "Super Off-Peak",
           "range": true,
           "refId": "A",
@@ -907,7 +844,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.351 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"off_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
           "legendFormat": "Off-Peak",
           "range": true,
           "refId": "B",
@@ -923,7 +860,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * 0.634 * 730",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"} / 1000) * scalar(max(kasa_tariff_usd_per_kwh{job=\"kasa-exporter\",rate_class=\"on_peak\"} and on(season) kasa:current_energy_rate:current{version=~\"${version:regex}\"})) * 730",
           "legendFormat": "On-Peak",
           "range": true,
           "refId": "C",
@@ -940,7 +877,7 @@
           },
           "editorMode": "code",
           "expr": "kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}",
-          "legendFormat": "Current Actual",
+          "legendFormat": "Current-tariff projection",
           "range": true,
           "refId": "D",
           "instant": false,
@@ -952,7 +889,7 @@
       ],
       "title": "📊 Scenario Comparison - Monthly Cost Projection",
       "type": "timeseries",
-      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month)."
+      "description": "Missing readings are unknown. Costs use configured tariffs; taxes and other bill charges are excluded. Flat-load projections hold the sampled load and tariff constant (730 hours per modeled month). Uses the configured tariff for the current season."
     },
     {
       "datasource": {
@@ -1104,7 +1041,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:consumption_cost:total{version=~\"${version:regex}\"}",
+          "expr": "(kasa:consumption_cost:total{version=~\"${version:regex}\"}) + 0",
           "format": "table",
           "legendFormat": "Current Cost Rate",
           "range": false,
@@ -1120,7 +1057,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:consumption_cost:projected_day{version=~\"${version:regex}\"}",
+          "expr": "(kasa:consumption_cost:projected_day{version=~\"${version:regex}\"}) + 0",
           "format": "table",
           "legendFormat": "Projected Daily Cost",
           "range": false,
@@ -1136,7 +1073,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}",
+          "expr": "(kasa:consumption_cost:projected_month{version=~\"${version:regex}\"}) + 0",
           "format": "table",
           "legendFormat": "Projected Monthly Cost",
           "range": false,
@@ -1152,7 +1089,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version:regex}\"}",
+          "expr": "(kasa:consumption_cost:potential_savings_super_off_peak{version=~\"${version:regex}\"}) + 0",
           "format": "table",
           "legendFormat": "Potential Savings (Super Off-Peak)",
           "range": false,
@@ -1168,7 +1105,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:current_consumption:total{version=~\"${version:regex}\"}",
+          "expr": "(kasa:current_consumption:total{version=~\"${version:regex}\"}) + 0",
           "format": "table",
           "legendFormat": "Current Power Draw",
           "range": false,
@@ -1355,7 +1292,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:current_energy_rate:current",
+          "expr": "kasa:current_energy_rate:current{version=~\"${version:regex}\"}",
           "legendFormat": "Rate ($/kWh)",
           "range": false,
           "refId": "A",
@@ -1496,7 +1433,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "kasa:rate_class:numeric",
+          "expr": "kasa:rate_class:numeric{version=~\"${version:regex}\"}",
           "legendFormat": "Rate Class",
           "range": true,
           "refId": "A",
@@ -1749,7 +1686,7 @@
             "uid": "mimir"
           },
           "editorMode": "code",
-          "expr": "sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s])) * 30 / 3600)",
+          "expr": "(sum by (rate_class) ((sum_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost_with_rate_class{version=~\"${version:regex}\"})[$__range:30s])) * 30 / 3600)) + 0",
           "format": "table",
           "legendFormat": "{{rate_class}}",
           "range": false,

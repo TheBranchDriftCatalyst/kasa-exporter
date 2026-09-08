@@ -25,7 +25,7 @@ spec:
       # Note: Scraped via ServiceMonitor (not pod annotations) to avoid duplicate metrics
     spec:
       automountServiceAccountToken: false
-      # Required for mDNS device discovery - gives pod access to host network
+      # LAN UDP broadcast discovery requires access to the host network
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
@@ -85,7 +85,5 @@ spec:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
-              add:
-                - NET_RAW # Required for mDNS multicast
               drop:
                 - ALL

@@ -275,7 +275,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🔋 Battery Sizing & Analysis",
   "uid": "kasa-battery-v2",
-  "version": 3,
+  "version": 4,
   "panels": [
     {
       "datasource": {
@@ -1019,7 +1019,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((12 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "expr": "(((12 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))) + 0",
           "legendFormat": "12V @ 100Ah",
           "refId": "A",
           "instant": true,
@@ -1035,7 +1035,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((12 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "expr": "(((12 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))) + 0",
           "legendFormat": "12V @ 200Ah",
           "refId": "B",
           "instant": true,
@@ -1051,7 +1051,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((12 * 400 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "expr": "(((12 * 400 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))) + 0",
           "legendFormat": "12V @ 400Ah",
           "refId": "C",
           "instant": true,
@@ -1067,7 +1067,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((24 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "expr": "(((24 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))) + 0",
           "legendFormat": "24V @ 100Ah",
           "refId": "D",
           "instant": true,
@@ -1083,7 +1083,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((24 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "expr": "(((24 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))) + 0",
           "legendFormat": "24V @ 200Ah",
           "refId": "E",
           "instant": true,
@@ -1099,7 +1099,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((24 * 400 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "expr": "(((24 * 400 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))) + 0",
           "legendFormat": "24V @ 400Ah",
           "refId": "F",
           "instant": true,
@@ -1115,7 +1115,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((48 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "expr": "(((48 * 100 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))) + 0",
           "legendFormat": "48V @ 100Ah",
           "refId": "G",
           "instant": true,
@@ -1131,7 +1131,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((48 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "expr": "(((48 * 200 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))) + 0",
           "legendFormat": "48V @ 200Ah",
           "refId": "H",
           "instant": true,
@@ -1147,7 +1147,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((48 * 400 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "expr": "(((48 * 400 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))) + 0",
           "legendFormat": "48V @ 400Ah",
           "refId": "I",
           "instant": true,
@@ -1163,7 +1163,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "((48 * 800 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))",
+          "expr": "(((48 * 800 * $depth_of_discharge * $inverter_efficiency) / (sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) > 0))) + 0",
           "legendFormat": "48V @ 800Ah",
           "refId": "J",
           "instant": true,
@@ -3295,7 +3295,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"}))",
+          "expr": "(sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"}))) + 0",
           "legendFormat": "Current Load",
           "refId": "A",
           "instant": true,
@@ -3311,7 +3311,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) * 24) / (5 * $inverter_efficiency)",
+          "expr": "((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) * 24) / (5 * $inverter_efficiency)) + 0",
           "legendFormat": "100% Coverage (Match Daily Load)",
           "refId": "B",
           "instant": true,
@@ -3327,7 +3327,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) * 24 * 1.5) / (5 * $inverter_efficiency)",
+          "expr": "((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) * 24 * 1.5) / (5 * $inverter_efficiency)) + 0",
           "legendFormat": "150% Coverage (Faster Charging)",
           "refId": "C",
           "instant": true,
@@ -3343,7 +3343,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) * 24 * 2) / (5 * $inverter_efficiency)",
+          "expr": "((sum(max by(device_id, alias, version) (current_consumption{job=\"kasa-exporter\",version=~\"${version:regex}\", alias=~\"${device:regex}\"})) * 24 * 2) / (5 * $inverter_efficiency)) + 0",
           "legendFormat": "200% Coverage (Winter/Cloudy)",
           "refId": "D",
           "instant": true,

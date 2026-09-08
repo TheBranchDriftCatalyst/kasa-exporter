@@ -73,7 +73,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🌊 Real-Time Monitoring",
   "uid": "kasa-realtime-v2",
-  "version": 2,
+  "version": 3,
   "weekStart": "",
   "panels": [
     {
@@ -1081,7 +1081,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max by(device_id,alias,version) (state{job=\"kasa-exporter\",state=\"on\",version=~\"${version:regex}\"})",
+          "expr": "(max by(device_id,alias,version) (state{job=\"kasa-exporter\",state=\"on\",version=~\"${version:regex}\"})) + 0",
           "format": "table",
           "instant": true,
           "refId": "State",
@@ -1095,7 +1095,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\"}",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version:regex}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "Power",
@@ -1109,7 +1109,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:by_device{version=~\"${version:regex}\"}",
+          "expr": "(kasa:consumption_cost:by_device{version=~\"${version:regex}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "Cost",
@@ -1123,7 +1123,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max by(device_id,alias,version)(consumption_today{job=\"kasa-exporter\",version=~\"${version:regex}\"})",
+          "expr": "(max by(device_id,alias,version)(consumption_today{job=\"kasa-exporter\",version=~\"${version:regex}\"})) + 0",
           "format": "table",
           "instant": true,
           "refId": "EnergyToday",
@@ -1137,7 +1137,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max by(device_id,alias,version)(consumption_this_month{job=\"kasa-exporter\",version=~\"${version:regex}\"})",
+          "expr": "(max by(device_id,alias,version)(consumption_this_month{job=\"kasa-exporter\",version=~\"${version:regex}\"})) + 0",
           "format": "table",
           "instant": true,
           "refId": "EnergyMonth",
@@ -1151,7 +1151,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max by(device_id,alias,version)(on_since{job=\"kasa-exporter\",version=~\"${version:regex}\"})",
+          "expr": "(max by(device_id,alias,version)(on_since{job=\"kasa-exporter\",version=~\"${version:regex}\"})) + 0",
           "format": "table",
           "instant": true,
           "refId": "Uptime",
@@ -1165,7 +1165,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max by(device_id,alias,version)(rssi{job=\"kasa-exporter\",version=~\"${version:regex}\"})",
+          "expr": "(max by(device_id,alias,version)(rssi{job=\"kasa-exporter\",version=~\"${version:regex}\"})) + 0",
           "format": "table",
           "instant": true,
           "refId": "RSSI",

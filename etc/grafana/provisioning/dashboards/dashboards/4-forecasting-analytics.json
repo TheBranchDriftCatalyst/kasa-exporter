@@ -52,39 +52,6 @@
         "sort": 0,
         "type": "query",
         "allValue": ".*"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": "7d",
-          "value": "7d"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Forecast Period",
-        "multi": false,
-        "name": "forecast_period",
-        "options": [
-          {
-            "selected": false,
-            "text": "1d",
-            "value": "1d"
-          },
-          {
-            "selected": true,
-            "text": "7d",
-            "value": "7d"
-          },
-          {
-            "selected": false,
-            "text": "30d",
-            "value": "30d"
-          }
-        ],
-        "query": "1d,7d,30d",
-        "queryValue": "",
-        "skipUrlSync": false,
-        "type": "custom"
       }
     ]
   },
@@ -108,7 +75,7 @@
   "timezone": "America/Los_Angeles",
   "title": "🔮 Forecasting & Predictions",
   "uid": "kasa-forecast-v2",
-  "version": 2,
+  "version": 3,
   "weekStart": "",
   "panels": [
     {
@@ -2632,7 +2599,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600",
+          "expr": "((sum_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:total{version=~\"${version:regex}\"})[24h:30s])) * 30 / 3600) + 0",
           "format": "table",
           "legendFormat": "Daily Cost",
           "refId": "A",

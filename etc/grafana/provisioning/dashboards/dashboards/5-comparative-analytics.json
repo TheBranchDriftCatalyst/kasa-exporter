@@ -108,7 +108,7 @@
   "timezone": "America/Los_Angeles",
   "title": "📊 Comparative Analytics",
   "uid": "kasa-compare-v2",
-  "version": 2,
+  "version": 3,
   "weekStart": "",
   "panels": [
     {
@@ -811,7 +811,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -825,7 +825,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"} / scalar(sum(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}) > 0) * 100",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"} / scalar(sum(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}) > 0) * 100) + 0",
           "format": "table",
           "instant": true,
           "refId": "B",
@@ -1278,7 +1278,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}",
+          "expr": "(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -1292,7 +1292,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "B",
@@ -1306,7 +1306,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:cost_efficiency:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}",
+          "expr": "(kasa:cost_efficiency:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "C",
@@ -1698,7 +1698,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -1712,7 +1712,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"} / scalar(sum(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${baseline_device:regex}\"}) > 0) * 100",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"} / scalar(sum(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${baseline_device:regex}\"}) > 0) * 100) + 0",
           "format": "table",
           "instant": true,
           "refId": "B",
@@ -1726,7 +1726,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}",
+          "expr": "(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "C",
@@ -1740,7 +1740,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"} / scalar(sum(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${baseline_device:regex}\"}) > 0) * 100",
+          "expr": "(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"} / scalar(sum(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${baseline_device:regex}\"}) > 0) * 100) + 0",
           "format": "table",
           "instant": true,
           "refId": "D",
@@ -2292,7 +2292,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum_over_time((kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[$__range:30s])) * 30 / 3600",
+          "expr": "((sum_over_time((kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[$__range:30s]) - last_over_time((kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[$__range:30s])) * 30 / 3600) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -2455,7 +2455,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum_over_time((kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[24h:30s]) - last_over_time((kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[24h:30s])) * 30 / 3600000",
+          "expr": "((sum_over_time((kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[24h:30s]) - last_over_time((kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[24h:30s])) * 30 / 3600000) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -2469,7 +2469,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "(sum_over_time((kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[24h:30s])) * 30 / 3600",
+          "expr": "((sum_over_time((kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[24h:30s]) - last_over_time((kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"})[24h:30s])) * 30 / 3600) + 0",
           "format": "table",
           "instant": true,
           "refId": "B",
@@ -2625,7 +2625,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "avg_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(avg_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -2776,7 +2776,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(max_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -2927,7 +2927,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:power_utilization:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}",
+          "expr": "(kasa:power_utilization:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -3120,7 +3120,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "avg_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(avg_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -3134,7 +3134,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "quantile_over_time(0.5, kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(quantile_over_time(0.5, kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "B",
@@ -3148,7 +3148,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "stddev_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(stddev_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "C",
@@ -3162,7 +3162,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "min_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(min_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "D",
@@ -3176,7 +3176,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(max_over_time(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "E",
@@ -3377,7 +3377,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "avg_over_time(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(avg_over_time(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "A",
@@ -3391,7 +3391,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "quantile_over_time(0.5, kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(quantile_over_time(0.5, kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "B",
@@ -3405,7 +3405,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "stddev_over_time(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(stddev_over_time(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "C",
@@ -3419,7 +3419,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "min_over_time(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(min_over_time(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "D",
@@ -3433,7 +3433,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "max_over_time(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])",
+          "expr": "(max_over_time(kasa:consumption_cost:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}[$__range])) + 0",
           "format": "table",
           "instant": true,
           "refId": "E",
@@ -3595,7 +3595,7 @@
             "type": "prometheus",
             "uid": "mimir"
           },
-          "expr": "kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}",
+          "expr": "(kasa:current_consumption:by_device{version=~\"${version:regex}\", alias=~\"${device:regex}\"}) + 0",
           "format": "table",
           "refId": "A",
           "instant": true,
